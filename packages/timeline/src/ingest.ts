@@ -56,64 +56,77 @@ export async function inspectVideo(filePath: string, options: InspectVideoOption
     sources: [{ kind: "video", reference: resolvedPath }],
   };
   store.createSession(session);
-  store.linkContentHashToSession(metadata.contentHash, session.id);
 
-  const sessionArtifactsDir = path.join(getArtifactsDir(), session.id);
-  mkdirSync(sessionArtifactsDir, { recursive: true });
+  // The content hash is only linked to this session once ingestion fully
+  // succeeds. Otherwise a transient failure (e.g. a frame-extraction edge
+  // case, or a provider timeout) would permanently cache an empty session
+  // against this file's hash, and every future inspect_video call would
+  // silently "succeed" by reusing that broken, eventless session forever.
+  try {
+    const sessionArtifactsDir = path.join(getArtifactsDir(), session.id);
+    mkdirSync(sessionArtifactsDir, { recursive: true });
 
-  const timestamps = sampleTimestamps(metadata.durationSeconds, options);
-  const framePaths = await Promise.all(
-    timestamps.map(async (ts) => {
-      const framePath = path.join(sessionArtifactsDir, `frame-${ts.toFixed(3)}.png`);
-      await extractFrame(resolvedPath, ts, framePath);
-      return { timestamp: ts, path: framePath };
-    }),
-  );
+    const timestamps = sampleTimestamps(metadata.durationSeconds, options);
+    const framePaths = await Promise.all(
+      timestamps.map(async (ts) => {
+        const framePath = path.join(sessionArtifactsDir, `frame-${ts.toFixed(3)}.png`);
+        await extractFrame(resolvedPath, ts, framePath);
+        return { timestamp: ts, path: framePath };
+      }),
+    );
 
-  const analysis = await options.visionProvider.analyzeFrames({ frames: framePaths, context: options.focus });
+    const analysis = await options.visionProvider.analyzeFrames({ frames: framePaths, context: options.focus });
 
-  const artifacts: Artifact[] = framePaths.map(({ timestamp, path: framePath }) => ({
-    id: generateId("artifact"),
-    sessionId: session.id,
-    kind: "frame",
-    path: framePath,
-    timestamp: { start: timestamp, end: timestamp },
-    mimeType: "image/png",
-  }));
-  artifacts.forEach((artifact) => store.insertArtifact(artifact));
+    const artifacts: Artifact[] = framePaths.map(({ timestamp, path: framePath }) => ({
+      id: generateId("artifact"),
+      sessionId: session.id,
+      kind: "frame",
+      path: framePath,
+      timestamp: { start: timestamp, end: timestamp },
+      mimeType: "image/png",
+    }));
+    artifacts.forEach((artifact) => store.insertArtifact(artifact));
 
-  const events: TemporalEvent[] = analysis.observations.map((obs, index) => ({
-    id: generateId("event"),
-    sessionId: session.id,
-    timestamp: { start: obs.timestamp, end: obs.timestamp },
-    type: "visual",
-    description: obs.description,
-    confidence: obs.confidence,
-    source: { kind: "frame", reference: artifacts[index]?.id ?? "" },
-    relatedEventIds: [],
-  }));
-  store.insertEvents(events);
+    const events: TemporalEvent[] = analysis.observations.map((obs, index) => ({
+      id: generateId("event"),
+      sessionId: session.id,
+      timestamp: { start: obs.timestamp, end: obs.timestamp },
+      type: "visual",
+      description: obs.description,
+      confidence: obs.confidence,
+      source: { kind: "frame", reference: artifacts[index]?.id ?? "" },
+      relatedEventIds: [],
+    }));
+    store.insertEvents(events);
 
-  const evidence: (Evidence & { sessionId: string })[] = events.map((event, index) => ({
-    id: generateId("evidence"),
-    eventId: event.id,
-    sessionId: session.id,
-    type: "frame",
-    timestamp: event.timestamp,
-    description: event.description,
-    confidence: event.confidence ?? 0,
-    source: event.source,
-    artifactId: artifacts[index]?.id,
-    relatedEvidenceIds: [],
-  }));
-  store.insertEvidenceBatch(evidence);
+    const evidence: (Evidence & { sessionId: string })[] = events.map((event, index) => ({
+      id: generateId("evidence"),
+      eventId: event.id,
+      sessionId: session.id,
+      type: "frame",
+      timestamp: event.timestamp,
+      description: event.description,
+      confidence: event.confidence ?? 0,
+      source: event.source,
+      artifactId: artifacts[index]?.id,
+      relatedEvidenceIds: [],
+    }));
+    store.insertEvidenceBatch(evidence);
 
-  let audioEventCount = 0;
-  if (metadata.hasAudio && options.transcriptionProvider) {
-    audioEventCount = await transcribeSession(session.id, resolvedPath, sessionArtifactsDir, options.transcriptionProvider);
+    let audioEventCount = 0;
+    if (metadata.hasAudio && options.transcriptionProvider) {
+      audioEventCount = await transcribeSession(session.id, resolvedPath, sessionArtifactsDir, options.transcriptionProvider);
+    }
+
+    store.linkContentHashToSession(metadata.contentHash, session.id);
+    return { session, metadata, eventCount: events.length + audioEventCount, reused: false };
+  } catch (err) {
+    // Best-effort cleanup: cascades to the session's events/evidence/artifacts
+    // rows (see the ON DELETE CASCADE foreign keys in packages/storage/src/db.ts).
+    // Already-extracted frame files on disk are left for `tracelens clean`.
+    store.deleteSession(session.id);
+    throw err;
   }
-
-  return { session, metadata, eventCount: events.length + audioEventCount, reused: false };
 }
 
 /** Extracts the audio track once and turns transcript segments into timeline events, alongside get_transcript's raw segments. */

@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { existsSync } from "node:fs";
 import { missingFfmpegError, invalidVideoError } from "@tracelens/core";
 
 let ffmpegChecked = false;
@@ -120,6 +121,16 @@ export async function extractFrame(filePath: string, timestampSeconds: number, o
   ]);
   if (code !== 0) {
     throw invalidVideoError(filePath, stderr.trim() || `ffmpeg frame extraction exited with code ${code}`);
+  }
+  // ffmpeg can exit 0 with an empty output file -- e.g. seeking at/past a
+  // video's exact reported duration yields "Output file is empty" while
+  // still returning success. Treat that as a failure rather than letting a
+  // missing file surface as a confusing ENOENT deeper in the pipeline.
+  if (!existsSync(outPath)) {
+    throw invalidVideoError(
+      filePath,
+      `ffmpeg produced no frame at t=${clamped.toFixed(3)}s (exited 0 but wrote no output -- likely seeking at or past the video's actual end)`,
+    );
   }
 }
 
