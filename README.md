@@ -2,7 +2,7 @@
 
 **TraceLens gives coding agents temporal memory: it turns developer sessions (recorded video today, live browser/terminal/Git sessions in later phases) into structured, timestamped evidence that Claude Code can query instead of guessing from source code alone.**
 
-> **Status: Phase 0 vertical slice.** MP4 → metadata → sampled frames → vision provider → timeline → SQLite → MCP → Claude Code is implemented, tested, and working end to end. Live debugging, browser/terminal/Git correlation, and the agentic patch/verify loop described in `TraceLens_Master_Plan.md` are later phases and are not yet built -- see [Limitations](#limitations--roadmap).
+> **Status: Phase 0 + Phase 1.** MP4 → metadata → sampled frames + audio transcript → vision/transcription providers → timeline+evidence → SQLite → MCP (7 tools) → Claude Code is implemented, tested, and working end to end. Live debugging, browser/terminal/Git correlation, and the agentic patch/verify loop described in `TraceLens_Master_Plan.md` are later phases and are not yet built -- see [Limitations](#limitations--roadmap).
 
 ## Why TraceLens exists
 
@@ -83,15 +83,19 @@ MP4 --ffprobe/ffmpeg--> metadata + sampled frames --VisionProvider--> observatio
 
 See `docs/architecture.md` for the full design rationale (progressive disclosure, content-hash caching, why live and replay share one event model).
 
-## MCP tools (Phase 0)
+## MCP tools
 
 | Tool | Purpose |
 |---|---|
-| `inspect_video` | Ingests a video into a session: metadata, sampled frames, vision analysis, timeline. Reuses the existing session if the file's content hash was already seen. |
-| `get_timeline` | Returns the bounded, timestamped event list for a session (supports `limit`/`afterSeconds`/`beforeSeconds`). |
+| `inspect_video` | Ingests a video into a session: metadata, sampled frames, vision analysis, transcript (if the video has audio), timeline. Reuses the existing session if the file's content hash was already seen. |
+| `get_timeline` | Returns the bounded, timestamped event list for a session (supports `limit`/`afterSeconds`/`beforeSeconds`). Visual and audio events are merged in time order. |
 | `get_frame` | Returns one targeted frame (as an image Claude can see) near a timestamp -- the model never has to re-request the whole video for a follow-up visual question. |
+| `search_session` | Full-text search over a session's event descriptions. |
+| `get_evidence` | Temporal rewind: evidence within a time window around a timestamp ("what happened immediately before/after this?"). |
+| `analyze_segment` | Dense, on-demand analysis over a narrow time range -- for when the coarse timeline isn't enough detail. |
+| `get_transcript` | Raw audio transcript segments for a session. |
 
-More tools (`get_evidence`, `search_session`, `analyze_segment`, `inspect_environment`, live-session tools) are implemented at the library level in `packages/timeline` already and will be exposed via MCP in later phases as the plan calls for them.
+`inspect_environment` and live-session tools (Phase 3) aren't built yet -- see Limitations.
 
 ## CLI
 
@@ -116,9 +120,10 @@ TraceLens never calls a model provider unless a tool that needs one is invoked, 
 | `TRACELENS_VISION_PROVIDER` | `anthropic` if `ANTHROPIC_API_KEY` is set, else `mock` | `mock` or `anthropic`. |
 | `ANTHROPIC_API_KEY` | unset | Required for the `anthropic` provider. |
 | `TRACELENS_VISION_MODEL` | `claude-opus-5` | Any current vision-capable Claude model. |
+| `TRACELENS_TRANSCRIPTION_PROVIDER` | `mock` | Only `mock` exists today -- no real speech-to-text provider is wired in yet (see Limitations). |
 | `TRACELENS_DATA_DIR` | `./.tracelens` | Where sessions, timelines, and extracted frames are stored. |
 
-`VisionProvider` is a plain interface (`packages/providers/src/types.ts`); adding another provider means adding one file that implements it -- core/timeline code never imports a provider SDK directly.
+`VisionProvider`/`TranscriptionProvider` are plain interfaces (`packages/providers/src/types.ts`); adding another provider means adding one file that implements one -- core/timeline code never imports a provider SDK directly.
 
 ## Privacy
 
@@ -132,16 +137,16 @@ pnpm lint        # eslint
 pnpm test        # vitest -- unit tests + a real MCP-server-over-stdio integration test
 ```
 
-All 21 current tests run offline against the mock provider and generated fixtures -- no paid API calls are required to validate the system.
+All 27 current tests run offline against the mock providers and generated fixtures -- no paid API calls are required to validate the system.
 
 ## Limitations & roadmap
 
-This is a Phase 0 vertical slice. Not yet built (see `TraceLens_Master_Plan.md` for the full plan):
+Phase 0 (vertical slice) and Phase 1 (temporal core) are done. Not yet built (see `TraceLens_Master_Plan.md` for the full plan):
 
 - Live debugging (`tracelens debug --live`), browser/terminal/Git instrumentation, the event bus for live sources.
 - `/debug-video` Claude Code plugin command and the full agentic patch/verify loop.
-- `get_evidence`/`search_session`/`analyze_segment`/`inspect_environment` exposed over MCP (they exist in `packages/timeline` already).
-- Transcription provider, audio pipeline.
+- `inspect_environment` and other live-session MCP tools.
+- A real speech-to-text provider -- `TranscriptionProvider` exists and audio is extracted/segmented, but only the deterministic `MockTranscriptionProvider` is implemented; transcript text is a placeholder, not real speech recognition.
 - The demo buggy app, evaluation harness (`tracelens eval`), before/after session comparison.
 
 These are being implemented in subsequent phases.

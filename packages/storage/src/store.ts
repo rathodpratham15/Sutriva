@@ -157,6 +157,11 @@ export class TraceLensStore {
     this.db.prepare("UPDATE sessions SET ended_at = ? WHERE id = ?").run(endedAt, id);
   }
 
+  /** Deletes a session and cascades to its events/evidence/artifacts/transcript rows. */
+  deleteSession(id: string): void {
+    this.db.prepare("DELETE FROM sessions WHERE id = ?").run(id);
+  }
+
   /** Video sessions are keyed by content hash so re-inspecting the same file reuses the session. */
   findSessionIdByContentHash(hash: string): string | undefined {
     const row = this.db.prepare("SELECT session_id FROM video_sessions WHERE content_hash = ?").get(hash) as

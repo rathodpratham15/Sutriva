@@ -29,3 +29,7 @@ export function getVisionProviderName(): string {
 export function getVisionModel(): string {
   return process.env.TRACELENS_VISION_MODEL ?? "claude-opus-5";
 }
+
+export function getTranscriptionProviderName(): string {
+  return process.env.TRACELENS_TRANSCRIPTION_PROVIDER ?? "mock";
+}

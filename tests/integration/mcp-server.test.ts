@@ -38,10 +38,18 @@ describe("TraceLens MCP server (end-to-end)", () => {
     rmSync(dataDir, { recursive: true, force: true });
   });
 
-  it("lists the Phase 0 tool surface", async () => {
+  it("lists the current tool surface", async () => {
     const { tools } = await client.listTools();
     const names = tools.map((t) => t.name).sort();
-    expect(names).toEqual(["get_frame", "get_timeline", "inspect_video"]);
+    expect(names).toEqual([
+      "analyze_segment",
+      "get_evidence",
+      "get_frame",
+      "get_timeline",
+      "get_transcript",
+      "inspect_video",
+      "search_session",
+    ]);
   });
 
   let sessionId: string;
@@ -89,5 +97,53 @@ describe("TraceLens MCP server (end-to-end)", () => {
       arguments: { sessionId: "session_does_not_exist" },
     });
     expect(result.isError).toBe(true);
+  });
+
+  it("search_session finds events matching a text query", async () => {
+    const result = await client.callTool({
+      name: "search_session",
+      arguments: { sessionId, query: "change" },
+    });
+    const content = result.content as { type: string; text?: string }[];
+    const payload = JSON.parse(content[0]!.text!);
+    expect(payload.count).toBeGreaterThan(0);
+    expect(payload.events[0].description).toMatch(/change/i);
+  });
+
+  it("get_evidence returns evidence within a time window", async () => {
+    const result = await client.callTool({
+      name: "get_evidence",
+      arguments: { sessionId, aroundSeconds: 6, windowSeconds: 2 },
+    });
+    const content = result.content as { type: string; text?: string }[];
+    const payload = JSON.parse(content[0]!.text!);
+    expect(payload.count).toBeGreaterThan(0);
+    expect(payload.evidence[0]).toHaveProperty("confidence");
+    expect(payload.evidence[0]).toHaveProperty("source");
+  });
+
+  it("analyze_segment runs dense on-demand analysis over a narrow range", async () => {
+    const result = await client.callTool({
+      name: "analyze_segment",
+      arguments: { sessionId, startSeconds: 5, endSeconds: 7, question: "what changed" },
+    });
+    expect(result.isError).toBeFalsy();
+    const content = result.content as { type: string; text?: string }[];
+    const payload = JSON.parse(content[0]!.text!);
+    expect(payload.sampledFrameCount).toBeGreaterThan(0);
+    expect(typeof payload.summary).toBe("string");
+  }, 15_000);
+
+  it("get_transcript returns audio transcript segments for a video with an audio track", async () => {
+    const result = await client.callTool({
+      name: "get_transcript",
+      arguments: { sessionId },
+    });
+    const content = result.content as { type: string; text?: string }[];
+    const payload = JSON.parse(content[0]!.text!);
+    // sample.mp4 has an audio track (see scripts/generate-fixtures.sh), so the
+    // mock transcription provider should have produced at least one segment.
+    expect(payload.count).toBeGreaterThan(0);
+    expect(payload.segments[0]).toHaveProperty("text");
   });
 });

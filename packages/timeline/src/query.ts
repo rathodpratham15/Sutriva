@@ -1,6 +1,14 @@
 import path from "node:path";
 import { readFileSync } from "node:fs";
-import { generateId, getArtifactsDir, TraceLensError, type Artifact, type Evidence, type TemporalEvent } from "@tracelens/core";
+import {
+  generateId,
+  getArtifactsDir,
+  TraceLensError,
+  type Artifact,
+  type Evidence,
+  type TemporalEvent,
+  type TranscriptSegment,
+} from "@tracelens/core";
 import { extractFrame, denseSampleAround } from "@tracelens/video";
 import type { VisionProvider } from "@tracelens/providers";
 import { getStore } from "@tracelens/storage";
@@ -23,6 +31,12 @@ export function searchSession(sessionId: string, query: string): TemporalEvent[]
   const store = getStore();
   store.getSession(sessionId);
   return store.searchEvents(sessionId, query);
+}
+
+export function getTranscript(sessionId: string): TranscriptSegment[] {
+  const store = getStore();
+  store.getSession(sessionId);
+  return store.listTranscriptSegments(sessionId);
 }
 
 export function getEvidenceAround(sessionId: string, aroundSeconds: number, windowSeconds: number): Evidence[] {

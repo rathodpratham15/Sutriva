@@ -1,5 +1,5 @@
 import type { Command } from "commander";
-import { createVisionProvider } from "@tracelens/providers";
+import { createTranscriptionProvider, createVisionProvider } from "@tracelens/providers";
 import { inspectVideo } from "@tracelens/timeline";
 
 export function registerInspectCommand(program: Command): void {
@@ -11,8 +11,10 @@ export function registerInspectCommand(program: Command): void {
     .option("--interval <seconds>", "Target seconds between samples", (v) => Number(v))
     .action(async (video: string, opts: { focus?: string; maxFrames?: number; interval?: number }) => {
       const visionProvider = createVisionProvider();
+      const transcriptionProvider = createTranscriptionProvider();
       const result = await inspectVideo(video, {
         visionProvider,
+        transcriptionProvider,
         focus: opts.focus,
         maxFrames: opts.maxFrames,
         intervalSeconds: opts.interval,
