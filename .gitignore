@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.tracelens/
+# Fixtures are generated deterministically -- see scripts/generate-fixtures.sh
+fixtures/videos/*.mp4
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+.env
+.env.*
+!.env.example
+.DS_Store
+coverage/
+.next/
