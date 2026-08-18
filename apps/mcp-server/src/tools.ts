@@ -2,8 +2,16 @@ import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { TraceLensError } from "@tracelens/core";
-import { createVisionProvider } from "@tracelens/providers";
-import { inspectVideo, getTimeline, getFrame } from "@tracelens/timeline";
+import { createTranscriptionProvider, createVisionProvider } from "@tracelens/providers";
+import {
+  inspectVideo,
+  getTimeline,
+  getFrame,
+  getEvidenceAround,
+  searchSession,
+  analyzeSegment,
+  getTranscript,
+} from "@tracelens/timeline";
 
 function textResult(payload: unknown): CallToolResult {
   return { content: [{ type: "text", text: JSON.stringify(payload, null, 2) }] };
@@ -40,8 +48,10 @@ export function registerTools(server: McpServer): void {
     async ({ path, focus, maxFrames, intervalSeconds }) => {
       try {
         const visionProvider = createVisionProvider();
+        const transcriptionProvider = createTranscriptionProvider();
         const result = await inspectVideo(path, {
           visionProvider,
+          transcriptionProvider,
           focus,
           maxFrames,
           intervalSeconds,
@@ -126,6 +136,144 @@ export function registerTools(server: McpServer): void {
             { type: "text", text: `Frame near t=${timestamp.toFixed(2)}s (artifact ${frame.artifact.id}).` },
           ],
         };
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    "search_session",
+    {
+      title: "Search session",
+      description:
+        "Full-text search over a session's timeline descriptions. Use this to jump straight to a moment " +
+        '(e.g. "error", "checkout", "500") instead of scanning the whole get_timeline output.',
+      inputSchema: {
+        sessionId: z.string(),
+        query: z.string().describe("Text to search for in event descriptions."),
+      },
+    },
+    async ({ sessionId, query }) => {
+      try {
+        const events = searchSession(sessionId, query);
+        return textResult({
+          sessionId,
+          query,
+          count: events.length,
+          events: events.map((e) => ({
+            id: e.id,
+            start: e.timestamp.start,
+            end: e.timestamp.end,
+            type: e.type,
+            description: e.description,
+            confidence: e.confidence,
+          })),
+        });
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    "get_evidence",
+    {
+      title: "Get evidence",
+      description:
+        "Temporal rewind: returns evidence within a time window around a timestamp, so Claude can answer " +
+        '"what happened immediately before/after this?" Each evidence item has a confidence and a source ' +
+        "reference (a frame artifact or a transcript segment) -- treat confidence as observed/likely/possible, " +
+        "not as proof of causality.",
+      inputSchema: {
+        sessionId: z.string(),
+        aroundSeconds: z.number().nonnegative().describe("Center of the time window, in seconds."),
+        windowSeconds: z.number().positive().max(120).default(5).describe("Half-width of the window, in seconds."),
+      },
+    },
+    async ({ sessionId, aroundSeconds, windowSeconds }) => {
+      try {
+        const evidence = getEvidenceAround(sessionId, aroundSeconds, windowSeconds);
+        return textResult({
+          sessionId,
+          aroundSeconds,
+          windowSeconds,
+          count: evidence.length,
+          evidence: evidence.map((e) => ({
+            id: e.id,
+            start: e.timestamp.start,
+            end: e.timestamp.end,
+            type: e.type,
+            description: e.description,
+            confidence: e.confidence,
+            source: e.source,
+          })),
+        });
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    "analyze_segment",
+    {
+      title: "Analyze segment",
+      description:
+        "Dense, on-demand analysis over a narrow time range: densely re-samples frames in [startSeconds, " +
+        "endSeconds] and asks the vision provider a specific question. Use this when get_timeline's coarse " +
+        "sampling isn't enough detail for a specific moment -- it is more expensive than get_timeline/get_frame, " +
+        "so scope the range as narrowly as possible.",
+      inputSchema: {
+        sessionId: z.string(),
+        startSeconds: z.number().nonnegative(),
+        endSeconds: z.number().nonnegative(),
+        question: z.string().optional().describe('e.g. "what changed in the UI here?"'),
+      },
+    },
+    async ({ sessionId, startSeconds, endSeconds, question }) => {
+      try {
+        const visionProvider = createVisionProvider();
+        const result = await analyzeSegment(sessionId, startSeconds, endSeconds, visionProvider, question);
+        return textResult({
+          sessionId,
+          startSeconds,
+          endSeconds,
+          visionProvider: visionProvider.name,
+          sampledFrameCount: result.sampledTimestamps.length,
+          summary: result.summary,
+          confidence: result.confidence,
+        });
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    "get_transcript",
+    {
+      title: "Get transcript",
+      description:
+        "Returns the audio transcript segments for a session, if the video had an audio track and a " +
+        "transcription provider was configured. Empty if the video is silent or no provider was available.",
+      inputSchema: {
+        sessionId: z.string(),
+      },
+    },
+    async ({ sessionId }) => {
+      try {
+        const segments = getTranscript(sessionId);
+        return textResult({
+          sessionId,
+          count: segments.length,
+          segments: segments.map((s) => ({
+            start: s.timestamp.start,
+            end: s.timestamp.end,
+            text: s.text,
+            confidence: s.confidence,
+          })),
+        });
       } catch (err) {
         return errorResult(err);
       }

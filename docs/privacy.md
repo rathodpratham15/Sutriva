@@ -12,6 +12,7 @@ The **only** thing that leaves your machine is data sent to a configured vision 
 
 - With the default (`TRACELENS_VISION_PROVIDER=mock`, used whenever `ANTHROPIC_API_KEY` is unset), **nothing ever leaves your machine**. The mock provider is a local heuristic.
 - With `TRACELENS_VISION_PROVIDER=anthropic`, `inspect_video` and `analyze_segment` send the **sampled frame images** (not the whole video file) and a text prompt to the Anthropic Messages API over HTTPS, using your own `ANTHROPIC_API_KEY`. This happens only when you explicitly run `inspect_video`/`analyze_segment` with that provider configured -- not automatically, not in the background, not on a schedule.
+- `TRACELENS_TRANSCRIPTION_PROVIDER` only has a `mock` implementation today, so audio transcription never leaves your machine either -- the extracted audio track (`audio.wav`) stays under `TRACELENS_DATA_DIR` and is only read locally to derive a placeholder segment count. There is no real speech-to-text provider wired in yet.
 
 TraceLens has no telemetry, analytics, or crash-reporting of its own.
 

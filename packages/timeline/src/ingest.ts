@@ -8,16 +8,19 @@ import {
   type Evidence,
   type Session,
   type TemporalEvent,
+  type TranscriptSegment,
   type VideoMetadata,
 } from "@tracelens/core";
-import { extractFrame, readVideoMetadata, sampleTimestamps, type SamplingOptions } from "@tracelens/video";
-import type { VisionProvider } from "@tracelens/providers";
+import { extractAudio, extractFrame, readVideoMetadata, sampleTimestamps, type SamplingOptions } from "@tracelens/video";
+import type { TranscriptionProvider, VisionProvider } from "@tracelens/providers";
 import { getStore } from "@tracelens/storage";
 
 export interface InspectVideoOptions extends SamplingOptions {
   visionProvider: VisionProvider;
   /** Optional hint passed to the vision provider, e.g. "look for errors". */
   focus?: string;
+  /** When provided and the video has an audio track, transcribes it into the timeline. */
+  transcriptionProvider?: TranscriptionProvider;
 }
 
 export interface InspectVideoResult {
@@ -105,5 +108,71 @@ export async function inspectVideo(filePath: string, options: InspectVideoOption
   }));
   store.insertEvidenceBatch(evidence);
 
-  return { session, metadata, eventCount: events.length, reused: false };
+  let audioEventCount = 0;
+  if (metadata.hasAudio && options.transcriptionProvider) {
+    audioEventCount = await transcribeSession(session.id, resolvedPath, sessionArtifactsDir, options.transcriptionProvider);
+  }
+
+  return { session, metadata, eventCount: events.length + audioEventCount, reused: false };
+}
+
+/** Extracts the audio track once and turns transcript segments into timeline events, alongside get_transcript's raw segments. */
+async function transcribeSession(
+  sessionId: string,
+  videoPath: string,
+  sessionArtifactsDir: string,
+  transcriptionProvider: TranscriptionProvider,
+): Promise<number> {
+  const store = getStore();
+  const audioPath = path.join(sessionArtifactsDir, "audio.wav");
+  await extractAudio(videoPath, audioPath);
+
+  const audioArtifact: Artifact = {
+    id: generateId("artifact"),
+    sessionId,
+    kind: "audio-segment",
+    path: audioPath,
+    mimeType: "audio/wav",
+  };
+  store.insertArtifact(audioArtifact);
+
+  const transcript = await transcriptionProvider.transcribe({ path: audioPath });
+  if (transcript.segments.length === 0) return 0;
+
+  const segments: TranscriptSegment[] = transcript.segments.map((seg) => ({
+    id: generateId("transcript"),
+    sessionId,
+    timestamp: { start: seg.start, end: seg.end },
+    text: seg.text,
+    confidence: seg.confidence,
+  }));
+  store.insertTranscriptSegments(segments);
+
+  const events: TemporalEvent[] = segments.map((seg) => ({
+    id: generateId("event"),
+    sessionId,
+    timestamp: seg.timestamp,
+    type: "audio",
+    description: seg.text,
+    confidence: seg.confidence,
+    source: { kind: "audio", reference: audioArtifact.id },
+    relatedEventIds: [],
+  }));
+  store.insertEvents(events);
+
+  const evidence: (Evidence & { sessionId: string })[] = events.map((event) => ({
+    id: generateId("evidence"),
+    eventId: event.id,
+    sessionId,
+    type: "transcript",
+    timestamp: event.timestamp,
+    description: event.description,
+    confidence: event.confidence ?? 0,
+    source: event.source,
+    artifactId: audioArtifact.id,
+    relatedEvidenceIds: [],
+  }));
+  store.insertEvidenceBatch(evidence);
+
+  return events.length;
 }
