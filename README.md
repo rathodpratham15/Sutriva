@@ -2,7 +2,7 @@
 
 **TraceLens gives coding agents temporal memory: it turns developer sessions -- recorded video or a live browser session -- into structured, timestamped evidence that Claude Code can query instead of guessing from source code alone.**
 
-> **Status: Phase 0 + Phase 1 + Phase 2 + Phase 3 + Phase 4 (developer correlation).** Replay (MP4 → metadata/frames/transcript → timeline) and live (Playwright browser + terminal instrumentation → the same timeline/evidence tables) both work end to end through a 9-tool MCP surface, `/debug-video`, `tracelens debug --live`, and `tracelens exec`. Related events (e.g. a click and the request it likely triggered) are linked automatically by proximity, and `inspect_environment` can show a bounded working-tree diff. The formal agentic patch/verify loop and the evaluation harness described in `TraceLens_Master_Plan.md` are next -- see [Limitations](#limitations--roadmap).
+> **Status: Phase 0 through Phase 5 (agentic loop).** Replay (MP4 → metadata/frames/transcript → timeline) and live (Playwright browser + terminal instrumentation → the same timeline/evidence tables) both work end to end through a 10-tool MCP surface, `/debug-video`, `tracelens debug --live`, and `tracelens exec`. Related events (e.g. a click and the request it likely triggered) are linked automatically by proximity, `inspect_environment` can show a bounded working-tree diff, and `compare_sessions` verifies a fix by diffing a before/after session pair -- the full observe→diagnose→patch→test→reproduce→compare loop from the master plan is wired up end to end. The evaluation harness and demo app are next -- see [Limitations](#limitations--roadmap).
 
 ## Why TraceLens exists
 
@@ -115,6 +115,16 @@ tracelens exec -- npm test
 
 Output streams to your terminal exactly as if you'd run the command directly; a bounded, redacted copy (command, exit code, stdout/stderr) is recorded as a `terminal` event if a live session is active. Related events get linked automatically: a network request/error is linked back to the click that likely triggered it, purely by time proximity -- this is evidence for Claude to reason over, not a causality claim TraceLens itself makes.
 
+## Verifying a fix
+
+Reproduce the bug once (live or as a recording) to get a `sessionId`, patch the code, then reproduce the *same* interaction again to get a second `sessionId`, and ask Claude to close the loop:
+
+```
+> Compare the session before my fix to the one after -- did it work?
+```
+
+Claude calls `compare_sessions(beforeSessionId, afterSessionId)`, which reports concretely what changed -- e.g. `POST /api/checkout: 500 → 200`, or a console error that no longer appears -- rather than you or Claude eyeballing two timelines side by side. This is the "reproduce → compare" half of the observe→diagnose→patch→test→reproduce→compare agentic loop; `/debug-video`'s workflow (below) drives the whole thing.
+
 ## MCP tools
 
 | Tool | Purpose |
@@ -128,6 +138,7 @@ Output streams to your terminal exactly as if you'd run the command directly; a 
 | `get_transcript` | Raw audio transcript segments for a session. |
 | `inspect_environment` | Current Git context (branch/commit/status/recent commits/diffstat, plus the full working-tree diff if `includeDiff` is set), whether a live session is running, and capability flags for browser/network/console/terminal (each populated only while/if actually captured). |
 | `get_current_context` | The "look at this" / "what just happened?" snapshot for a live session: screenshot, current URL, recent events/errors/failures, live Git state. Defaults to the active live session if `sessionId` is omitted. |
+| `compare_sessions` | Before/after verification: diffs two sessions and reports endpoints whose status changed (e.g. 500 → 200) and console errors that appeared/disappeared -- the "reproduce and compare" step of the agentic loop. |
 
 ## Claude Code plugin command
 
@@ -180,18 +191,18 @@ pnpm lint        # eslint
 pnpm test        # vitest -- unit tests + a real MCP-server-over-stdio integration test
 ```
 
-All 57 current tests run offline against the mock providers, generated fixtures, and a local HTTP test server for browser instrumentation -- no paid API calls or external network access are required to validate the system. The live-session tests run a real headless Chromium against a page deliberately designed to trigger a console error, a failed request, and a click, and assert the resulting events/evidence/screenshot/correlation.
+All 65 current tests run offline against the mock providers, generated fixtures, and a local HTTP test server for browser instrumentation -- no paid API calls or external network access are required to validate the system. The live-session tests run a real headless Chromium against a page deliberately designed to trigger a console error, a failed request, and a click, and assert the resulting events/evidence/screenshot/correlation; `compare_sessions` is tested against two real inspected videos through the actual MCP tool call.
 
 ## Limitations & roadmap
 
-Phase 0 (vertical slice) through Phase 4 (developer correlation) are done. Not yet built (see `TraceLens_Master_Plan.md` for the full plan):
+Phase 0 (vertical slice) through Phase 5 (agentic loop) are done. Not yet built (see `TraceLens_Master_Plan.md` for the full plan):
 
-- The formal observe→diagnose→patch→test→reproduce→compare loop and `compare_sessions(before, after)` (Phase 5).
+- A demo buggy app and evaluation harness (`tracelens eval`) to measure the loop against controlled, known-answer scenarios (Phase 6) -- the loop itself (`compare_sessions`, `/debug-video`) works today against any real bug, but hasn't been benchmarked against a fixed test suite yet.
 - A real speech-to-text provider -- `TranscriptionProvider` exists and audio is extracted/segmented, but only the deterministic `MockTranscriptionProvider` is implemented; transcript text is a placeholder, not real speech recognition.
-- The demo buggy app, evaluation harness (`tracelens eval`), before/after session comparison (Phase 6).
 - Live-session screenshots are best-effort: an occasional screenshot capture immediately after a navigation can transiently fail in headless Chromium (a known Playwright quirk); it's logged and skipped rather than crashing the session, and the next trigger/periodic capture fills in.
 - Event correlation (`relatedEventIds`) is a bounded, time-proximity heuristic (network follows a recent interaction; a console error follows a recent network event) -- it links plausible chains, it does not establish causality. `git diff`-based blame/full history correlation beyond "recent commits + working-tree diff" isn't built.
 - Terminal capture requires explicitly running commands through `tracelens exec`; there's no shell-wide/automatic capture of arbitrary commands you type directly. Redaction (`redactSecrets`) is a best-effort heuristic (common `KEY=value`/Bearer-token/AWS-key/PEM patterns), not a guarantee -- treat captured terminal output as potentially sensitive regardless.
 - Click/input capture describes the target element (tag/id/class/text), not a full DOM diff -- deliberately, per the plan's "don't over-engineer DOM diffing" guidance.
+- `compare_sessions` matches endpoints by exact `METHOD URL` string and parses status from the stored event description -- it doesn't normalize URLs (query strings, path params) or diff response bodies, so two calls to what's logically "the same" endpoint with different query strings are treated as different endpoints.
 
 These are being implemented in subsequent phases.
