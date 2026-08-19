@@ -157,6 +157,14 @@ export class TraceLensStore {
     this.db.prepare("UPDATE sessions SET ended_at = ? WHERE id = ?").run(endedAt, id);
   }
 
+  /** The most recently started live session that hasn't been ended -- lets get_current_context auto-discover it without a sessionId. */
+  findActiveLiveSession(): Session | undefined {
+    const row = this.db
+      .prepare("SELECT * FROM sessions WHERE mode = 'live' AND ended_at IS NULL ORDER BY started_at DESC LIMIT 1")
+      .get() as SessionRow | undefined;
+    return row ? rowToSession(row) : undefined;
+  }
+
   /** Deletes a session and cascades to its events/evidence/artifacts/transcript rows. */
   deleteSession(id: string): void {
     this.db.prepare("DELETE FROM sessions WHERE id = ?").run(id);
@@ -223,6 +231,14 @@ export class TraceLensStore {
     }
     const rows = this.db.prepare(sql).all(...params) as EventRow[];
     return rows.map(rowToEvent);
+  }
+
+  /** The most recent `limit` events, in chronological order -- for a live session's "what just happened" view. */
+  listRecentEvents(sessionId: string, limit: number): TemporalEvent[] {
+    const rows = this.db
+      .prepare("SELECT * FROM temporal_events WHERE session_id = ? ORDER BY ts_start DESC LIMIT ?")
+      .all(sessionId, limit) as EventRow[];
+    return rows.map(rowToEvent).reverse();
   }
 
   searchEvents(sessionId: string, query: string): TemporalEvent[] {
@@ -310,6 +326,14 @@ export class TraceLensStore {
          ORDER BY ABS(ts_start - ?) ASC LIMIT 1`,
       )
       .get(sessionId, kind, timestamp) as ArtifactRow | undefined;
+    return row ? rowToArtifact(row) : undefined;
+  }
+
+  /** The most recently captured artifact of a kind -- e.g. the latest live screenshot for get_current_context. */
+  getLatestArtifact(sessionId: string, kind: string): Artifact | undefined {
+    const row = this.db
+      .prepare("SELECT * FROM artifacts WHERE session_id = ? AND kind = ? ORDER BY ts_start DESC LIMIT 1")
+      .get(sessionId, kind) as ArtifactRow | undefined;
     return row ? rowToArtifact(row) : undefined;
   }
 

@@ -1,8 +1,8 @@
 # TraceLens
 
-**TraceLens gives coding agents temporal memory: it turns developer sessions (recorded video today, live browser/terminal/Git sessions in later phases) into structured, timestamped evidence that Claude Code can query instead of guessing from source code alone.**
+**TraceLens gives coding agents temporal memory: it turns developer sessions -- recorded video or a live browser session -- into structured, timestamped evidence that Claude Code can query instead of guessing from source code alone.**
 
-> **Status: Phase 0 + Phase 1 + Phase 2 (replay debugging).** MP4 → metadata → sampled frames + audio transcript → vision/transcription providers → timeline+evidence → SQLite → MCP (8 tools) → Claude Code, plus `/debug-video` and Git-context correlation, is implemented, tested, and working end to end. Live debugging and the full developer-correlation/evaluation phases described in `TraceLens_Master_Plan.md` are next -- see [Limitations](#limitations--roadmap).
+> **Status: Phase 0 + Phase 1 + Phase 2 + Phase 3 (live mode).** Replay (MP4 → metadata/frames/transcript → timeline) and live (Playwright browser instrumentation → the same timeline/evidence tables) both work end to end through a 9-tool MCP surface, `/debug-video`, and `tracelens debug --live`. Terminal/full-Git correlation, the agentic patch/verify loop, and the evaluation harness described in `TraceLens_Master_Plan.md` are next -- see [Limitations](#limitations--roadmap).
 
 ## Why TraceLens exists
 
@@ -63,15 +63,16 @@ For the full debugging workflow (evidence → repo inspection → hypothesis →
 ## Architecture
 
 ```
-MP4 --ffprobe/ffmpeg--> metadata + sampled frames --VisionProvider--> observations
-                                                                          |
-                                                                          v
+MP4 --ffprobe/ffmpeg--> metadata + sampled frames --VisionProvider--> observations --,
+                                                                                      |
+Playwright browser --instrumentPage--> EventBus (publish/subscribe) ---------------->+
+                                                                                      v
                                                           TemporalEvent + Evidence (SQLite)
-                                                                          |
-                                                                          v
+                                                                                      |
+                                                                                      v
                                                                     MCP tool surface
-                                                                          |
-                                                                          v
+                                                                                      |
+                                                                                      v
                                                                      Claude Code
 ```
 
@@ -79,31 +80,46 @@ MP4 --ffprobe/ffmpeg--> metadata + sampled frames --VisionProvider--> observatio
 
 | Package | Responsibility |
 |---|---|
-| `packages/core` | Domain types (`Session`, `TemporalEvent`, `Evidence`, `Artifact`), Zod schemas, actionable errors, path validation, config. |
+| `packages/core` | Domain types (`Session`, `TemporalEvent`, `Evidence`, `Artifact`), the `EventBus`, Zod schemas, actionable errors, path validation, config. |
 | `packages/video` | FFmpeg wrapper: metadata probing, content hashing, frame/audio extraction, bounded sampling. |
 | `packages/providers` | `VisionProvider` interface + `MockVisionProvider` (offline/deterministic) + `AnthropicVisionProvider`. Provider SDKs never leak outside this package. |
 | `packages/storage` | SQLite (`better-sqlite3`) persistence for sessions, events, evidence, artifacts, transcripts. |
-| `packages/timeline` | Orchestrates ingest (`inspectVideo`) and query (`getTimeline`, `getFrame`, `searchSession`, `analyzeSegment`, `getEvidenceAround`). |
+| `packages/timeline` | Orchestrates ingest (`inspectVideo`) and query (`getTimeline`, `getFrame`, `searchSession`, `analyzeSegment`, `getEvidenceAround`, `getCurrentContext`). |
 | `packages/git` | Minimal Git context (branch, commit, working-tree status, recent commits) for correlating evidence with source -- not a full diff/blame engine (that's Phase 4). |
+| `packages/browser` | Playwright instrumentation: navigation, click, input, console, pageerror, request/response/requestfailed, screenshots. |
+| `packages/live` | Orchestrates a live session -- launches a browser, instruments it, and persists every observation into the *same* sessions/events/evidence tables a replayed MP4 uses. |
 | `apps/mcp-server` | MCP server exposing the tool surface below over stdio. |
 | `apps/cli` | `tracelens` CLI -- useful standalone, without Claude Code. |
 
 See `docs/architecture.md` for the full design rationale (progressive disclosure, content-hash caching, why live and replay share one event model).
+
+## Live debugging
+
+```bash
+tracelens debug --live --url https://your-app.local
+```
+
+This opens a real, visible browser window. Interact with it normally -- click around, reproduce a bug -- and TraceLens captures navigation, clicks, input, console messages, network requests/responses/failures, and periodic screenshots into a live session, live, as they happen. Ask Claude Code (in another terminal, once the MCP server is connected) to follow along:
+
+```
+> Look at this -- what just happened? Use get_current_context.
+```
+
+`get_current_context` returns a compact, bounded snapshot (current screenshot, current URL, recent events, recent console errors, recent network failures, live Git state) without Claude having to poll the whole timeline. Press Ctrl+C in the `tracelens debug --live` terminal to end the session.
 
 ## MCP tools
 
 | Tool | Purpose |
 |---|---|
 | `inspect_video` | Ingests a video into a session: metadata, sampled frames, vision analysis, transcript (if the video has audio), timeline. Reuses the existing session if the file's content hash was already seen. |
-| `get_timeline` | Returns the bounded, timestamped event list for a session (supports `limit`/`afterSeconds`/`beforeSeconds`). Visual and audio events are merged in time order. |
-| `get_frame` | Returns one targeted frame (as an image Claude can see) near a timestamp -- the model never has to re-request the whole video for a follow-up visual question. |
+| `get_timeline` | Returns the bounded, timestamped event list for a session (supports `limit`/`afterSeconds`/`beforeSeconds`). Visual, audio, and live browser events are all merged in time order. |
+| `get_frame` | Returns one targeted replay frame (as an image Claude can see) near a timestamp -- the model never has to re-request the whole video for a follow-up visual question. |
 | `search_session` | Full-text search over a session's event descriptions. |
 | `get_evidence` | Temporal rewind: evidence within a time window around a timestamp ("what happened immediately before/after this?"). |
 | `analyze_segment` | Dense, on-demand analysis over a narrow time range -- for when the coarse timeline isn't enough detail. |
 | `get_transcript` | Raw audio transcript segments for a session. |
-| `inspect_environment` | Current Git context (branch/commit/working-tree status/recent commits), plus explicit `available: false` flags for browser/network/console/terminal context -- those land in Phase 3/4. |
-
-Live-session tools (Phase 3) aren't built yet -- see Limitations.
+| `inspect_environment` | Current Git context, whether a live session is running, and capability flags for browser/network/console (available while live)/terminal (Phase 4, not yet). |
+| `get_current_context` | The "look at this" / "what just happened?" snapshot for a live session: screenshot, current URL, recent events/errors/failures, live Git state. Defaults to the active live session if `sessionId` is omitted. |
 
 ## Claude Code plugin command
 
@@ -122,11 +138,12 @@ tracelens inspect <video>                           # ingest + build timeline
 tracelens timeline <video> [--limit N] [--json]
 tracelens search <video> "<query>"
 tracelens analyze <video> --start S --end E [--question "..."]
+tracelens debug --live [--url <url>] [--headless]   # live browser session (Ctrl+C to stop)
 tracelens session list
 tracelens clean [--yes]                             # delete .tracelens/ (derived data only)
 ```
 
-`tracelens debug <video>`, `tracelens debug --live`, `tracelens session report`, and `tracelens eval` are stubbed with an explanatory message -- they land in later phases (replay/live debugging, evaluation harness).
+`tracelens debug <video>` explains how to drive replay debugging via Claude Code/MCP rather than duplicating that logic in the CLI. `tracelens session report` and `tracelens eval` are stubbed with an explanatory message -- they land in later phases.
 
 ## Provider configuration
 
@@ -154,16 +171,17 @@ pnpm lint        # eslint
 pnpm test        # vitest -- unit tests + a real MCP-server-over-stdio integration test
 ```
 
-All 34 current tests run offline against the mock providers and generated fixtures -- no paid API calls are required to validate the system.
+All 37 current tests run offline against the mock providers, generated fixtures, and a local HTTP test server for browser instrumentation -- no paid API calls or external network access are required to validate the system. The live-session tests run a real headless Chromium against a page deliberately designed to trigger a console error, a failed request, and a click, and assert the resulting events/evidence/screenshot.
 
 ## Limitations & roadmap
 
-Phase 0 (vertical slice), Phase 1 (temporal core), and Phase 2 (replay debugging) are done. Not yet built (see `TraceLens_Master_Plan.md` for the full plan):
+Phase 0 (vertical slice), Phase 1 (temporal core), Phase 2 (replay debugging), and Phase 3 (live mode) are done. Not yet built (see `TraceLens_Master_Plan.md` for the full plan):
 
-- Live debugging (`tracelens debug --live`), browser/terminal instrumentation, the event bus for live sources, `get_current_context()` (Phase 3).
 - Full Git correlation (diffs, blame, the evidence-correlation graph) and terminal command capture (Phase 4) -- `inspect_environment` today only returns branch/commit/working-tree status/recent commits, not diffs.
 - The formal observe→diagnose→patch→test→reproduce→compare loop and `compare_sessions(before, after)` (Phase 5).
 - A real speech-to-text provider -- `TranscriptionProvider` exists and audio is extracted/segmented, but only the deterministic `MockTranscriptionProvider` is implemented; transcript text is a placeholder, not real speech recognition.
 - The demo buggy app, evaluation harness (`tracelens eval`), before/after session comparison (Phase 6).
+- Live-session screenshots are best-effort: an occasional screenshot capture immediately after a navigation can transiently fail in headless Chromium (a known Playwright quirk); it's logged and skipped rather than crashing the session, and the next trigger/periodic capture fills in.
+- Click/input capture describes the target element (tag/id/class/text), not a full DOM diff -- deliberately, per the plan's "don't over-engineer DOM diffing" guidance.
 
 These are being implemented in subsequent phases.

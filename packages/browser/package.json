@@ -1,5 +1,5 @@
 {
-  "name": "@tracelens/timeline",
+  "name": "@tracelens/browser",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -13,10 +13,7 @@
   },
   "dependencies": {
     "@tracelens/core": "workspace:*",
-    "@tracelens/video": "workspace:*",
-    "@tracelens/providers": "workspace:*",
-    "@tracelens/storage": "workspace:*",
-    "@tracelens/git": "workspace:*"
+    "playwright": "^1.62.1"
   },
   "devDependencies": {
     "typescript": "^5.6.0"

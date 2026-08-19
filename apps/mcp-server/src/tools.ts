@@ -11,14 +11,21 @@ import {
   searchSession,
   analyzeSegment,
   getTranscript,
+  getCurrentContext,
 } from "@tracelens/timeline";
 import { getGitContext } from "@tracelens/git";
+import { getStore } from "@tracelens/storage";
 
-/** Sources not yet implemented -- see TraceLens_Master_Plan.md Phase 3/4. Kept explicit so Claude never assumes silence means "nothing happening". */
-const UNAVAILABLE_ENVIRONMENT_SOURCES = {
-  browser: { available: false, reason: "Live browser instrumentation lands in a later phase (Playwright, Phase 3)." },
-  network: { available: false, reason: "Live network capture lands alongside browser instrumentation (Phase 3)." },
-  console: { available: false, reason: "Live console capture lands alongside browser instrumentation (Phase 3)." },
+/**
+ * Capability flags for inspect_environment. `available` means the capability exists
+ * at all (a session must still be live for browser/network/console to have data --
+ * see get_current_context / the liveSession field). Terminal capture isn't built yet
+ * (Phase 4). Kept explicit so Claude never assumes silence means "nothing happening".
+ */
+const ENVIRONMENT_SOURCE_CAPABILITIES = {
+  browser: { available: true, note: "Populated only while a live session is running -- see get_current_context." },
+  network: { available: true, note: "Populated only while a live session is running -- see get_current_context." },
+  console: { available: true, note: "Populated only while a live session is running -- see get_current_context." },
   terminal: { available: false, reason: "Terminal command instrumentation lands in a later phase (Phase 4)." },
 } as const;
 
@@ -295,9 +302,10 @@ export function registerTools(server: McpServer): void {
       title: "Inspect environment",
       description:
         "Returns available developer context beyond the video itself: current Git branch/commit/working-tree " +
-        "status/recent commits (for correlating a failure with recently-changed source), plus explicit " +
-        "availability flags for browser/network/console/terminal context, which are not implemented yet. " +
-        "Use this before forming a hypothesis about root cause, and never assume a source not listed here.",
+        "status/recent commits (for correlating a failure with recently-changed source), whether a live " +
+        "debugging session is currently running, and capability flags for browser/network/console/terminal " +
+        "context. Use this before forming a hypothesis about root cause, and never assume a source is present " +
+        "if it isn't listed as available here.",
       inputSchema: {
         root: z.string().optional().describe("Repository root to inspect (defaults to the server's working directory)."),
       },
@@ -305,7 +313,58 @@ export function registerTools(server: McpServer): void {
     async ({ root }) => {
       try {
         const git = await getGitContext(root ?? process.cwd());
-        return textResult({ git, ...UNAVAILABLE_ENVIRONMENT_SOURCES });
+        const activeLiveSession = getStore().findActiveLiveSession();
+        return textResult({
+          git,
+          liveSession: activeLiveSession
+            ? { active: true, sessionId: activeLiveSession.id }
+            : { active: false, note: "Start one with `tracelens debug --live` to get live browser/network/console context." },
+          ...ENVIRONMENT_SOURCE_CAPABILITIES,
+        });
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    "get_current_context",
+    {
+      title: "Get current context",
+      description:
+        "The 'look at this' / 'what just happened?' snapshot for a live debugging session: current screenshot, " +
+        "current URL, recent events, recent console errors, recent network failures, and live Git state. Defaults " +
+        "to whichever live session is currently running if sessionId is omitted. Small and bounded by design -- " +
+        "for full history use get_timeline/get_evidence instead.",
+      inputSchema: {
+        sessionId: z.string().optional().describe("Defaults to the currently active live session, if any."),
+      },
+    },
+    async ({ sessionId }) => {
+      try {
+        const context = await getCurrentContext(sessionId);
+        const content: CallToolResult["content"] = [
+          {
+            type: "text",
+            text: JSON.stringify(
+              {
+                sessionId: context.sessionId,
+                mode: context.mode,
+                currentUrl: context.currentUrl,
+                recentEvents: context.recentEvents,
+                recentConsoleErrors: context.recentConsoleErrors,
+                recentNetworkFailures: context.recentNetworkFailures,
+                git: context.git,
+              },
+              null,
+              2,
+            ),
+          },
+        ];
+        if (context.screenshot) {
+          content.push({ type: "image", data: context.screenshot.base64, mimeType: context.screenshot.mimeType });
+        }
+        return { content };
       } catch (err) {
         return errorResult(err);
       }
