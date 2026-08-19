@@ -17,16 +17,20 @@ import { getGitContext, getDiffStat, getWorkingTreeDiff } from "@tracelens/git";
 import { getStore } from "@tracelens/storage";
 
 /**
- * Capability flags for inspect_environment. `available` means the capability exists
- * at all (a session must still be live for browser/network/console to have data --
- * see get_current_context / the liveSession field). Terminal capture isn't built yet
- * (Phase 4). Kept explicit so Claude never assumes silence means "nothing happening".
+ * Capability flags for inspect_environment. `available` means the capability
+ * exists at all -- a session must still be live for any of these to have
+ * data (see get_current_context / the liveSession field), and terminal
+ * events only appear if the user ran commands through `tracelens exec`.
+ * Kept explicit so Claude never assumes silence means "nothing happening".
  */
 const ENVIRONMENT_SOURCE_CAPABILITIES = {
   browser: { available: true, note: "Populated only while a live session is running -- see get_current_context." },
   network: { available: true, note: "Populated only while a live session is running -- see get_current_context." },
   console: { available: true, note: "Populated only while a live session is running -- see get_current_context." },
-  terminal: { available: false, reason: "Terminal command instrumentation lands in a later phase (Phase 4)." },
+  terminal: {
+    available: true,
+    note: "Populated only for commands run via `tracelens exec -- <command>` during a live session.",
+  },
 } as const;
 
 function textResult(payload: unknown): CallToolResult {

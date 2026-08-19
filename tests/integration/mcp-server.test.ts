@@ -162,7 +162,7 @@ describe("TraceLens MCP server (end-to-end)", () => {
     expect(payload.git.diff).toBeUndefined(); // not requested
     expect(payload.liveSession.active).toBe(false);
     expect(payload.browser.available).toBe(true);
-    expect(payload.terminal.available).toBe(false);
+    expect(payload.terminal.available).toBe(true);
   });
 
   it("inspect_environment includes the full working-tree diff only when includeDiff is set", async () => {
