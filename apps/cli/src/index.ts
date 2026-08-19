@@ -8,6 +8,7 @@ import { registerAnalyzeCommand } from "./commands/analyze.js";
 import { registerCleanCommand } from "./commands/clean.js";
 import { registerSessionCommand } from "./commands/session.js";
 import { registerDebugCommand } from "./commands/debug.js";
+import { registerExecCommand } from "./commands/exec.js";
 import { registerEvalCommand } from "./commands/eval.js";
 
 const program = new Command();
@@ -20,6 +21,7 @@ registerSearchCommand(program);
 registerAnalyzeCommand(program);
 registerSessionCommand(program);
 registerDebugCommand(program);
+registerExecCommand(program);
 registerEvalCommand(program);
 registerCleanCommand(program);
 
