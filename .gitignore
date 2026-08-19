@@ -2,7 +2,9 @@ node_modules/
 dist/
 .tracelens/
 # Fixtures are generated deterministically -- see scripts/generate-fixtures.sh
-fixtures/videos/*.mp4
+# and scripts/generate-eval-fixtures.ts (eval/ subdirectory).
+fixtures/videos/**/*.mp4
+.tracelens-eval-report.json
 *.db
 *.db-journal
 *.db-wal

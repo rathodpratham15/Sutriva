@@ -16,7 +16,8 @@
     "eval": "tsx tests/eval/run-eval.ts",
     "cli": "tsx apps/cli/src/index.ts",
     "mcp": "tsx apps/mcp-server/src/index.ts",
-    "fixtures:generate": "bash scripts/generate-fixtures.sh"
+    "fixtures:generate": "bash scripts/generate-fixtures.sh",
+    "fixtures:eval:generate": "tsx scripts/generate-eval-fixtures.ts"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",
