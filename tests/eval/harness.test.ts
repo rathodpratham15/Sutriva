@@ -3,7 +3,7 @@ import path from "node:path";
 import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
-import { runScenario } from "./run-eval.js";
+import { runScenario } from "./harness.js";
 import { EVAL_SCENARIOS } from "./scenarios.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
