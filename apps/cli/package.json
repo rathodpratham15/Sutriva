@@ -16,6 +16,7 @@
     "@tracelens/providers": "workspace:*",
     "@tracelens/storage": "workspace:*",
     "@tracelens/timeline": "workspace:*",
+    "@tracelens/live": "workspace:*",
     "commander": "^15.0.0"
   },
   "devDependencies": {

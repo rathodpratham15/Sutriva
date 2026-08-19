@@ -27,6 +27,8 @@
     "@tracelens/storage": "workspace:*",
     "@tracelens/timeline": "workspace:*",
     "@tracelens/git": "workspace:*",
+    "@tracelens/browser": "workspace:*",
+    "@tracelens/live": "workspace:*",
     "typescript": "^5.6.0",
     "tsx": "^4.23.12",
     "vitest": "^4.1.10",

@@ -1,5 +1,5 @@
 {
-  "name": "@tracelens/timeline",
+  "name": "@tracelens/live",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -13,9 +13,8 @@
   },
   "dependencies": {
     "@tracelens/core": "workspace:*",
-    "@tracelens/video": "workspace:*",
-    "@tracelens/providers": "workspace:*",
     "@tracelens/storage": "workspace:*",
+    "@tracelens/browser": "workspace:*",
     "@tracelens/git": "workspace:*"
   },
   "devDependencies": {

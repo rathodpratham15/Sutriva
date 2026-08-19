@@ -1,6 +1,6 @@
 # Architecture
 
-This describes the system as implemented (Phase 0 + Phase 1 + Phase 2). For the full target architecture see `TraceLens_Master_Plan.md`.
+This describes the system as implemented (Phase 0 + Phase 1 + Phase 2 + Phase 3). For the full target architecture see `TraceLens_Master_Plan.md`.
 
 ## The temporal model
 
@@ -9,7 +9,7 @@ Everything TraceLens observes is normalized into two shapes, defined once in `pa
 - **`TemporalEvent`** -- a timestamped, typed observation (`visual`, `audio`, `interaction`, `network`, `console`, `dom`, `terminal`, `git`, `system`) with a description, an optional confidence, and a `source` pointing back to what produced it. Visual events (from sampled frames) and audio events (from transcript segments) are stored in the same table and interleaved by timestamp -- `get_timeline` doesn't distinguish them structurally.
 - **`Evidence`** -- a grounded observation backed by a stored `Artifact` (a frame image or the session's extracted audio track). Evidence exists so a hypothesis can point at something concrete ("this frame, this confidence") rather than a free-text claim.
 
-A `Session` owns a set of `sources` (currently just `{kind: "video", reference: <path>}`) and has a `mode`: `replay` for an ingested MP4 today; `live` and `recorded` are reserved for later phases. **The important design commitment is that live and replay sessions produce the same `TemporalEvent`/`Evidence` shapes** -- Claude's queries (`get_timeline`, `get_evidence`, `get_frame`) don't change based on where a session came from. Phase 0 only implements the replay path; the live event bus (Phase 3) will publish into the same tables.
+A `Session` owns a set of `sources` (`{kind: "video", reference: <path>}` for replay, `{kind: "browser", reference: <url>}` for live) and has a `mode`: `replay` for an ingested MP4, `live` for a running browser session; `recorded` is reserved for a future persisted-live-session view (§20). **The important design commitment is that live and replay sessions produce the same `TemporalEvent`/`Evidence` shapes** -- Claude's queries (`get_timeline`, `get_evidence`, `get_frame`, `search_session`) don't change based on where a session came from. `packages/live` is the only thing that knows the difference; everything downstream of the SQLite tables doesn't.
 
 ## Progressive disclosure
 
@@ -51,7 +51,17 @@ SQLite via `better-sqlite3` (`packages/storage`). Tables: `sessions`, `temporal_
 
 `packages/git` shells out to the `git` CLI (no library dependency) for the minimum context a debugging hypothesis needs: current branch, commit, working-tree dirty status, changed file paths, and recent commits. `getGitContext` returns `{ isRepo: false }` rather than throwing when `cwd` isn't inside a Git working tree -- environment inspection should degrade gracefully, not fail the whole tool call. This is deliberately *not* the full evidence-correlation graph or diff/blame support the plan describes for Phase 4 (§24, §27) -- it's just enough for `inspect_environment` to tell Claude "here's what changed recently" so a hypothesis can point at a real file instead of guessing.
 
-`inspect_environment` (the MCP tool) wraps this Git context together with explicit `available: false` flags -- and a reason -- for browser/network/console/terminal sources, which don't exist yet. The intent (`TraceLens_Master_Plan.md` §37: "never trust unvalidated model output", and the broader "don't fake the workflow" instruction) is that Claude is never left to assume silence means "nothing happening" for a source that simply isn't implemented.
+`inspect_environment` (the MCP tool) wraps this Git context together with whether a live session is currently running, and capability flags for browser/network/console (`available: true`, but only populated while a live session is running -- see below) and terminal (`available: false`, Phase 4). The intent (`TraceLens_Master_Plan.md` §37: "never trust unvalidated model output", and the broader "don't fake the workflow" instruction) is that Claude is never left to assume silence means "nothing happening" for a source that isn't currently populated.
+
+## Live sessions (browser)
+
+`packages/browser` wraps Playwright: `instrumentPage` attaches listeners for the plan's prioritized event set (§21) -- `console`, `pageerror`, `request`, `response`, `requestfailed`, `framenavigated` -- plus a small injected script (`page.addInitScript` + `page.exposeFunction`) that reports real `click`/`input` DOM events back to Node. Deliberately no DOM diffing: an interaction is described by its target element (tag/id/class/truncated text), not a structural diff. Input values are captured truncated to 80 chars, redacted entirely for password fields (`el.type === "password"`).
+
+`packages/live`'s `startLiveSession` is the orchestrator: it creates a `mode: "live"` `Session`, launches a browser, and wires an `EventBus` (`packages/core/src/event-bus.ts`, the literal `publish`/`subscribe` interface from §16) with three subscribers -- persist to SQLite as an `Evidence`-backed `TemporalEvent` (confidence `1`, since a console message or network response is a directly observed fact, not an inference), print a compact line for the live CLI feed, and trigger a screenshot capture on navigation/interaction events (plus a periodic fallback timer). Every event is stored the moment it happens -- there's no batching -- so a separate process (the MCP server, queried by Claude) can read a live session's state concurrently via SQLite's WAL mode while the CLI process is still writing to it.
+
+`get_current_context` (`packages/timeline/src/live-context.ts`, the plan's §10/§18 "look at this" operation) auto-discovers "whichever live session is currently running" via `store.findActiveLiveSession()` if no `sessionId` is given, then returns a bounded snapshot: the most recent screenshot artifact, the last navigation's URL, the last 15 events, and the last 5 console-errors/network-failures found by scanning a 100-event lookback window. Git context is re-fetched live (not just the session-start snapshot) so commits made *during* a live debugging session show up.
+
+**A real reliability bug found while testing this end-to-end:** Playwright's `chromium.launch()` defaults to `handleSIGINT: true` (and SIGTERM/SIGHUP), meaning Playwright installs its own process-level signal handler that closes the browser and lets the process die immediately on Ctrl+C -- racing against, and beating, `packages/live`'s own graceful shutdown (which needs to persist the final session state and print a summary first). `startLiveSession` now launches with `handleSIGINT/SIGTERM/SIGHUP: false` so the CLI's own shutdown handler has exclusive control. A related fix: the CLI's shutdown path avoids `process.exit()` on the normal path (it can truncate pending stdout writes) and races `stop()` against a 5s timeout with a forced exit only as a last resort, in case the browser process died in some other way mid-close.
 
 ## Claude Code plugin command
 
@@ -63,4 +73,4 @@ SQLite via `better-sqlite3` (`packages/storage`). Tables: `sessions`, `temporal_
 
 ## What's deliberately not built yet
 
-Browser/terminal instrumentation, the live event bus, full Git diffs/the evidence-correlation graph, a real speech-to-text provider, and the evaluation harness are designed in the master plan but are later phases -- see the README's Limitations section.
+Terminal instrumentation, full Git diffs/the evidence-correlation graph, the formal agentic patch/verify loop, `compare_sessions`, a real speech-to-text provider, and the evaluation harness are designed in the master plan but are later phases -- see the README's Limitations section.

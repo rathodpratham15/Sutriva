@@ -43,6 +43,7 @@ describe("TraceLens MCP server (end-to-end)", () => {
     const names = tools.map((t) => t.name).sort();
     expect(names).toEqual([
       "analyze_segment",
+      "get_current_context",
       "get_evidence",
       "get_frame",
       "get_timeline",
@@ -148,7 +149,7 @@ describe("TraceLens MCP server (end-to-end)", () => {
     expect(payload.segments[0]).toHaveProperty("text");
   });
 
-  it("inspect_environment returns Git context plus honest unavailable-source flags", async () => {
+  it("inspect_environment returns Git context, live-session status, and honest capability flags", async () => {
     const result = await client.callTool({
       name: "inspect_environment",
       arguments: { root: repoRoot },
@@ -158,7 +159,16 @@ describe("TraceLens MCP server (end-to-end)", () => {
     const payload = JSON.parse(content[0]!.text!);
     expect(payload.git.isRepo).toBe(true);
     expect(payload.git.commit).toMatch(/^[a-f0-9]{40}$/);
-    expect(payload.browser.available).toBe(false);
+    expect(payload.liveSession.active).toBe(false);
+    expect(payload.browser.available).toBe(true);
     expect(payload.terminal.available).toBe(false);
+  });
+
+  it("get_current_context reports no active session when none is running", async () => {
+    const result = await client.callTool({
+      name: "get_current_context",
+      arguments: {},
+    });
+    expect(result.isError).toBe(true);
   });
 });

@@ -4,7 +4,7 @@ TraceLens is local-first. This document states plainly what happens to your data
 
 ## What stays on disk
 
-Everything, by default. Sessions, timelines, evidence, and extracted frames are stored under `TRACELENS_DATA_DIR` (default `./.tracelens`, a SQLite database plus a directory of extracted frame images). Nothing in this directory is uploaded, synced, or transmitted anywhere by TraceLens itself.
+Everything, by default. Sessions, timelines, evidence, extracted frames, and -- for live sessions -- screenshots are stored under `TRACELENS_DATA_DIR` (default `./.tracelens`, a SQLite database plus a directory of extracted images). Nothing in this directory is uploaded, synced, or transmitted anywhere by TraceLens itself.
 
 ## What can leave your machine, and when
 
@@ -13,6 +13,8 @@ The **only** thing that leaves your machine is data sent to a configured vision 
 - With the default (`TRACELENS_VISION_PROVIDER=mock`, used whenever `ANTHROPIC_API_KEY` is unset), **nothing ever leaves your machine**. The mock provider is a local heuristic.
 - With `TRACELENS_VISION_PROVIDER=anthropic`, `inspect_video` and `analyze_segment` send the **sampled frame images** (not the whole video file) and a text prompt to the Anthropic Messages API over HTTPS, using your own `ANTHROPIC_API_KEY`. This happens only when you explicitly run `inspect_video`/`analyze_segment` with that provider configured -- not automatically, not in the background, not on a schedule.
 - `TRACELENS_TRANSCRIPTION_PROVIDER` only has a `mock` implementation today, so audio transcription never leaves your machine either -- the extracted audio track (`audio.wav`) stays under `TRACELENS_DATA_DIR` and is only read locally to derive a placeholder segment count. There is no real speech-to-text provider wired in yet.
+- `tracelens debug --live` (Phase 3) never calls a model provider itself -- it only captures browser events (navigation, clicks, input, console, network, screenshots) into the local SQLite database and artifact directory. Nothing about a live session is sent anywhere unless you separately ask Claude to reason about it (which happens through your own Claude Code session, not through TraceLens making an API call on your behalf).
+- Input field values are captured (truncated to 80 characters) as interaction evidence, since what a user typed is often exactly the debugging signal needed -- **except** password fields (`input[type=password]`), which are always recorded as `[redacted]`. Other sensitive fields (API tokens typed into a non-password text input, for example) are not automatically detected -- be mindful of what you type into a page while a live session is recording.
 
 TraceLens has no telemetry, analytics, or crash-reporting of its own.
 
@@ -38,4 +40,4 @@ Deletes `TRACELENS_DATA_DIR` entirely: the SQLite database, every extracted fram
 
 ## What is not yet implemented (and therefore not yet a privacy concern, but will be)
 
-Live debugging (Phase 3) will capture browser/terminal/Git activity locally, with the same rule: local storage by default, explicit provider calls only, no automatic upload. Terminal capture is expected to need redaction hooks before it should be trusted with real command output (see `TraceLens_Master_Plan.md` §22) -- this is called out here so it isn't quietly assumed to be safe once implemented.
+Terminal command capture (Phase 4) will follow the same rule: local storage by default, no automatic upload. It's expected to need redaction hooks before it should be trusted with real command output (see `TraceLens_Master_Plan.md` §22) -- this is called out here so it isn't quietly assumed to be safe once implemented.
