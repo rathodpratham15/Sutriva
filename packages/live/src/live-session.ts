@@ -81,7 +81,6 @@ export async function startLiveSession(options: StartLiveSessionOptions = {}): P
 
   const bus = new InMemoryEventBus();
   const sessionStartMs = Date.now();
-  let eventCount = 0;
   let latestScreenshotArtifactId: string | undefined;
 
   async function takeScreenshot(atSeconds: number): Promise<void> {
@@ -130,7 +129,6 @@ export async function startLiveSession(options: StartLiveSessionOptions = {}): P
       relatedEvidenceIds: [],
     };
     store.insertEvidence(evidence);
-    eventCount += 1;
   });
 
   const unsubscribeLog = bus.subscribe((event: TemporalEvent) => {
@@ -186,6 +184,11 @@ export async function startLiveSession(options: StartLiveSessionOptions = {}): P
       ]);
       const endedAt = new Date().toISOString();
       store.endSession(session.id, endedAt);
+      // Query fresh rather than a locally-tracked counter: other processes
+      // (e.g. `tracelens exec`) can insert events into this same session
+      // between publishes, and a counter only incremented by this process's
+      // own bus subscriber would silently undercount them.
+      const eventCount = store.listEvents(session.id).length;
       return { eventCount, durationSeconds: (Date.now() - sessionStartMs) / 1000 };
     },
   };

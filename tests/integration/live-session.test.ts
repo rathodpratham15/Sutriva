@@ -4,7 +4,7 @@ import path from "node:path";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import type { AddressInfo } from "node:net";
-import { startLiveSession } from "@tracelens/live";
+import { startLiveSession, runAndCapture } from "@tracelens/live";
 import { getStore } from "@tracelens/storage";
 import { getCurrentContext } from "@tracelens/timeline";
 
@@ -128,5 +128,26 @@ describe("live browser session (end-to-end)", () => {
     expect(context.sessionId).toBe(handle.sessionId);
 
     await handle.stop();
+  }, 20_000);
+
+  it("stop()'s final event count reflects events inserted by other processes (e.g. tracelens exec)", async () => {
+    const handle = await startLiveSession({
+      url: testServer.url,
+      headless: true,
+      screenshotIntervalSeconds: 60,
+    });
+    await wait(500);
+
+    const store = getStore();
+    const beforeExecCount = store.listEvents(handle.sessionId).length;
+
+    // runAndCapture auto-discovers the active live session, the same way the
+    // separate `tracelens exec` CLI process would -- it isn't wired through
+    // this handle's own in-memory event bus at all.
+    await runAndCapture({ command: "node", args: ["-e", "process.exit(0)"] });
+
+    const summary = await handle.stop();
+    expect(summary.eventCount).toBe(beforeExecCount + 1);
+    expect(summary.eventCount).toBe(store.listEvents(handle.sessionId).length);
   }, 20_000);
 });
