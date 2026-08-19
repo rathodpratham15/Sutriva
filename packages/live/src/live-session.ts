@@ -12,6 +12,7 @@ import {
 import { getStore } from "@tracelens/storage";
 import { chromium, instrumentPage, captureScreenshot, type Browser, type Page } from "@tracelens/browser";
 import { getGitContext } from "@tracelens/git";
+import { findRelatedEventIds } from "./correlate.js";
 
 export interface StartLiveSessionOptions {
   /** Initial URL to navigate to, if any. The session can also be pointed at a page manually. */
@@ -104,7 +105,17 @@ export async function startLiveSession(options: StartLiveSessionOptions = {}): P
     }
   }
 
+  const RECENT_EVENTS_BUFFER_SIZE = 20;
+  const recentEventsBuffer: TemporalEvent[] = [];
+
   const unsubscribePersist = bus.subscribe((event: TemporalEvent) => {
+    // Bounded, best-effort evidence correlation (§24): link this event to a
+    // plausible preceding cause (e.g. a click that triggered this request)
+    // purely by type sequence + time proximity -- not a causality claim.
+    event.relatedEventIds = findRelatedEventIds(event, recentEventsBuffer);
+    recentEventsBuffer.push(event);
+    if (recentEventsBuffer.length > RECENT_EVENTS_BUFFER_SIZE) recentEventsBuffer.shift();
+
     store.insertEvent(event);
     const evidence: Evidence & { sessionId: string } = {
       id: generateId("evidence"),

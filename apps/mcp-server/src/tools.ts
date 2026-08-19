@@ -126,6 +126,9 @@ export function registerTools(server: McpServer): void {
             type: e.type,
             description: e.description,
             confidence: e.confidence,
+            // Bounded, best-effort correlation (e.g. the click likely behind this request) --
+            // proximity-based, not a causality claim. Omitted entirely when empty.
+            relatedEventIds: e.relatedEventIds.length > 0 ? e.relatedEventIds : undefined,
           })),
         });
       } catch (err) {
@@ -188,6 +191,9 @@ export function registerTools(server: McpServer): void {
             type: e.type,
             description: e.description,
             confidence: e.confidence,
+            // Bounded, best-effort correlation (e.g. the click likely behind this request) --
+            // proximity-based, not a causality claim. Omitted entirely when empty.
+            relatedEventIds: e.relatedEventIds.length > 0 ? e.relatedEventIds : undefined,
           })),
         });
       } catch (err) {

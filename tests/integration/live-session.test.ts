@@ -92,6 +92,13 @@ describe("live browser session (end-to-end)", () => {
     expect(evidence.length).toBe(events.length);
     expect(evidence.every((e) => e.confidence === 1)).toBe(true);
 
+    // The console error should be correlated (by proximity, not causality) to a
+    // preceding network event -- the plan's click->request->error evidence chain.
+    const consoleError = events.find((e) => e.type === "console" && /Something went wrong/.test(e.description));
+    expect(consoleError!.relatedEventIds.length).toBeGreaterThan(0);
+    const relatedEvent = events.find((e) => e.id === consoleError!.relatedEventIds[0]);
+    expect(relatedEvent!.type).toBe("network");
+
     // The live CLI log should have received human-readable lines too.
     expect(logLines.some((l) => l.includes("[network]"))).toBe(true);
 
