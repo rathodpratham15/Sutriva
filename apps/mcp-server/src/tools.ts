@@ -13,7 +13,7 @@ import {
   getTranscript,
   getCurrentContext,
 } from "@tracelens/timeline";
-import { getGitContext } from "@tracelens/git";
+import { getGitContext, getDiffStat, getWorkingTreeDiff } from "@tracelens/git";
 import { getStore } from "@tracelens/storage";
 
 /**
@@ -302,20 +302,28 @@ export function registerTools(server: McpServer): void {
       title: "Inspect environment",
       description:
         "Returns available developer context beyond the video itself: current Git branch/commit/working-tree " +
-        "status/recent commits (for correlating a failure with recently-changed source), whether a live " +
-        "debugging session is currently running, and capability flags for browser/network/console/terminal " +
-        "context. Use this before forming a hypothesis about root cause, and never assume a source is present " +
-        "if it isn't listed as available here.",
+        "status/recent commits/a compact diffstat (for correlating a failure with recently-changed source), " +
+        "whether a live debugging session is currently running, and capability flags for browser/network/" +
+        "console/terminal context. Use this before forming a hypothesis about root cause, and never assume a " +
+        "source is present if it isn't listed as available here. Pass includeDiff for the full working-tree diff " +
+        "(bounded/truncated) once you have a specific file in mind -- the diffstat alone is usually enough to start.",
       inputSchema: {
         root: z.string().optional().describe("Repository root to inspect (defaults to the server's working directory)."),
+        includeDiff: z.boolean().optional().describe("Include the full (bounded) working-tree diff, not just the diffstat."),
+        diffMaxLines: z.number().int().positive().max(1000).optional().describe("Max lines of the full diff to return (default 200)."),
       },
     },
-    async ({ root }) => {
+    async ({ root, includeDiff, diffMaxLines }) => {
       try {
-        const git = await getGitContext(root ?? process.cwd());
+        const repoRoot = root ?? process.cwd();
+        const [git, diffStat, fullDiff] = await Promise.all([
+          getGitContext(repoRoot),
+          getDiffStat(repoRoot),
+          includeDiff ? getWorkingTreeDiff(repoRoot, { maxLines: diffMaxLines }) : Promise.resolve(undefined),
+        ]);
         const activeLiveSession = getStore().findActiveLiveSession();
         return textResult({
-          git,
+          git: { ...git, diffStat: diffStat || undefined, diff: fullDiff },
           liveSession: activeLiveSession
             ? { active: true, sessionId: activeLiveSession.id }
             : { active: false, note: "Start one with `tracelens debug --live` to get live browser/network/console context." },

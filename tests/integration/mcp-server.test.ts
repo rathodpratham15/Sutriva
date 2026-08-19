@@ -159,9 +159,21 @@ describe("TraceLens MCP server (end-to-end)", () => {
     const payload = JSON.parse(content[0]!.text!);
     expect(payload.git.isRepo).toBe(true);
     expect(payload.git.commit).toMatch(/^[a-f0-9]{40}$/);
+    expect(payload.git.diff).toBeUndefined(); // not requested
     expect(payload.liveSession.active).toBe(false);
     expect(payload.browser.available).toBe(true);
     expect(payload.terminal.available).toBe(false);
+  });
+
+  it("inspect_environment includes the full working-tree diff only when includeDiff is set", async () => {
+    const result = await client.callTool({
+      name: "inspect_environment",
+      arguments: { root: repoRoot, includeDiff: true, diffMaxLines: 50 },
+    });
+    const content = result.content as { type: string; text?: string }[];
+    const payload = JSON.parse(content[0]!.text!);
+    // The diff field is present (possibly undefined-valued content if the tree is clean) whenever requested.
+    expect(payload.git).toHaveProperty("diff");
   });
 
   it("get_current_context reports no active session when none is running", async () => {
