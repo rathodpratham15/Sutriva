@@ -1,6 +1,6 @@
 # Architecture
 
-This describes the system as implemented (Phase 0 + Phase 1). For the full target architecture see `TraceLens_Master_Plan.md`.
+This describes the system as implemented (Phase 0 + Phase 1 + Phase 2). For the full target architecture see `TraceLens_Master_Plan.md`.
 
 ## The temporal model
 
@@ -47,10 +47,20 @@ SQLite via `better-sqlite3` (`packages/storage`). Tables: `sessions`, `temporal_
 
 `apps/mcp-server` uses `@modelcontextprotocol/sdk`'s `McpServer` + `StdioServerTransport`. Each tool (`apps/mcp-server/src/tools.ts`) has a Zod input schema, a bounded/JSON-serializable text response (or an image content block for `get_frame`), and returns `isError: true` with an actionable message (via `TraceLensError`) rather than throwing an unstructured exception across the protocol boundary.
 
+## Repository correlation (Git)
+
+`packages/git` shells out to the `git` CLI (no library dependency) for the minimum context a debugging hypothesis needs: current branch, commit, working-tree dirty status, changed file paths, and recent commits. `getGitContext` returns `{ isRepo: false }` rather than throwing when `cwd` isn't inside a Git working tree -- environment inspection should degrade gracefully, not fail the whole tool call. This is deliberately *not* the full evidence-correlation graph or diff/blame support the plan describes for Phase 4 (§24, §27) -- it's just enough for `inspect_environment` to tell Claude "here's what changed recently" so a hypothesis can point at a real file instead of guessing.
+
+`inspect_environment` (the MCP tool) wraps this Git context together with explicit `available: false` flags -- and a reason -- for browser/network/console/terminal sources, which don't exist yet. The intent (`TraceLens_Master_Plan.md` §37: "never trust unvalidated model output", and the broader "don't fake the workflow" instruction) is that Claude is never left to assume silence means "nothing happening" for a source that simply isn't implemented.
+
+## Claude Code plugin command
+
+`.claude/commands/debug-video.md` is a project-level slash command (not a distributed plugin -- `.claude/commands/*.md` is the idiomatic choice for a single-repo command; a full `.claude-plugin/` manifest is for sharing across repos/teams, which isn't a current requirement). Its body encodes the 14-step agent workflow from `TraceLens_Master_Plan.md` §25 as a prompt template, including the observed/likely/possible/confirmed confidence language from §23/§27 -- so evidence and inference stay explicitly separated in the final report rather than relying on whoever's typing the request that day to spell out the whole workflow.
+
 ## Errors
 
 `packages/core/src/errors.ts` centralizes actionable errors (`missingFfmpegError`, `invalidVideoError`, `pathNotAllowedError`, `providerNotConfiguredError`, `malformedProviderResponseError`, `sessionNotFoundError`) so both the CLI and the MCP tool layer surface the same, install-instruction-bearing messages instead of raw stack traces.
 
 ## What's deliberately not built yet
 
-Browser/terminal/Git instrumentation, the live event bus, the evidence correlation graph, `/debug-video`, a real speech-to-text provider, and the evaluation harness are designed in the master plan but are later phases -- see the README's Limitations section.
+Browser/terminal instrumentation, the live event bus, full Git diffs/the evidence-correlation graph, a real speech-to-text provider, and the evaluation harness are designed in the master plan but are later phases -- see the README's Limitations section.

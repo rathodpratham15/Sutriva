@@ -2,7 +2,7 @@
 
 **TraceLens gives coding agents temporal memory: it turns developer sessions (recorded video today, live browser/terminal/Git sessions in later phases) into structured, timestamped evidence that Claude Code can query instead of guessing from source code alone.**
 
-> **Status: Phase 0 + Phase 1.** MP4 → metadata → sampled frames + audio transcript → vision/transcription providers → timeline+evidence → SQLite → MCP (7 tools) → Claude Code is implemented, tested, and working end to end. Live debugging, browser/terminal/Git correlation, and the agentic patch/verify loop described in `TraceLens_Master_Plan.md` are later phases and are not yet built -- see [Limitations](#limitations--roadmap).
+> **Status: Phase 0 + Phase 1 + Phase 2 (replay debugging).** MP4 → metadata → sampled frames + audio transcript → vision/transcription providers → timeline+evidence → SQLite → MCP (8 tools) → Claude Code, plus `/debug-video` and Git-context correlation, is implemented, tested, and working end to end. Live debugging and the full developer-correlation/evaluation phases described in `TraceLens_Master_Plan.md` are next -- see [Limitations](#limitations--roadmap).
 
 ## Why TraceLens exists
 
@@ -54,6 +54,12 @@ claude
 
 Claude will call `inspect_video`, then `get_timeline`, then `get_frame` for any moment it wants to see directly -- it does not receive the raw video file.
 
+For the full debugging workflow (evidence → repo inspection → hypothesis → fix → verification) in one step, use the bundled slash command instead:
+
+```
+> /debug-video fixtures/videos/checkout-bug.mp4
+```
+
 ## Architecture
 
 ```
@@ -78,6 +84,7 @@ MP4 --ffprobe/ffmpeg--> metadata + sampled frames --VisionProvider--> observatio
 | `packages/providers` | `VisionProvider` interface + `MockVisionProvider` (offline/deterministic) + `AnthropicVisionProvider`. Provider SDKs never leak outside this package. |
 | `packages/storage` | SQLite (`better-sqlite3`) persistence for sessions, events, evidence, artifacts, transcripts. |
 | `packages/timeline` | Orchestrates ingest (`inspectVideo`) and query (`getTimeline`, `getFrame`, `searchSession`, `analyzeSegment`, `getEvidenceAround`). |
+| `packages/git` | Minimal Git context (branch, commit, working-tree status, recent commits) for correlating evidence with source -- not a full diff/blame engine (that's Phase 4). |
 | `apps/mcp-server` | MCP server exposing the tool surface below over stdio. |
 | `apps/cli` | `tracelens` CLI -- useful standalone, without Claude Code. |
 
@@ -94,8 +101,18 @@ See `docs/architecture.md` for the full design rationale (progressive disclosure
 | `get_evidence` | Temporal rewind: evidence within a time window around a timestamp ("what happened immediately before/after this?"). |
 | `analyze_segment` | Dense, on-demand analysis over a narrow time range -- for when the coarse timeline isn't enough detail. |
 | `get_transcript` | Raw audio transcript segments for a session. |
+| `inspect_environment` | Current Git context (branch/commit/working-tree status/recent commits), plus explicit `available: false` flags for browser/network/console/terminal context -- those land in Phase 3/4. |
 
-`inspect_environment` and live-session tools (Phase 3) aren't built yet -- see Limitations.
+Live-session tools (Phase 3) aren't built yet -- see Limitations.
+
+## Claude Code plugin command
+
+`.claude/commands/debug-video.md` adds `/debug-video <path>` as a project-level slash command. It packages the full agent workflow from `TraceLens_Master_Plan.md` §25 (inspect → timeline → evidence → frames → repo → hypothesis → evidence-labeled confidence → patch → test → reproduce → report) so you don't have to spell it out by hand each time:
+
+```
+claude
+> /debug-video fixtures/videos/checkout-bug.mp4
+```
 
 ## CLI
 
@@ -137,16 +154,16 @@ pnpm lint        # eslint
 pnpm test        # vitest -- unit tests + a real MCP-server-over-stdio integration test
 ```
 
-All 27 current tests run offline against the mock providers and generated fixtures -- no paid API calls are required to validate the system.
+All 34 current tests run offline against the mock providers and generated fixtures -- no paid API calls are required to validate the system.
 
 ## Limitations & roadmap
 
-Phase 0 (vertical slice) and Phase 1 (temporal core) are done. Not yet built (see `TraceLens_Master_Plan.md` for the full plan):
+Phase 0 (vertical slice), Phase 1 (temporal core), and Phase 2 (replay debugging) are done. Not yet built (see `TraceLens_Master_Plan.md` for the full plan):
 
-- Live debugging (`tracelens debug --live`), browser/terminal/Git instrumentation, the event bus for live sources.
-- `/debug-video` Claude Code plugin command and the full agentic patch/verify loop.
-- `inspect_environment` and other live-session MCP tools.
+- Live debugging (`tracelens debug --live`), browser/terminal instrumentation, the event bus for live sources, `get_current_context()` (Phase 3).
+- Full Git correlation (diffs, blame, the evidence-correlation graph) and terminal command capture (Phase 4) -- `inspect_environment` today only returns branch/commit/working-tree status/recent commits, not diffs.
+- The formal observe→diagnose→patch→test→reproduce→compare loop and `compare_sessions(before, after)` (Phase 5).
 - A real speech-to-text provider -- `TranscriptionProvider` exists and audio is extracted/segmented, but only the deterministic `MockTranscriptionProvider` is implemented; transcript text is a placeholder, not real speech recognition.
-- The demo buggy app, evaluation harness (`tracelens eval`), before/after session comparison.
+- The demo buggy app, evaluation harness (`tracelens eval`), before/after session comparison (Phase 6).
 
 These are being implemented in subsequent phases.
