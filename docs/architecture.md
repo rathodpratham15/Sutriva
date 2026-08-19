@@ -1,6 +1,6 @@
 # Architecture
 
-This describes the system as implemented (Phase 0 through Phase 4). For the full target architecture see `TraceLens_Master_Plan.md`.
+This describes the system as implemented (Phase 0 through Phase 5). For the full target architecture see `TraceLens_Master_Plan.md`.
 
 ## The temporal model
 
@@ -75,9 +75,13 @@ Both the captured stdout/stderr *and* the command line itself are passed through
 
 This deliberately reconstructs only the first few links of the plan's example chain (click → request → failed response → console error → UI failure → source → commit) -- the "source function" and "Git commit" links are left to Claude actually reading code and calling `inspect_environment`, not pre-computed, because the plan is explicit that TraceLens should never automatically claim causality (§23/§27). A correlation here means "this happened shortly before, and its type suggests it's plausibly related" -- it is evidence for Claude's own observed/likely/possible reasoning, not a causality claim TraceLens makes itself.
 
+## Agentic loop: before/after verification
+
+`packages/timeline/src/compare.ts`'s `compareSessions(beforeId, afterId)` is the "reproduce → compare" half of the plan's observe→diagnose→patch→test→reproduce→compare loop (§26/§27) -- the rest of the loop (observe/diagnose/patch/test) doesn't need new TraceLens infrastructure, since it's Claude using tools it already has (Read/Grep, Edit, Bash) informed by the evidence tools from earlier phases. `compareSessions` works generically over any two sessions' stored event descriptions (not live-session-specific, so it applies to two replay recordings too): it parses network response descriptions (`"METHOD URL -> STATUS"`) to build a last-status-per-endpoint map for each session, diffs them to find endpoints that went from failing (>=400) to succeeding or vice versa, and separately diffs the set of distinct console-error messages seen in each. Like event correlation, this explicitly does not claim the code change *caused* the observed difference -- it surfaces the before/after evidence side by side and leaves the causal claim to Claude.
+
 ## Claude Code plugin command
 
-`.claude/commands/debug-video.md` is a project-level slash command (not a distributed plugin -- `.claude/commands/*.md` is the idiomatic choice for a single-repo command; a full `.claude-plugin/` manifest is for sharing across repos/teams, which isn't a current requirement). Its body encodes the 14-step agent workflow from `TraceLens_Master_Plan.md` §25 as a prompt template, including the observed/likely/possible/confirmed confidence language from §23/§27 -- so evidence and inference stay explicitly separated in the final report rather than relying on whoever's typing the request that day to spell out the whole workflow.
+`.claude/commands/debug-video.md` is a project-level slash command (not a distributed plugin -- `.claude/commands/*.md` is the idiomatic choice for a single-repo command; a full `.claude-plugin/` manifest is for sharing across repos/teams, which isn't a current requirement). Its body encodes the 14-step agent workflow from `TraceLens_Master_Plan.md` §25 as a prompt template, including the observed/likely/possible/confirmed confidence language from §23/§27 -- so evidence and inference stay explicitly separated in the final report rather than relying on whoever's typing the request that day to spell out the whole workflow. Step 13 (reproduce/verify) calls for `compare_sessions` explicitly rather than "compare the timelines" vaguely, and a "Live debugging" section covers the same workflow when the input is `tracelens debug --live` + `tracelens exec` rather than a recording.
 
 ## Errors
 
@@ -85,4 +89,4 @@ This deliberately reconstructs only the first few links of the plan's example ch
 
 ## What's deliberately not built yet
 
-The formal agentic patch/verify loop, `compare_sessions`, a real speech-to-text provider, and the evaluation harness are designed in the master plan but are later phases -- see the README's Limitations section.
+The demo buggy app, a real speech-to-text provider, and the evaluation harness (benchmarking the loop against known-answer scenarios) are designed in the master plan but are later phases -- see the README's Limitations section.
