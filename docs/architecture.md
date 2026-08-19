@@ -1,6 +1,6 @@
 # Architecture
 
-This describes the system as implemented (Phase 0 through Phase 5). For the full target architecture see `TraceLens_Master_Plan.md`.
+This describes the system as implemented (Phase 0 through Phase 6 -- the master plan's core phases are complete). For the full target architecture see `TraceLens_Master_Plan.md`.
 
 ## The temporal model
 
@@ -83,10 +83,18 @@ This deliberately reconstructs only the first few links of the plan's example ch
 
 `.claude/commands/debug-video.md` is a project-level slash command (not a distributed plugin -- `.claude/commands/*.md` is the idiomatic choice for a single-repo command; a full `.claude-plugin/` manifest is for sharing across repos/teams, which isn't a current requirement). Its body encodes the 14-step agent workflow from `TraceLens_Master_Plan.md` §25 as a prompt template, including the observed/likely/possible/confirmed confidence language from §23/§27 -- so evidence and inference stay explicitly separated in the final report rather than relying on whoever's typing the request that day to spell out the whole workflow. Step 13 (reproduce/verify) calls for `compare_sessions` explicitly rather than "compare the timelines" vaguely, and a "Live debugging" section covers the same workflow when the input is `tracelens debug --live` + `tracelens exec` rather than a recording.
 
+## Demo app and evaluation
+
+`demo/buggy-app` is a minimal Next.js (App Router) workspace package with three bugs matching the plan's §28 categories -- deliberately *not* another network-500 fixture like the earlier synthetic `checkout-bug.mp4`, so the demo exercises different evidence types: a schema mismatch (console `TypeError`, no network failure), an async race (stale UI state, no error at all), and a CSS visual regression (no error, no network activity -- only screenshot evidence). `scripts/generate-eval-fixtures.ts` builds and starts the app, then drives each bug's deterministic repro with Playwright, using `recordVideo` to capture a real MP4 per scenario (not a manual screen recording).
+
+`tests/eval/harness.ts` (invoked by both `pnpm eval` and `tracelens eval`) is deliberately split from `tests/eval/run-eval.ts`, a two-line entry point that just calls `harness.ts`'s `main()`. Earlier, `run-eval.ts` tried to detect "am I being run directly" via `import.meta.url === file://${process.argv[1]}`, which matched when invoked through a package script but silently never matched when the same `tsx` binary was spawned directly as a child process (as `apps/cli/src/commands/eval.ts` does) -- `tracelens eval` exited 0 with no output and no report. Splitting the module removes the need for that detection entirely: the harness never self-invokes, so importing it for tests (`tests/eval/harness.test.ts`) is safe, and the thin entry point unconditionally runs `main()` no matter how it's invoked.
+
+The harness measures four things without a paid model API call (temporal localization, evidence retrieval, context efficiency, latency -- see `docs/evaluation.md` for exact definitions) and reports root-cause accuracy/code localization/patch success as "manual," with the exact `/debug-video` invocation needed to grade them by hand. This mirrors the plan's own instruction not to make normal tests/benchmarks depend on paid APIs, while still being honest that some of what the plan asks to measure (§29) genuinely requires an agent to reason about source code, which is not something a deterministic script can fake.
+
 ## Errors
 
 `packages/core/src/errors.ts` centralizes actionable errors (`missingFfmpegError`, `invalidVideoError`, `pathNotAllowedError`, `providerNotConfiguredError`, `malformedProviderResponseError`, `sessionNotFoundError`) so both the CLI and the MCP tool layer surface the same, install-instruction-bearing messages instead of raw stack traces.
 
 ## What's deliberately not built yet
 
-The demo buggy app, a real speech-to-text provider, and the evaluation harness (benchmarking the loop against known-answer scenarios) are designed in the master plan but are later phases -- see the README's Limitations section.
+A real speech-to-text provider, and `docs/product.md`/`docs/competitive-analysis.md` (Phase 7 polish) remain. The core system the master plan describes (Phases 0-6) is otherwise complete -- see the README's Limitations section.
