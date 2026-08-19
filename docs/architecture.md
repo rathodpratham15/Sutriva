@@ -1,6 +1,6 @@
 # Architecture
 
-This describes the system as implemented (Phase 0 + Phase 1 + Phase 2 + Phase 3). For the full target architecture see `TraceLens_Master_Plan.md`.
+This describes the system as implemented (Phase 0 through Phase 4). For the full target architecture see `TraceLens_Master_Plan.md`.
 
 ## The temporal model
 
@@ -49,9 +49,9 @@ SQLite via `better-sqlite3` (`packages/storage`). Tables: `sessions`, `temporal_
 
 ## Repository correlation (Git)
 
-`packages/git` shells out to the `git` CLI (no library dependency) for the minimum context a debugging hypothesis needs: current branch, commit, working-tree dirty status, changed file paths, and recent commits. `getGitContext` returns `{ isRepo: false }` rather than throwing when `cwd` isn't inside a Git working tree -- environment inspection should degrade gracefully, not fail the whole tool call. This is deliberately *not* the full evidence-correlation graph or diff/blame support the plan describes for Phase 4 (§24, §27) -- it's just enough for `inspect_environment` to tell Claude "here's what changed recently" so a hypothesis can point at a real file instead of guessing.
+`packages/git` shells out to the `git` CLI (no library dependency) for the minimum context a debugging hypothesis needs: current branch, commit, working-tree dirty status, changed file paths, recent commits, and (added in Phase 4) a diff. `getGitContext` returns `{ isRepo: false }` rather than throwing when `cwd` isn't inside a Git working tree -- environment inspection should degrade gracefully, not fail the whole tool call. `getDiffStat` (`git diff --stat`, always cheap) and `getWorkingTreeDiff` (`git diff HEAD`, bounded to `maxLines` -- default 200 -- with a `truncated` flag) are kept separate from `getGitContext` since a full diff can be large; `inspect_environment` always includes the diffstat but only fetches the full diff when the caller passes `includeDiff: true`, matching the progressive-disclosure principle used everywhere else in the tool surface. This is deliberately *not* blame or full-history correlation -- just enough for a hypothesis to point at an actual line of changed code, not merely a file name.
 
-`inspect_environment` (the MCP tool) wraps this Git context together with whether a live session is currently running, and capability flags for browser/network/console (`available: true`, but only populated while a live session is running -- see below) and terminal (`available: false`, Phase 4). The intent (`TraceLens_Master_Plan.md` §37: "never trust unvalidated model output", and the broader "don't fake the workflow" instruction) is that Claude is never left to assume silence means "nothing happening" for a source that isn't currently populated.
+`inspect_environment` (the MCP tool) wraps this Git context together with whether a live session is currently running, and capability flags for browser/network/console/terminal (`available: true` for all four, but each only actually populated while a live session is running -- or, for terminal, only for commands run through `tracelens exec`). The intent (`TraceLens_Master_Plan.md` §37: "never trust unvalidated model output", and the broader "don't fake the workflow" instruction) is that Claude is never left to assume silence means "nothing happening" for a source that isn't currently populated.
 
 ## Live sessions (browser)
 
@@ -63,6 +63,18 @@ SQLite via `better-sqlite3` (`packages/storage`). Tables: `sessions`, `temporal_
 
 **A real reliability bug found while testing this end-to-end:** Playwright's `chromium.launch()` defaults to `handleSIGINT: true` (and SIGTERM/SIGHUP), meaning Playwright installs its own process-level signal handler that closes the browser and lets the process die immediately on Ctrl+C -- racing against, and beating, `packages/live`'s own graceful shutdown (which needs to persist the final session state and print a summary first). `startLiveSession` now launches with `handleSIGINT/SIGTERM/SIGHUP: false` so the CLI's own shutdown handler has exclusive control. A related fix: the CLI's shutdown path avoids `process.exit()` on the normal path (it can truncate pending stdout writes) and races `stop()` against a 5s timeout with a forced exit only as a last resort, in case the browser process died in some other way mid-close.
 
+## Terminal instrumentation
+
+`packages/live/terminal.ts`'s `runAndCapture` (§22) spawns a command with `stdio: ["inherit", "pipe", "pipe"]`: stdin is inherited so interactive commands still work, and stdout/stderr are piped so they can be *tee'd* -- streamed to the caller's real terminal unmodified while a bounded, separate copy is captured for persistence. If a live session is active (or an explicit `sessionId` is given), the command becomes a `terminal`-typed `TemporalEvent`/`Evidence` (confidence 1: exit code and captured output are directly observed facts). If no session is active, the command still runs normally -- nothing is persisted, and the caller isn't required to have a session running just to use `tracelens exec` as a plain command runner.
+
+Both the captured stdout/stderr *and* the command line itself are passed through `redactSecrets` (`packages/core/src/redact.ts`) before being stored -- a heuristic pass for common secret shapes (`KEY=value` assignments with secret-looking names, `Bearer <token>`, AWS access key IDs, PEM private key blocks). This is explicitly a best-effort heuristic per the plan's "do not capture secrets intentionally, provide redaction hooks" (§22), not a guarantee -- treat captured terminal output as potentially sensitive regardless. (A test written against this surfaced a real gap: the command line itself wasn't being redacted, only the output -- fixed, since arguments carry secrets just as easily, e.g. a `curl -H "Authorization: Bearer <token>"` invocation.)
+
+## Evidence correlation
+
+`packages/live/correlate.ts`'s `findRelatedEventIds` is the MVP version of the plan's evidence-correlation graph (§24) -- "SQLite relations are sufficient," so this populates the `relatedEventIds` array already defined on `TemporalEvent` rather than building a separate graph structure. It's a pure, time-window heuristic: a `network` event looks back for the most recent `interaction` event within 3s (a click that plausibly triggered this request); a `console` event matching `/error|exception/i` looks back for the most recent `network` event within 3s (an error that plausibly followed a failed request). `startLiveSession` wires this into the persist path via a small in-memory ring buffer (last 20 events) -- checked before each new event is stored. `get_timeline`/`search_session` include `relatedEventIds` in their output (omitted when empty, to stay compact).
+
+This deliberately reconstructs only the first few links of the plan's example chain (click → request → failed response → console error → UI failure → source → commit) -- the "source function" and "Git commit" links are left to Claude actually reading code and calling `inspect_environment`, not pre-computed, because the plan is explicit that TraceLens should never automatically claim causality (§23/§27). A correlation here means "this happened shortly before, and its type suggests it's plausibly related" -- it is evidence for Claude's own observed/likely/possible reasoning, not a causality claim TraceLens makes itself.
+
 ## Claude Code plugin command
 
 `.claude/commands/debug-video.md` is a project-level slash command (not a distributed plugin -- `.claude/commands/*.md` is the idiomatic choice for a single-repo command; a full `.claude-plugin/` manifest is for sharing across repos/teams, which isn't a current requirement). Its body encodes the 14-step agent workflow from `TraceLens_Master_Plan.md` §25 as a prompt template, including the observed/likely/possible/confirmed confidence language from §23/§27 -- so evidence and inference stay explicitly separated in the final report rather than relying on whoever's typing the request that day to spell out the whole workflow.
@@ -73,4 +85,4 @@ SQLite via `better-sqlite3` (`packages/storage`). Tables: `sessions`, `temporal_
 
 ## What's deliberately not built yet
 
-Terminal instrumentation, full Git diffs/the evidence-correlation graph, the formal agentic patch/verify loop, `compare_sessions`, a real speech-to-text provider, and the evaluation harness are designed in the master plan but are later phases -- see the README's Limitations section.
+The formal agentic patch/verify loop, `compare_sessions`, a real speech-to-text provider, and the evaluation harness are designed in the master plan but are later phases -- see the README's Limitations section.

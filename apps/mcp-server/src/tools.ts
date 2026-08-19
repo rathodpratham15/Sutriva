@@ -13,20 +13,24 @@ import {
   getTranscript,
   getCurrentContext,
 } from "@tracelens/timeline";
-import { getGitContext } from "@tracelens/git";
+import { getGitContext, getDiffStat, getWorkingTreeDiff } from "@tracelens/git";
 import { getStore } from "@tracelens/storage";
 
 /**
- * Capability flags for inspect_environment. `available` means the capability exists
- * at all (a session must still be live for browser/network/console to have data --
- * see get_current_context / the liveSession field). Terminal capture isn't built yet
- * (Phase 4). Kept explicit so Claude never assumes silence means "nothing happening".
+ * Capability flags for inspect_environment. `available` means the capability
+ * exists at all -- a session must still be live for any of these to have
+ * data (see get_current_context / the liveSession field), and terminal
+ * events only appear if the user ran commands through `tracelens exec`.
+ * Kept explicit so Claude never assumes silence means "nothing happening".
  */
 const ENVIRONMENT_SOURCE_CAPABILITIES = {
   browser: { available: true, note: "Populated only while a live session is running -- see get_current_context." },
   network: { available: true, note: "Populated only while a live session is running -- see get_current_context." },
   console: { available: true, note: "Populated only while a live session is running -- see get_current_context." },
-  terminal: { available: false, reason: "Terminal command instrumentation lands in a later phase (Phase 4)." },
+  terminal: {
+    available: true,
+    note: "Populated only for commands run via `tracelens exec -- <command>` during a live session.",
+  },
 } as const;
 
 function textResult(payload: unknown): CallToolResult {
@@ -122,6 +126,9 @@ export function registerTools(server: McpServer): void {
             type: e.type,
             description: e.description,
             confidence: e.confidence,
+            // Bounded, best-effort correlation (e.g. the click likely behind this request) --
+            // proximity-based, not a causality claim. Omitted entirely when empty.
+            relatedEventIds: e.relatedEventIds.length > 0 ? e.relatedEventIds : undefined,
           })),
         });
       } catch (err) {
@@ -184,6 +191,9 @@ export function registerTools(server: McpServer): void {
             type: e.type,
             description: e.description,
             confidence: e.confidence,
+            // Bounded, best-effort correlation (e.g. the click likely behind this request) --
+            // proximity-based, not a causality claim. Omitted entirely when empty.
+            relatedEventIds: e.relatedEventIds.length > 0 ? e.relatedEventIds : undefined,
           })),
         });
       } catch (err) {
@@ -302,20 +312,28 @@ export function registerTools(server: McpServer): void {
       title: "Inspect environment",
       description:
         "Returns available developer context beyond the video itself: current Git branch/commit/working-tree " +
-        "status/recent commits (for correlating a failure with recently-changed source), whether a live " +
-        "debugging session is currently running, and capability flags for browser/network/console/terminal " +
-        "context. Use this before forming a hypothesis about root cause, and never assume a source is present " +
-        "if it isn't listed as available here.",
+        "status/recent commits/a compact diffstat (for correlating a failure with recently-changed source), " +
+        "whether a live debugging session is currently running, and capability flags for browser/network/" +
+        "console/terminal context. Use this before forming a hypothesis about root cause, and never assume a " +
+        "source is present if it isn't listed as available here. Pass includeDiff for the full working-tree diff " +
+        "(bounded/truncated) once you have a specific file in mind -- the diffstat alone is usually enough to start.",
       inputSchema: {
         root: z.string().optional().describe("Repository root to inspect (defaults to the server's working directory)."),
+        includeDiff: z.boolean().optional().describe("Include the full (bounded) working-tree diff, not just the diffstat."),
+        diffMaxLines: z.number().int().positive().max(1000).optional().describe("Max lines of the full diff to return (default 200)."),
       },
     },
-    async ({ root }) => {
+    async ({ root, includeDiff, diffMaxLines }) => {
       try {
-        const git = await getGitContext(root ?? process.cwd());
+        const repoRoot = root ?? process.cwd();
+        const [git, diffStat, fullDiff] = await Promise.all([
+          getGitContext(repoRoot),
+          getDiffStat(repoRoot),
+          includeDiff ? getWorkingTreeDiff(repoRoot, { maxLines: diffMaxLines }) : Promise.resolve(undefined),
+        ]);
         const activeLiveSession = getStore().findActiveLiveSession();
         return textResult({
-          git,
+          git: { ...git, diffStat: diffStat || undefined, diff: fullDiff },
           liveSession: activeLiveSession
             ? { active: true, sessionId: activeLiveSession.id }
             : { active: false, note: "Start one with `tracelens debug --live` to get live browser/network/console context." },

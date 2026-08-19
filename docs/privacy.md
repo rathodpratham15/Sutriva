@@ -13,8 +13,15 @@ The **only** thing that leaves your machine is data sent to a configured vision 
 - With the default (`TRACELENS_VISION_PROVIDER=mock`, used whenever `ANTHROPIC_API_KEY` is unset), **nothing ever leaves your machine**. The mock provider is a local heuristic.
 - With `TRACELENS_VISION_PROVIDER=anthropic`, `inspect_video` and `analyze_segment` send the **sampled frame images** (not the whole video file) and a text prompt to the Anthropic Messages API over HTTPS, using your own `ANTHROPIC_API_KEY`. This happens only when you explicitly run `inspect_video`/`analyze_segment` with that provider configured -- not automatically, not in the background, not on a schedule.
 - `TRACELENS_TRANSCRIPTION_PROVIDER` only has a `mock` implementation today, so audio transcription never leaves your machine either -- the extracted audio track (`audio.wav`) stays under `TRACELENS_DATA_DIR` and is only read locally to derive a placeholder segment count. There is no real speech-to-text provider wired in yet.
-- `tracelens debug --live` (Phase 3) never calls a model provider itself -- it only captures browser events (navigation, clicks, input, console, network, screenshots) into the local SQLite database and artifact directory. Nothing about a live session is sent anywhere unless you separately ask Claude to reason about it (which happens through your own Claude Code session, not through TraceLens making an API call on your behalf).
+- `tracelens debug --live` never calls a model provider itself -- it only captures browser events (navigation, clicks, input, console, network, screenshots) into the local SQLite database and artifact directory. Nothing about a live session is sent anywhere unless you separately ask Claude to reason about it (which happens through your own Claude Code session, not through TraceLens making an API call on your behalf).
 - Input field values are captured (truncated to 80 characters) as interaction evidence, since what a user typed is often exactly the debugging signal needed -- **except** password fields (`input[type=password]`), which are always recorded as `[redacted]`. Other sensitive fields (API tokens typed into a non-password text input, for example) are not automatically detected -- be mindful of what you type into a page while a live session is recording.
+- `tracelens exec -- <command>` also never calls a model provider -- it runs the command as a normal child process and, if a live session is active, records a redacted copy of the command line and its output locally. Same rule as everything else here: local storage only, nothing sent anywhere automatically.
+
+## Terminal capture and secret redaction
+
+`tracelens exec` captures the command line and a bounded copy of stdout/stderr, then passes both through a best-effort redaction pass (`redactSecrets`, `packages/core/src/redact.ts`) before storing -- **not** before streaming to your real terminal, which is unaffected. It catches common shapes: `KEY=value`/`KEY: value` assignments where the name looks secret-ish (contains `API`, `SECRET`, `TOKEN`, `PASSWORD`, `KEY`, `CREDENTIAL`, etc.), `Authorization: Bearer <token>` headers, AWS access key IDs (`AKIA...`), and PEM private key blocks.
+
+**This is a heuristic, not a guarantee.** It will not catch every secret shape (a bare token with no recognizable prefix or surrounding label, for example, passes through untouched). Treat anything captured via `tracelens exec` as potentially containing sensitive data regardless of redaction, the same way you'd treat your own shell history. If you need to run something you know outputs secrets, don't run it through `tracelens exec` (or run it without an active live session, in which case nothing is persisted at all).
 
 TraceLens has no telemetry, analytics, or crash-reporting of its own.
 
@@ -38,6 +45,6 @@ tracelens clean --yes
 
 Deletes `TRACELENS_DATA_DIR` entirely: the SQLite database, every extracted frame, everything TraceLens has derived. It never touches your source video files or your repository.
 
-## What is not yet implemented (and therefore not yet a privacy concern, but will be)
+## Working-tree diffs
 
-Terminal command capture (Phase 4) will follow the same rule: local storage by default, no automatic upload. It's expected to need redaction hooks before it should be trusted with real command output (see `TraceLens_Master_Plan.md` §22) -- this is called out here so it isn't quietly assumed to be safe once implemented.
+`inspect_environment`'s `includeDiff` option returns your actual uncommitted code changes (bounded/truncated, but still real source). This stays entirely local unless you're using it inside a Claude Code session that itself sends context to a model -- the same consideration as any other code Claude reads from your repository. TraceLens itself never uploads a diff anywhere.

@@ -2,7 +2,7 @@
 
 **TraceLens gives coding agents temporal memory: it turns developer sessions -- recorded video or a live browser session -- into structured, timestamped evidence that Claude Code can query instead of guessing from source code alone.**
 
-> **Status: Phase 0 + Phase 1 + Phase 2 + Phase 3 (live mode).** Replay (MP4 → metadata/frames/transcript → timeline) and live (Playwright browser instrumentation → the same timeline/evidence tables) both work end to end through a 9-tool MCP surface, `/debug-video`, and `tracelens debug --live`. Terminal/full-Git correlation, the agentic patch/verify loop, and the evaluation harness described in `TraceLens_Master_Plan.md` are next -- see [Limitations](#limitations--roadmap).
+> **Status: Phase 0 + Phase 1 + Phase 2 + Phase 3 + Phase 4 (developer correlation).** Replay (MP4 → metadata/frames/transcript → timeline) and live (Playwright browser + terminal instrumentation → the same timeline/evidence tables) both work end to end through a 9-tool MCP surface, `/debug-video`, `tracelens debug --live`, and `tracelens exec`. Related events (e.g. a click and the request it likely triggered) are linked automatically by proximity, and `inspect_environment` can show a bounded working-tree diff. The formal agentic patch/verify loop and the evaluation harness described in `TraceLens_Master_Plan.md` are next -- see [Limitations](#limitations--roadmap).
 
 ## Why TraceLens exists
 
@@ -107,18 +107,26 @@ This opens a real, visible browser window. Interact with it normally -- click ar
 
 `get_current_context` returns a compact, bounded snapshot (current screenshot, current URL, recent events, recent console errors, recent network failures, live Git state) without Claude having to poll the whole timeline. Press Ctrl+C in the `tracelens debug --live` terminal to end the session.
 
+Run a command and record it into that same timeline (e.g. to capture the test run that reproduces a bug):
+
+```bash
+tracelens exec -- npm test
+```
+
+Output streams to your terminal exactly as if you'd run the command directly; a bounded, redacted copy (command, exit code, stdout/stderr) is recorded as a `terminal` event if a live session is active. Related events get linked automatically: a network request/error is linked back to the click that likely triggered it, purely by time proximity -- this is evidence for Claude to reason over, not a causality claim TraceLens itself makes.
+
 ## MCP tools
 
 | Tool | Purpose |
 |---|---|
 | `inspect_video` | Ingests a video into a session: metadata, sampled frames, vision analysis, transcript (if the video has audio), timeline. Reuses the existing session if the file's content hash was already seen. |
-| `get_timeline` | Returns the bounded, timestamped event list for a session (supports `limit`/`afterSeconds`/`beforeSeconds`). Visual, audio, and live browser events are all merged in time order. |
+| `get_timeline` | Returns the bounded, timestamped event list for a session (supports `limit`/`afterSeconds`/`beforeSeconds`). Visual, audio, browser, and terminal events are all merged in time order, with `relatedEventIds` on events that were automatically correlated to a plausible preceding cause. |
 | `get_frame` | Returns one targeted replay frame (as an image Claude can see) near a timestamp -- the model never has to re-request the whole video for a follow-up visual question. |
 | `search_session` | Full-text search over a session's event descriptions. |
 | `get_evidence` | Temporal rewind: evidence within a time window around a timestamp ("what happened immediately before/after this?"). |
 | `analyze_segment` | Dense, on-demand analysis over a narrow time range -- for when the coarse timeline isn't enough detail. |
 | `get_transcript` | Raw audio transcript segments for a session. |
-| `inspect_environment` | Current Git context, whether a live session is running, and capability flags for browser/network/console (available while live)/terminal (Phase 4, not yet). |
+| `inspect_environment` | Current Git context (branch/commit/status/recent commits/diffstat, plus the full working-tree diff if `includeDiff` is set), whether a live session is running, and capability flags for browser/network/console/terminal (each populated only while/if actually captured). |
 | `get_current_context` | The "look at this" / "what just happened?" snapshot for a live session: screenshot, current URL, recent events/errors/failures, live Git state. Defaults to the active live session if `sessionId` is omitted. |
 
 ## Claude Code plugin command
@@ -139,6 +147,7 @@ tracelens timeline <video> [--limit N] [--json]
 tracelens search <video> "<query>"
 tracelens analyze <video> --start S --end E [--question "..."]
 tracelens debug --live [--url <url>] [--headless]   # live browser session (Ctrl+C to stop)
+tracelens exec -- <command>                         # run + record a command into the active live session
 tracelens session list
 tracelens clean [--yes]                             # delete .tracelens/ (derived data only)
 ```
@@ -171,17 +180,18 @@ pnpm lint        # eslint
 pnpm test        # vitest -- unit tests + a real MCP-server-over-stdio integration test
 ```
 
-All 37 current tests run offline against the mock providers, generated fixtures, and a local HTTP test server for browser instrumentation -- no paid API calls or external network access are required to validate the system. The live-session tests run a real headless Chromium against a page deliberately designed to trigger a console error, a failed request, and a click, and assert the resulting events/evidence/screenshot.
+All 57 current tests run offline against the mock providers, generated fixtures, and a local HTTP test server for browser instrumentation -- no paid API calls or external network access are required to validate the system. The live-session tests run a real headless Chromium against a page deliberately designed to trigger a console error, a failed request, and a click, and assert the resulting events/evidence/screenshot/correlation.
 
 ## Limitations & roadmap
 
-Phase 0 (vertical slice), Phase 1 (temporal core), Phase 2 (replay debugging), and Phase 3 (live mode) are done. Not yet built (see `TraceLens_Master_Plan.md` for the full plan):
+Phase 0 (vertical slice) through Phase 4 (developer correlation) are done. Not yet built (see `TraceLens_Master_Plan.md` for the full plan):
 
-- Full Git correlation (diffs, blame, the evidence-correlation graph) and terminal command capture (Phase 4) -- `inspect_environment` today only returns branch/commit/working-tree status/recent commits, not diffs.
 - The formal observe→diagnose→patch→test→reproduce→compare loop and `compare_sessions(before, after)` (Phase 5).
 - A real speech-to-text provider -- `TranscriptionProvider` exists and audio is extracted/segmented, but only the deterministic `MockTranscriptionProvider` is implemented; transcript text is a placeholder, not real speech recognition.
 - The demo buggy app, evaluation harness (`tracelens eval`), before/after session comparison (Phase 6).
 - Live-session screenshots are best-effort: an occasional screenshot capture immediately after a navigation can transiently fail in headless Chromium (a known Playwright quirk); it's logged and skipped rather than crashing the session, and the next trigger/periodic capture fills in.
+- Event correlation (`relatedEventIds`) is a bounded, time-proximity heuristic (network follows a recent interaction; a console error follows a recent network event) -- it links plausible chains, it does not establish causality. `git diff`-based blame/full history correlation beyond "recent commits + working-tree diff" isn't built.
+- Terminal capture requires explicitly running commands through `tracelens exec`; there's no shell-wide/automatic capture of arbitrary commands you type directly. Redaction (`redactSecrets`) is a best-effort heuristic (common `KEY=value`/Bearer-token/AWS-key/PEM patterns), not a guarantee -- treat captured terminal output as potentially sensitive regardless.
 - Click/input capture describes the target element (tag/id/class/text), not a full DOM diff -- deliberately, per the plan's "don't over-engineer DOM diffing" guidance.
 
 These are being implemented in subsequent phases.

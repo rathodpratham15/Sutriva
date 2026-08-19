@@ -4,7 +4,7 @@ import path from "node:path";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import type { AddressInfo } from "node:net";
-import { startLiveSession } from "@tracelens/live";
+import { startLiveSession, runAndCapture } from "@tracelens/live";
 import { getStore } from "@tracelens/storage";
 import { getCurrentContext } from "@tracelens/timeline";
 
@@ -92,6 +92,13 @@ describe("live browser session (end-to-end)", () => {
     expect(evidence.length).toBe(events.length);
     expect(evidence.every((e) => e.confidence === 1)).toBe(true);
 
+    // The console error should be correlated (by proximity, not causality) to a
+    // preceding network event -- the plan's click->request->error evidence chain.
+    const consoleError = events.find((e) => e.type === "console" && /Something went wrong/.test(e.description));
+    expect(consoleError!.relatedEventIds.length).toBeGreaterThan(0);
+    const relatedEvent = events.find((e) => e.id === consoleError!.relatedEventIds[0]);
+    expect(relatedEvent!.type).toBe("network");
+
     // The live CLI log should have received human-readable lines too.
     expect(logLines.some((l) => l.includes("[network]"))).toBe(true);
 
@@ -121,5 +128,26 @@ describe("live browser session (end-to-end)", () => {
     expect(context.sessionId).toBe(handle.sessionId);
 
     await handle.stop();
+  }, 20_000);
+
+  it("stop()'s final event count reflects events inserted by other processes (e.g. tracelens exec)", async () => {
+    const handle = await startLiveSession({
+      url: testServer.url,
+      headless: true,
+      screenshotIntervalSeconds: 60,
+    });
+    await wait(500);
+
+    const store = getStore();
+    const beforeExecCount = store.listEvents(handle.sessionId).length;
+
+    // runAndCapture auto-discovers the active live session, the same way the
+    // separate `tracelens exec` CLI process would -- it isn't wired through
+    // this handle's own in-memory event bus at all.
+    await runAndCapture({ command: "node", args: ["-e", "process.exit(0)"] });
+
+    const summary = await handle.stop();
+    expect(summary.eventCount).toBe(beforeExecCount + 1);
+    expect(summary.eventCount).toBe(store.listEvents(handle.sessionId).length);
   }, 20_000);
 });

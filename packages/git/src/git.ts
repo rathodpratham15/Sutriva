@@ -100,3 +100,32 @@ export async function getGitContext(
     recentCommits,
   };
 }
+
+const DEFAULT_DIFF_MAX_LINES = 200;
+
+function truncateLines(text: string, maxLines: number): { text: string; truncated: boolean } {
+  const lines = text.split("\n");
+  if (lines.length <= maxLines) return { text, truncated: false };
+  return { text: lines.slice(0, maxLines).join("\n"), truncated: true };
+}
+
+/** Compact `git diff --stat` summary (file names + line-change counts) -- cheap enough to include by default. */
+export async function getDiffStat(cwd: string): Promise<string | undefined> {
+  return tryRunGit(cwd, ["diff", "--stat"]);
+}
+
+/**
+ * Full unified working-tree diff, bounded to `maxLines` (default 200) so a large
+ * change doesn't blow out a tool response -- this is meant for "show me the
+ * relevant change", not a complete patch. Includes both staged and unstaged
+ * changes (`git diff HEAD`).
+ */
+export async function getWorkingTreeDiff(
+  cwd: string,
+  options: { maxLines?: number } = {},
+): Promise<{ diff: string; truncated: boolean } | undefined> {
+  const raw = await tryRunGit(cwd, ["diff", "HEAD"]);
+  if (raw === undefined) return undefined;
+  const { text, truncated } = truncateLines(raw, options.maxLines ?? DEFAULT_DIFF_MAX_LINES);
+  return { diff: text, truncated };
+}
