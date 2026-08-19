@@ -12,6 +12,15 @@ import {
   analyzeSegment,
   getTranscript,
 } from "@tracelens/timeline";
+import { getGitContext } from "@tracelens/git";
+
+/** Sources not yet implemented -- see TraceLens_Master_Plan.md Phase 3/4. Kept explicit so Claude never assumes silence means "nothing happening". */
+const UNAVAILABLE_ENVIRONMENT_SOURCES = {
+  browser: { available: false, reason: "Live browser instrumentation lands in a later phase (Playwright, Phase 3)." },
+  network: { available: false, reason: "Live network capture lands alongside browser instrumentation (Phase 3)." },
+  console: { available: false, reason: "Live console capture lands alongside browser instrumentation (Phase 3)." },
+  terminal: { available: false, reason: "Terminal command instrumentation lands in a later phase (Phase 4)." },
+} as const;
 
 function textResult(payload: unknown): CallToolResult {
   return { content: [{ type: "text", text: JSON.stringify(payload, null, 2) }] };
@@ -274,6 +283,29 @@ export function registerTools(server: McpServer): void {
             confidence: s.confidence,
           })),
         });
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    "inspect_environment",
+    {
+      title: "Inspect environment",
+      description:
+        "Returns available developer context beyond the video itself: current Git branch/commit/working-tree " +
+        "status/recent commits (for correlating a failure with recently-changed source), plus explicit " +
+        "availability flags for browser/network/console/terminal context, which are not implemented yet. " +
+        "Use this before forming a hypothesis about root cause, and never assume a source not listed here.",
+      inputSchema: {
+        root: z.string().optional().describe("Repository root to inspect (defaults to the server's working directory)."),
+      },
+    },
+    async ({ root }) => {
+      try {
+        const git = await getGitContext(root ?? process.cwd());
+        return textResult({ git, ...UNAVAILABLE_ENVIRONMENT_SOURCES });
       } catch (err) {
         return errorResult(err);
       }

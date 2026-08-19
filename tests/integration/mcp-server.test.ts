@@ -47,6 +47,7 @@ describe("TraceLens MCP server (end-to-end)", () => {
       "get_frame",
       "get_timeline",
       "get_transcript",
+      "inspect_environment",
       "inspect_video",
       "search_session",
     ]);
@@ -145,5 +146,19 @@ describe("TraceLens MCP server (end-to-end)", () => {
     // mock transcription provider should have produced at least one segment.
     expect(payload.count).toBeGreaterThan(0);
     expect(payload.segments[0]).toHaveProperty("text");
+  });
+
+  it("inspect_environment returns Git context plus honest unavailable-source flags", async () => {
+    const result = await client.callTool({
+      name: "inspect_environment",
+      arguments: { root: repoRoot },
+    });
+    expect(result.isError).toBeFalsy();
+    const content = result.content as { type: string; text?: string }[];
+    const payload = JSON.parse(content[0]!.text!);
+    expect(payload.git.isRepo).toBe(true);
+    expect(payload.git.commit).toMatch(/^[a-f0-9]{40}$/);
+    expect(payload.browser.available).toBe(false);
+    expect(payload.terminal.available).toBe(false);
   });
 });
