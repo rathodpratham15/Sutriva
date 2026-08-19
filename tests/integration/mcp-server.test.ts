@@ -10,6 +10,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "../..");
 const serverEntry = path.join(repoRoot, "apps/mcp-server/src/index.ts");
 const sampleVideo = path.join(repoRoot, "fixtures/videos/sample.mp4");
+const checkoutBugVideo = path.join(repoRoot, "fixtures/videos/checkout-bug.mp4");
 
 describe("TraceLens MCP server (end-to-end)", () => {
   let client: Client;
@@ -43,6 +44,7 @@ describe("TraceLens MCP server (end-to-end)", () => {
     const names = tools.map((t) => t.name).sort();
     expect(names).toEqual([
       "analyze_segment",
+      "compare_sessions",
       "get_current_context",
       "get_evidence",
       "get_frame",
@@ -180,6 +182,34 @@ describe("TraceLens MCP server (end-to-end)", () => {
     const result = await client.callTool({
       name: "get_current_context",
       arguments: {},
+    });
+    expect(result.isError).toBe(true);
+  });
+
+  it("compare_sessions diffs two sessions end to end through the MCP tool", async () => {
+    const secondInspect = await client.callTool({
+      name: "inspect_video",
+      arguments: { path: checkoutBugVideo },
+    });
+    const secondContent = secondInspect.content as { type: string; text?: string }[];
+    const secondSessionId = JSON.parse(secondContent[0]!.text!).sessionId as string;
+
+    const result = await client.callTool({
+      name: "compare_sessions",
+      arguments: { beforeSessionId: sessionId, afterSessionId: secondSessionId },
+    });
+    expect(result.isError).toBeFalsy();
+    const content = result.content as { type: string; text?: string }[];
+    const payload = JSON.parse(content[0]!.text!);
+    expect(payload.before.sessionId).toBe(sessionId);
+    expect(payload.after.sessionId).toBe(secondSessionId);
+    expect(typeof payload.summary).toBe("string");
+  }, 15_000);
+
+  it("compare_sessions rejects an unknown session id", async () => {
+    const result = await client.callTool({
+      name: "compare_sessions",
+      arguments: { beforeSessionId: "session_missing", afterSessionId: sessionId },
     });
     expect(result.isError).toBe(true);
   });

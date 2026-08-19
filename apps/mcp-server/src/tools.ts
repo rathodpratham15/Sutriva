@@ -12,6 +12,7 @@ import {
   analyzeSegment,
   getTranscript,
   getCurrentContext,
+  compareSessions,
 } from "@tracelens/timeline";
 import { getGitContext, getDiffStat, getWorkingTreeDiff } from "@tracelens/git";
 import { getStore } from "@tracelens/storage";
@@ -383,6 +384,29 @@ export function registerTools(server: McpServer): void {
           content.push({ type: "image", data: context.screenshot.base64, mimeType: context.screenshot.mimeType });
         }
         return { content };
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    "compare_sessions",
+    {
+      title: "Compare sessions",
+      description:
+        "Before/after verification: compares two sessions (e.g. a bug reproduced before a fix and the same " +
+        "interaction reproduced again after) and surfaces meaningful differences -- endpoints whose status " +
+        "changed, console errors that disappeared or appeared. Use this to verify a fix instead of eyeballing " +
+        "two timelines side by side. Does not claim the fix caused the difference -- it surfaces the evidence.",
+      inputSchema: {
+        beforeSessionId: z.string().describe("Session recorded before the fix (e.g. the original bug reproduction)."),
+        afterSessionId: z.string().describe("Session recorded after the fix, reproducing the same interaction."),
+      },
+    },
+    async ({ beforeSessionId, afterSessionId }) => {
+      try {
+        return textResult(compareSessions(beforeSessionId, afterSessionId));
       } catch (err) {
         return errorResult(err);
       }
