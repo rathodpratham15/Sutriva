@@ -1,0 +1,32 @@
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: #1e293b;
+  border-bottom: 1px solid #334155;
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  font-weight: 600;
+  z-index: 10;
+}
+
+.responsive-main {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 96px 1.5rem 2rem; /* 64px header + 32px breathing room */
+}
+
+/* BUG: below 480px the header wraps to two lines and grows to 128px tall,
+   but .responsive-main's padding-top is never increased to match -- the
+   header now covers the button below it instead of sitting above it. */
+@media (max-width: 480px) {
+  .app-header {
+    height: 220px;
+    white-space: normal;
+    align-items: flex-start;
+    padding-top: 1rem;
+  }
+}

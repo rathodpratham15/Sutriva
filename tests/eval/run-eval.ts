@@ -1,9 +1,16 @@
 #!/usr/bin/env node
 /**
- * Evaluation harness placeholder. The full benchmark (temporal localization,
- * evidence retrieval, root-cause accuracy, patch success -- see
- * TraceLens_Master_Plan.md §29-30) lands once the demo app and replay
- * debugging loop (Phase 2+) exist. Exits 0 so `npm run eval` is safe to wire
- * into CI ahead of that.
+ * Thin executable entry point -- kept separate from harness.ts so that
+ * importing the harness for testing (tests/eval/run-eval.test.ts) never
+ * triggers main() as a side effect of the import itself. Deliberately not
+ * using an `import.meta.url === process.argv[1]` "am I the entry point"
+ * check: that comparison is fragile across how tsx gets invoked (works when
+ * run via a package script, silently never matches when spawned directly as
+ * a child process), so it's simpler and more robust to just not need it.
  */
-console.log("tracelens eval: not yet implemented (planned for a later phase -- see TraceLens_Master_Plan.md §29).");
+import { main } from "./harness.js";
+
+main().catch((err) => {
+  console.error(err);
+  process.exitCode = 1;
+});
