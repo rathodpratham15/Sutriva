@@ -131,8 +131,14 @@ Claude calls `compare_sessions(beforeSessionId, afterSessionId)`, which reports 
 
 `demo/buggy-app` is a small, deterministic Next.js app with three intentional bugs (an API schema
 mismatch, an async race condition, a responsive visual regression -- see `demo/buggy-app/README.md`
-for each bug's symptom, root cause, and fix). It exists to give the flagship workflow something
-real to debug:
+for each bug's symptom, root cause, fix, and a screenshot). It exists to give the flagship workflow
+something real to debug:
+
+<p>
+  <img src="docs/assets/bug-1-checkout.png" alt="Checkout bug: stuck on Processing..." width="260">
+  <img src="docs/assets/bug-2-search.png" alt="Search bug: stale results for a superseded query" width="260">
+  <img src="docs/assets/bug-3-responsive.png" alt="Responsive bug: submit button hidden under the header" width="260">
+</p>
 
 ```bash
 pnpm --filter buggy-app dev   # http://localhost:4173

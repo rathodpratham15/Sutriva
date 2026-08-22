@@ -22,6 +22,12 @@ reads `data.orderId` (which doesn't exist).
 `orderId` instead of `id` -- either side can adapt to the other; this repo's canonical fix is the
 frontend, since `expectedFiles` in the eval scenario names `app/checkout/page.tsx`).
 
+![Checkout stuck on "Processing..." after clicking Place order](../../docs/assets/bug-1-checkout.png)
+
+The button never leaves "Processing..." because the click handler throws before `setStatus("done")`
+runs -- the console (not visible in a static screenshot) shows the exact evidence TraceLens
+captures: `TypeError: Cannot read properties of undefined (reading 'toString')`.
+
 ## Bug 2 -- async race condition (`/search`)
 
 **Symptom:** typing "cat" then quickly "cats" ends up showing results for "cat" ("Cat food, Cat
@@ -38,6 +44,11 @@ even though it was requested *first* and is now stale.
 sequence number (or an `AbortController` per keystroke) and ignore a response if a newer request
 has already started.
 
+![Search input reads "cats" but results still show cat-only matches](../../docs/assets/bug-2-search.png)
+
+The input reads "cats", but the results ("Cat food", "Cat tree", "Cat toy") are the stale response
+to the earlier "cat" request, which arrived after the "cats" response.
+
 ## Bug 3 -- responsive visual regression (`/responsive`)
 
 **Symptom:** at viewport widths <= 480px, the "Submit order" button is hidden underneath the
@@ -53,6 +64,11 @@ is never increased to compensate, so the header now overlaps content that assume
 **Fix:** add a matching `padding-top` increase for `.responsive-main` inside the same
 `@media (max-width: 480px)` block in `app/responsive/responsive.css`.
 
+![Submit order button half-hidden under the header at a 375px viewport width](../../docs/assets/bug-3-responsive.png)
+
+At 375px wide, `.app-header` has grown tall enough to cover the top of "Submit order" -- no
+console error, no failed request, only a visual/screenshot difference.
+
 ## Why these three specifically
 
 They match the three categories from `TraceLens_Master_Plan.md` §28, and are deliberately
@@ -61,3 +77,13 @@ error) -- these are a schema mismatch (still throws, but the request itself succ
 bug (nothing "fails", the data is just stale), and a pure-CSS visual bug (no error at all, no
 network activity) -- exercising different parts of what TraceLens can observe (console errors,
 network response bodies/timing, and visual/screenshot evidence respectively).
+
+## Regenerating the screenshots
+
+The screenshots above are committed (unlike `fixtures/videos/**/*.mp4`, which are gitignored and
+regenerated on demand) since they're documentation, not test input -- the README should render
+without anyone running a script first. Regenerate them after changing a bug's UI:
+
+```bash
+pnpm screenshots:generate
+```
