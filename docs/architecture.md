@@ -97,4 +97,4 @@ The harness measures four things without a paid model API call (temporal localiz
 
 ## What's deliberately not built yet
 
-A real speech-to-text provider, and `docs/product.md`/`docs/competitive-analysis.md` (Phase 7 polish) remain. The core system the master plan describes (Phases 0-6) is otherwise complete -- see the README's Limitations section.
+A real speech-to-text provider. The core system the master plan describes (Phases 0-6) is otherwise complete -- see the README's Limitations section.
