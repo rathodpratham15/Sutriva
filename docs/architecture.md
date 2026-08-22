@@ -2,6 +2,41 @@
 
 This describes the system as implemented (Phase 0 through Phase 6 -- the master plan's core phases are complete). For the full target architecture see `TraceLens_Master_Plan.md`.
 
+## Diagram
+
+Both entry points -- an ingested video and a live browser session -- normalize into the same `TemporalEvent`/`Evidence` tables before Claude ever sees them. Nothing downstream of SQLite knows or cares which path produced a given event.
+
+```mermaid
+flowchart TD
+    subgraph Replay["Replay path -- packages/video, packages/timeline"]
+        MP4["MP4 file"] -->|ffprobe| Meta["metadata + content hash"]
+        MP4 -->|"ffmpeg, bounded sampling"| Frames["sampled frames"]
+        Frames -->|VisionProvider.analyzeFrames| VisObs["visual observations"]
+        MP4 -.->|if audio track| Audio["extracted audio"]
+        Audio -->|TranscriptionProvider.transcribe| AudioObs["transcript segments"]
+    end
+
+    subgraph Live["Live path -- packages/browser, packages/live"]
+        Browser["Playwright browser<br/>(a human drives it)"] -->|instrumentPage| Raw["console / network / click / input / navigation"]
+        Raw -->|"EventBus publish/subscribe"| Correlate["time-window correlation<br/>(findRelatedEventIds)"]
+    end
+
+    Terminal["tracelens exec -- command"] -->|redactSecrets| TermEvt["terminal event"]
+
+    VisObs --> Store
+    AudioObs --> Store
+    Correlate --> Store
+    TermEvt --> Store
+
+    Store[("SQLite<br/>TemporalEvent + Evidence + Artifact<br/>(packages/storage)")]
+
+    Store --> MCP["MCP tool surface<br/>(apps/mcp-server, 10 tools)"]
+    Git["packages/git<br/>branch / commit / diff"] --> MCP
+    MCP -->|"progressive disclosure --<br/>metadata, then timeline,<br/>then a targeted frame"| Claude["Claude Code"]
+```
+
+Progressive disclosure (below) governs the MCP arrow above: Claude never receives everything in `Store` at once, and never receives the source video or a raw browser event stream directly.
+
 ## The temporal model
 
 Everything TraceLens observes is normalized into two shapes, defined once in `packages/core/src/types.ts`:
