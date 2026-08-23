@@ -68,9 +68,10 @@ This mirrors the plan's Level 0-4 disclosure model (`TraceLens_Master_Plan.md` Â
 
 - `MockVisionProvider` -- deterministic, offline, no network calls. Uses a frame-size-delta heuristic as a stand-in scene-change signal. This is the default provider and what the test suite runs against, so the whole system is testable without a paid API key.
 - `AnthropicVisionProvider` -- sends sampled frames as base64 images to the Anthropic Messages API (`@anthropic-ai/sdk`), asks for strict JSON, and validates the response with Zod before trusting it (`malformedProviderResponseError` if it doesn't parse/validate).
-- `MockTranscriptionProvider` -- deterministic, offline. TraceLens has no first-party speech-to-text provider yet, so this is the only `TranscriptionProvider` implementation; it derives a segment count from the extracted audio file's size and returns placeholder text, not real transcription. `createTranscriptionProvider` (`packages/providers/src/factory.ts`) throws a clear error for any other `TRACELENS_TRANSCRIPTION_PROVIDER` value rather than silently doing nothing, so the seam for a real provider is visible.
+- `MockTranscriptionProvider` -- deterministic, offline, default when `OPENAI_API_KEY` is unset. Derives a segment count from the extracted audio file's size and returns placeholder text, not real transcription -- what the test suite runs against.
+- `OpenAIWhisperTranscriptionProvider` -- sends the extracted `audio.wav` to OpenAI's Audio API (`whisper-1`, `response_format: "verbose_json"`) and maps its `segments` (start/end/text) directly onto `Transcript`; `avg_logprob` (a log-probability, not 0-1) is clamped into TraceLens's 0-1 confidence range. `whisper-1` specifically, not a newer `gpt-4o-transcribe` model, because it's the one that reliably returns per-segment timestamps -- a transcript with no timing is useless for temporal rewind. `createTranscriptionProvider` (`packages/providers/src/factory.ts`) throws a clear error for any other `TRACELENS_TRANSCRIPTION_PROVIDER` value rather than silently doing nothing.
 
-`packages/timeline` and `packages/storage` never import `@anthropic-ai/sdk` -- only `packages/providers` does. Swapping in another multimodal or speech-to-text provider means adding one file there and one branch in the corresponding factory function.
+`packages/timeline` and `packages/storage` never import `@anthropic-ai/sdk` or `openai` -- only `packages/providers` does. Swapping in another multimodal or speech-to-text provider means adding one file there and one branch in the corresponding factory function.
 
 ## Storage
 
@@ -132,4 +133,4 @@ The harness measures four things without a paid model API call (temporal localiz
 
 ## What's deliberately not built yet
 
-A real speech-to-text provider. The core system the master plan describes (Phases 0-6) is otherwise complete -- see the README's Limitations section.
+The core system the master plan describes (Phases 0-6) is complete, and a real speech-to-text provider (`OpenAIWhisperTranscriptionProvider`) now exists too -- see the README's Limitations section for what's still open (it hasn't been exercised against a live API call in this environment, only unit-tested).
