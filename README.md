@@ -211,6 +211,17 @@ tracelens clean [--yes]                             # delete .tracelens/ (derive
 
 `tracelens debug <video>` explains how to drive replay debugging via Claude Code/MCP rather than duplicating that logic in the CLI. `tracelens session report` is stubbed with an explanatory message -- it lands in a later phase (session recording/reporting wasn't part of the master plan's core phases).
 
+### Installing outside this repo
+
+`apps/cli` and `apps/mcp-server` build to a single self-contained `dist/index.js` each (via `tsup`, inlining the internal `@tracelens/*` packages -- see `apps/cli/tsup.config.ts`), so they're installable independently of this monorepo:
+
+```bash
+pnpm --filter @tracelens/cli build && pnpm --filter @tracelens/cli pack
+npm install -g ./tracelens-cli-0.1.0.tgz   # installs the `tracelens` binary
+```
+
+Same for `@tracelens/mcp-server` (`tracelens-mcp` binary), which any other repo's `.mcp.json` can point at once installed. Both packages are currently marked `private: true` and are **not published to the npm registry** -- this is a deliberate stop-short: the build/bundle/pack path is verified working end to end (built, packed, installed globally, and run from outside the repo with no workspace context), but actually publishing is a separate decision (package naming, a license, npm org ownership) left for later.
+
 ## Provider configuration
 
 TraceLens never calls a model provider unless a tool that needs one is invoked, and never uploads anything automatically.
