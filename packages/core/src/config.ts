@@ -31,5 +31,10 @@ export function getVisionModel(): string {
 }
 
 export function getTranscriptionProviderName(): string {
-  return process.env.TRACELENS_TRANSCRIPTION_PROVIDER ?? "mock";
+  if (process.env.TRACELENS_TRANSCRIPTION_PROVIDER) return process.env.TRACELENS_TRANSCRIPTION_PROVIDER;
+  return process.env.OPENAI_API_KEY ? "openai" : "mock";
+}
+
+export function getTranscriptionModel(): string {
+  return process.env.TRACELENS_TRANSCRIPTION_MODEL ?? "whisper-1";
 }

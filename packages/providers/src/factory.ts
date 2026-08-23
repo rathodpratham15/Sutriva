@@ -1,7 +1,8 @@
-import { getTranscriptionProviderName, getVisionModel, getVisionProviderName } from "@tracelens/core";
+import { getTranscriptionModel, getTranscriptionProviderName, getVisionModel, getVisionProviderName } from "@tracelens/core";
 import { MockVisionProvider } from "./mock.js";
 import { MockTranscriptionProvider } from "./mock-transcription.js";
 import { AnthropicVisionProvider } from "./anthropic.js";
+import { OpenAIWhisperTranscriptionProvider } from "./openai-whisper.js";
 import type { TranscriptionProvider, VisionProvider } from "./types.js";
 
 export function createVisionProvider(): VisionProvider {
@@ -19,11 +20,11 @@ export function createVisionProvider(): VisionProvider {
 export function createTranscriptionProvider(): TranscriptionProvider {
   const name = getTranscriptionProviderName();
   switch (name) {
+    case "openai":
+      return new OpenAIWhisperTranscriptionProvider({ model: getTranscriptionModel() });
     case "mock":
       return new MockTranscriptionProvider();
     default:
-      throw new Error(
-        `Unknown TRACELENS_TRANSCRIPTION_PROVIDER "${name}". No real speech-to-text provider is wired in yet -- expected "mock".`,
-      );
+      throw new Error(`Unknown TRACELENS_TRANSCRIPTION_PROVIDER "${name}". Expected "openai" or "mock".`);
   }
 }

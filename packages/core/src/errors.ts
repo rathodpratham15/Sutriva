@@ -34,11 +34,15 @@ export function pathNotAllowedError(path: string): TraceLensError {
   );
 }
 
-export function providerNotConfiguredError(provider: string, envVar: string): TraceLensError {
+export function providerNotConfiguredError(
+  provider: string,
+  envVar: string,
+  mockSwitchVar: string = "TRACELENS_VISION_PROVIDER",
+): TraceLensError {
   return new TraceLensError(
     "PROVIDER_NOT_CONFIGURED",
     `${provider} is not configured.`,
-    `Set the ${envVar} environment variable, or configure TRACELENS_VISION_PROVIDER=mock for offline/deterministic use.`,
+    `Set the ${envVar} environment variable, or configure ${mockSwitchVar}=mock for offline/deterministic use.`,
   );
 }
 

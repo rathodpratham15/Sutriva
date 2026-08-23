@@ -12,8 +12,9 @@
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@tracelens/core": "workspace:*",
     "@anthropic-ai/sdk": "^0.117.1",
+    "@tracelens/core": "workspace:*",
+    "openai": "^7.5.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
