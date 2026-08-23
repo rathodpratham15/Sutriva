@@ -62,6 +62,8 @@ For the full debugging workflow (evidence → repo inspection → hypothesis →
 > /debug-video fixtures/videos/checkout-bug.mp4
 ```
 
+See `docs/example-sessions.md` for real, captured tool output (CLI and MCP) against this exact fixture -- not a mockup -- if you want to see what Claude actually receives before running it yourself.
+
 ## Architecture
 
 ```
