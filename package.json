@@ -18,7 +18,9 @@
     "mcp": "tsx apps/mcp-server/src/index.ts",
     "fixtures:generate": "bash scripts/generate-fixtures.sh",
     "fixtures:eval:generate": "tsx scripts/generate-eval-fixtures.ts",
-    "screenshots:generate": "tsx scripts/generate-demo-screenshots.ts"
+    "screenshots:generate": "tsx scripts/generate-demo-screenshots.ts",
+    "gifs:generate": "tsx scripts/generate-demo-gifs.ts",
+    "verify:clean-install": "bash scripts/verify-clean-install.sh"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",
