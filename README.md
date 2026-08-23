@@ -38,6 +38,8 @@ pnpm cli search fixtures/videos/sample.mp4 "change"
 pnpm cli analyze fixtures/videos/sample.mp4 --start 5 --end 7 --question "what changed"
 ```
 
+`pnpm verify:clean-install` reproduces the whole above sequence -- plus `build`, `typecheck`, `lint`, and the full test suite -- against a fresh `git clone` of the repo in a temp directory, exactly as a new contributor or CI would experience it. Verified against Node 22.14.0 on macOS: install, doctor, fixtures, build, typecheck, lint, and 68/70 tests all pass clean from an empty clone (the remaining 2 auto-skip until eval video fixtures are generated -- see [Testing](#testing)).
+
 Without `ANTHROPIC_API_KEY` set, TraceLens uses a deterministic **mock vision provider** (a byte-delta heuristic between sampled frames) so the whole pipeline -- and the test suite -- works offline. Set `ANTHROPIC_API_KEY` to get real scene descriptions from Claude; see [Provider configuration](#provider-configuration).
 
 ## Claude Code integration
