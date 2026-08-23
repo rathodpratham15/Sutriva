@@ -1,6 +1,6 @@
 import type { Command } from "commander";
 import { spawnSync } from "node:child_process";
-import { getDataDir, getVisionProviderName } from "@tracelens/core";
+import { getDataDir, getVisionProviderName, MIN_SUPPORTED_NODE_MAJOR } from "@tracelens/core";
 
 function checkBinary(bin: string, args: string[] = ["-version"]): { ok: boolean; detail: string } {
   try {
@@ -24,9 +24,12 @@ export function registerDoctorCommand(program: Command): void {
 
       const nodeMajor = Number(process.versions.node.split(".")[0]);
       checks.push({
-        name: "Node.js >= 20",
-        ok: nodeMajor >= 20,
-        detail: `v${process.versions.node}`,
+        name: `Node.js >= ${MIN_SUPPORTED_NODE_MAJOR}`,
+        ok: nodeMajor >= MIN_SUPPORTED_NODE_MAJOR,
+        detail:
+          nodeMajor >= MIN_SUPPORTED_NODE_MAJOR
+            ? `v${process.versions.node}`
+            : `v${process.versions.node} -- better-sqlite3's native binding requires Node ${MIN_SUPPORTED_NODE_MAJOR}+ and segfaults on older versions; run \`nvm use\``,
       });
 
       const ffmpeg = checkBinary("ffmpeg");

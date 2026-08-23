@@ -10,6 +10,8 @@ Claude Code can already read a repository, run commands, and inspect a browser. 
 
 TraceLens is not a video summarizer. It's a **temporal evidence layer**: every observation (a frame, eventually a click or a console error) gets a timestamp, a confidence, and a link back to its source artifact. Claude queries this incrementally -- metadata, then a timeline, then a specific frame -- instead of receiving raw video.
 
+See `docs/product.md` for the full product thesis and workflows, and `docs/competitive-analysis.md` for how this compares to video understanding APIs, video-analysis MCP servers, and browser agents.
+
 ## Quickstart
 
 Requirements: Node.js **>= 22** (better-sqlite3's native binding requires it -- see [Configuration](#configuration)), [FFmpeg](https://ffmpeg.org/) (`ffmpeg`/`ffprobe` on `PATH`), `pnpm`.
@@ -36,6 +38,8 @@ pnpm cli search fixtures/videos/sample.mp4 "change"
 pnpm cli analyze fixtures/videos/sample.mp4 --start 5 --end 7 --question "what changed"
 ```
 
+`pnpm verify:clean-install` reproduces the whole above sequence -- plus `build`, `typecheck`, `lint`, and the full test suite -- against a fresh `git clone` of the repo in a temp directory, exactly as a new contributor or CI would experience it. Verified against Node 22.14.0 on macOS: install, doctor, fixtures, build, typecheck, lint, and 68/70 tests all pass clean from an empty clone (the remaining 2 auto-skip until eval video fixtures are generated -- see [Testing](#testing)).
+
 Without `ANTHROPIC_API_KEY` set, TraceLens uses a deterministic **mock vision provider** (a byte-delta heuristic between sampled frames) so the whole pipeline -- and the test suite -- works offline. Set `ANTHROPIC_API_KEY` to get real scene descriptions from Claude; see [Provider configuration](#provider-configuration).
 
 ## Claude Code integration
@@ -59,6 +63,8 @@ For the full debugging workflow (evidence → repo inspection → hypothesis →
 ```
 > /debug-video fixtures/videos/checkout-bug.mp4
 ```
+
+See `docs/example-sessions.md` for real, captured tool output (CLI and MCP) against this exact fixture -- not a mockup -- if you want to see what Claude actually receives before running it yourself.
 
 ## Architecture
 
@@ -129,8 +135,14 @@ Claude calls `compare_sessions(beforeSessionId, afterSessionId)`, which reports 
 
 `demo/buggy-app` is a small, deterministic Next.js app with three intentional bugs (an API schema
 mismatch, an async race condition, a responsive visual regression -- see `demo/buggy-app/README.md`
-for each bug's symptom, root cause, and fix). It exists to give the flagship workflow something
-real to debug:
+for each bug's symptom, root cause, fix, and a screenshot). It exists to give the flagship workflow
+something real to debug:
+
+<p>
+  <img src="docs/assets/bug-1-checkout.gif" alt="Checkout bug: click Checkout, stuck on Processing..." width="260">
+  <img src="docs/assets/bug-2-search.gif" alt="Search bug: stale results for a superseded query" width="260">
+  <img src="docs/assets/bug-3-responsive.gif" alt="Responsive bug: submit button hidden under the header" width="260">
+</p>
 
 ```bash
 pnpm --filter buggy-app dev   # http://localhost:4173
@@ -225,13 +237,12 @@ pnpm lint        # eslint
 pnpm test        # vitest -- unit tests + a real MCP-server-over-stdio integration test
 ```
 
-All 68 current tests run offline against the mock providers, generated fixtures, and a local HTTP test server for browser instrumentation -- no paid API calls or external network access are required to validate the system. The live-session tests run a real headless Chromium against a page deliberately designed to trigger a console error, a failed request, and a click, and assert the resulting events/evidence/screenshot/correlation; `compare_sessions` is tested against two real inspected videos through the actual MCP tool call. The eval harness itself is tested too (`tests/eval/harness.test.ts`), skipped automatically if the eval video fixtures haven't been generated.
+All 70 current tests run offline against the mock providers, generated fixtures, and a local HTTP test server for browser instrumentation -- no paid API calls or external network access are required to validate the system. The live-session tests run a real headless Chromium against a page deliberately designed to trigger a console error, a failed request, and a click, and assert the resulting events/evidence/screenshot/correlation; `compare_sessions` is tested against two real inspected videos through the actual MCP tool call. The eval harness itself is tested too (`tests/eval/harness.test.ts`), skipped automatically if the eval video fixtures haven't been generated.
 
 ## Limitations & roadmap
 
 Phase 0 (vertical slice) through Phase 6 (evaluation) are done -- the core system from `TraceLens_Master_Plan.md` is complete. Not yet built:
 
-- `docs/product.md` and `docs/competitive-analysis.md` (Phase 7 polish) -- `docs/evaluation.md` already exists.
 - Root-cause accuracy / code localization / patch success in the eval harness are graded manually (run `/debug-video` and compare against `expectedFiles`/`rootCause`), not automated -- see `docs/evaluation.md` for why.
 - A real speech-to-text provider -- `TranscriptionProvider` exists and audio is extracted/segmented, but only the deterministic `MockTranscriptionProvider` is implemented; transcript text is a placeholder, not real speech recognition.
 - Live-session screenshots are best-effort: an occasional screenshot capture immediately after a navigation can transiently fail in headless Chromium (a known Playwright quirk); it's logged and skipped rather than crashing the session, and the next trigger/periodic capture fills in.

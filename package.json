@@ -5,7 +5,7 @@
   "description": "Temporal context and debugging system for Claude Code",
   "type": "module",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "pnpm -r --filter=./packages/* --filter=./apps/* build",
@@ -17,7 +17,10 @@
     "cli": "tsx apps/cli/src/index.ts",
     "mcp": "tsx apps/mcp-server/src/index.ts",
     "fixtures:generate": "bash scripts/generate-fixtures.sh",
-    "fixtures:eval:generate": "tsx scripts/generate-eval-fixtures.ts"
+    "fixtures:eval:generate": "tsx scripts/generate-eval-fixtures.ts",
+    "screenshots:generate": "tsx scripts/generate-demo-screenshots.ts",
+    "gifs:generate": "tsx scripts/generate-demo-gifs.ts",
+    "verify:clean-install": "bash scripts/verify-clean-install.sh"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",
