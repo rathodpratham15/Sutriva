@@ -52,7 +52,7 @@ export function registerDoctorCommand(program: Command): void {
         ok: true,
         detail:
           transcriptionProviderName === "mock"
-            ? "mock (offline, placeholder text -- set OPENAI_API_KEY for real speech-to-text)"
+            ? "mock (offline, placeholder text -- set ELEVENLABS_API_KEY for real speech-to-text)"
             : transcriptionProviderName,
       });
 
