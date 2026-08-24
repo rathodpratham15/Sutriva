@@ -231,9 +231,9 @@ TraceLens never calls a model provider unless a tool that needs one is invoked, 
 | `TRACELENS_VISION_PROVIDER` | `anthropic` if `ANTHROPIC_API_KEY` is set, else `mock` | `mock` or `anthropic`. |
 | `ANTHROPIC_API_KEY` | unset | Required for the `anthropic` provider. |
 | `TRACELENS_VISION_MODEL` | `claude-opus-5` | Any current vision-capable Claude model. |
-| `TRACELENS_TRANSCRIPTION_PROVIDER` | `openai` if `OPENAI_API_KEY` is set, else `mock` | `mock` or `openai`. |
-| `OPENAI_API_KEY` | unset | Required for the `openai` (Whisper) transcription provider. |
-| `TRACELENS_TRANSCRIPTION_MODEL` | `whisper-1` | Passed to the OpenAI Audio API; must support `response_format: "verbose_json"` (segment-level timestamps) -- newer `gpt-4o-transcribe`-family models don't. |
+| `TRACELENS_TRANSCRIPTION_PROVIDER` | `elevenlabs` if `ELEVENLABS_API_KEY` is set, else `mock` | `mock` or `elevenlabs`. |
+| `ELEVENLABS_API_KEY` | unset | Required for the `elevenlabs` (Scribe) transcription provider. |
+| `TRACELENS_TRANSCRIPTION_MODEL` | `scribe_v1` | Passed to ElevenLabs' Speech-to-Text API (`scribe_v1` or `scribe_v2`). |
 | `TRACELENS_DATA_DIR` | `./.tracelens` | Where sessions, timelines, and extracted frames are stored. |
 
 `VisionProvider`/`TranscriptionProvider` are plain interfaces (`packages/providers/src/types.ts`); adding another provider means adding one file that implements one -- core/timeline code never imports a provider SDK directly.
@@ -257,7 +257,7 @@ All 70 current tests run offline against the mock providers, generated fixtures,
 Phase 0 (vertical slice) through Phase 6 (evaluation) are done -- the core system from `TraceLens_Master_Plan.md` is complete. Not yet built:
 
 - Root-cause accuracy / code localization / patch success in the eval harness are graded manually (run `/debug-video` and compare against `expectedFiles`/`rootCause`), not automated -- see `docs/evaluation.md` for why.
-- A real speech-to-text provider now exists (`OpenAIWhisperTranscriptionProvider`, `TRACELENS_TRANSCRIPTION_PROVIDER=openai` with `OPENAI_API_KEY` set) -- it hasn't been exercised against a live API call in this environment (no `OPENAI_API_KEY` available here), only unit-tested for config resolution and its not-configured error path. Treat it as implemented-but-not-yet-field-verified.
+- A real speech-to-text provider now exists (`ElevenLabsTranscriptionProvider`, `TRACELENS_TRANSCRIPTION_PROVIDER=elevenlabs` with `ELEVENLABS_API_KEY` set) -- it hasn't been exercised against a live API call in this environment (no `ELEVENLABS_API_KEY` available here), only unit-tested for config resolution, its not-configured error path, and the word-to-segment grouping heuristic. Treat it as implemented-but-not-yet-field-verified.
 - Live-session screenshots are best-effort: an occasional screenshot capture immediately after a navigation can transiently fail in headless Chromium (a known Playwright quirk); it's logged and skipped rather than crashing the session, and the next trigger/periodic capture fills in.
 - Event correlation (`relatedEventIds`) is a bounded, time-proximity heuristic (network follows a recent interaction; a console error follows a recent network event) -- it links plausible chains, it does not establish causality. `git diff`-based blame/full history correlation beyond "recent commits + working-tree diff" isn't built.
 - Terminal capture requires explicitly running commands through `tracelens exec`; there's no shell-wide/automatic capture of arbitrary commands you type directly. Redaction (`redactSecrets`) is a best-effort heuristic (common `KEY=value`/Bearer-token/AWS-key/PEM patterns), not a guarantee -- treat captured terminal output as potentially sensitive regardless.

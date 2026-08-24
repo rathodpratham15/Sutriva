@@ -68,10 +68,10 @@ This mirrors the plan's Level 0-4 disclosure model (`TraceLens_Master_Plan.md` Â
 
 - `MockVisionProvider` -- deterministic, offline, no network calls. Uses a frame-size-delta heuristic as a stand-in scene-change signal. This is the default provider and what the test suite runs against, so the whole system is testable without a paid API key.
 - `AnthropicVisionProvider` -- sends sampled frames as base64 images to the Anthropic Messages API (`@anthropic-ai/sdk`), asks for strict JSON, and validates the response with Zod before trusting it (`malformedProviderResponseError` if it doesn't parse/validate).
-- `MockTranscriptionProvider` -- deterministic, offline, default when `OPENAI_API_KEY` is unset. Derives a segment count from the extracted audio file's size and returns placeholder text, not real transcription -- what the test suite runs against.
-- `OpenAIWhisperTranscriptionProvider` -- sends the extracted `audio.wav` to OpenAI's Audio API (`whisper-1`, `response_format: "verbose_json"`) and maps its `segments` (start/end/text) directly onto `Transcript`; `avg_logprob` (a log-probability, not 0-1) is clamped into TraceLens's 0-1 confidence range. `whisper-1` specifically, not a newer `gpt-4o-transcribe` model, because it's the one that reliably returns per-segment timestamps -- a transcript with no timing is useless for temporal rewind. `createTranscriptionProvider` (`packages/providers/src/factory.ts`) throws a clear error for any other `TRACELENS_TRANSCRIPTION_PROVIDER` value rather than silently doing nothing.
+- `MockTranscriptionProvider` -- deterministic, offline, default when `ELEVENLABS_API_KEY` is unset. Derives a segment count from the extracted audio file's size and returns placeholder text, not real transcription -- what the test suite runs against.
+- `ElevenLabsTranscriptionProvider` -- sends the extracted `audio.wav` to ElevenLabs' Speech-to-Text (Scribe) API (`scribe_v1` by default) and groups its word-level response (ElevenLabs returns per-word timestamps, not segments) into caption-style segments: a break on sentence-ending punctuation, a pause between words, or a segment growing too long, whichever comes first (`groupWordsIntoSegments`, unit-tested directly since it's real, non-trivial logic, not just an API wrapper). Each word's `logprob` (a log-probability, not 0-1) is averaged per segment and clamped into TraceLens's 0-1 confidence range. `createTranscriptionProvider` (`packages/providers/src/factory.ts`) throws a clear error for any other `TRACELENS_TRANSCRIPTION_PROVIDER` value rather than silently doing nothing.
 
-`packages/timeline` and `packages/storage` never import `@anthropic-ai/sdk` or `openai` -- only `packages/providers` does. Swapping in another multimodal or speech-to-text provider means adding one file there and one branch in the corresponding factory function.
+`packages/timeline` and `packages/storage` never import `@anthropic-ai/sdk` or `@elevenlabs/elevenlabs-js` -- only `packages/providers` does. Swapping in another multimodal or speech-to-text provider means adding one file there and one branch in the corresponding factory function.
 
 ## Storage
 
@@ -133,4 +133,4 @@ The harness measures four things without a paid model API call (temporal localiz
 
 ## What's deliberately not built yet
 
-The core system the master plan describes (Phases 0-6) is complete, and a real speech-to-text provider (`OpenAIWhisperTranscriptionProvider`) now exists too -- see the README's Limitations section for what's still open (it hasn't been exercised against a live API call in this environment, only unit-tested).
+The core system the master plan describes (Phases 0-6) is complete, and a real speech-to-text provider (`ElevenLabsTranscriptionProvider`) now exists too -- see the README's Limitations section for what's still open (it hasn't been exercised against a live API call in this environment, only unit-tested).
