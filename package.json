@@ -25,6 +25,7 @@
   "devDependencies": {
     "@types/node": "^20.14.0",
     "@modelcontextprotocol/sdk": "^1.30.0",
+    "@elevenlabs/elevenlabs-js": "^2.64.0",
     "@tracelens/core": "workspace:*",
     "@tracelens/video": "workspace:*",
     "@tracelens/providers": "workspace:*",

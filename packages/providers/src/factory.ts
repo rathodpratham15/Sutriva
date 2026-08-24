@@ -2,7 +2,7 @@ import { getTranscriptionModel, getTranscriptionProviderName, getVisionModel, ge
 import { MockVisionProvider } from "./mock.js";
 import { MockTranscriptionProvider } from "./mock-transcription.js";
 import { AnthropicVisionProvider } from "./anthropic.js";
-import { OpenAIWhisperTranscriptionProvider } from "./openai-whisper.js";
+import { ElevenLabsTranscriptionProvider } from "./elevenlabs.js";
 import type { TranscriptionProvider, VisionProvider } from "./types.js";
 
 export function createVisionProvider(): VisionProvider {
@@ -20,11 +20,11 @@ export function createVisionProvider(): VisionProvider {
 export function createTranscriptionProvider(): TranscriptionProvider {
   const name = getTranscriptionProviderName();
   switch (name) {
-    case "openai":
-      return new OpenAIWhisperTranscriptionProvider({ model: getTranscriptionModel() });
+    case "elevenlabs":
+      return new ElevenLabsTranscriptionProvider({ model: getTranscriptionModel() });
     case "mock":
       return new MockTranscriptionProvider();
     default:
-      throw new Error(`Unknown TRACELENS_TRANSCRIPTION_PROVIDER "${name}". Expected "openai" or "mock".`);
+      throw new Error(`Unknown TRACELENS_TRANSCRIPTION_PROVIDER "${name}". Expected "elevenlabs" or "mock".`);
   }
 }

@@ -26,7 +26,7 @@
     "@modelcontextprotocol/sdk": "^1.30.0",
     "zod": "^4.4.3",
     "@anthropic-ai/sdk": "^0.117.1",
-    "openai": "^7.5.0",
+    "@elevenlabs/elevenlabs-js": "^2.64.0",
     "better-sqlite3": "^13.0.3"
   },
   "devDependencies": {
