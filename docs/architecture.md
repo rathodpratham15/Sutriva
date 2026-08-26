@@ -133,4 +133,4 @@ The harness measures four things without a paid model API call (temporal localiz
 
 ## What's deliberately not built yet
 
-The core system the master plan describes (Phases 0-6) is complete, and a real speech-to-text provider (`ElevenLabsTranscriptionProvider`) now exists too -- see the README's Limitations section for what's still open (it hasn't been exercised against a live API call in this environment, only unit-tested).
+The core system the master plan describes (Phases 0-6) is complete, and a real speech-to-text provider (`ElevenLabsTranscriptionProvider`) now exists too, live-verified against a real API call -- see the README's Limitations section for anything else still open.
