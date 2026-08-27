@@ -2,6 +2,7 @@
   "name": "tracelens",
   "private": true,
   "version": "0.1.0",
+  "license": "MIT",
   "description": "Temporal context and debugging system for Claude Code",
   "type": "module",
   "engines": {
