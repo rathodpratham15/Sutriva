@@ -6,9 +6,11 @@
 
 ## Why TraceLens exists
 
-Claude Code can already read a repository, run commands, and inspect a browser. What it can't do well is reason about **what happened** during a session -- a screen recording of a bug, a sequence of clicks and failed requests, "watch me reproduce this." Dumping a whole video into a prompt is expensive, unbounded, and impossible to ground in timestamps.
+Claude Code can already read a repository, run commands, and -- via its own native browser integration (`--chrome`, "Claude in Chrome") -- observe and act in a live browser tab directly: screenshots, DOM/console inspection, clicking, navigating. TraceLens doesn't give Claude a capability it's missing there; positioning it that way would be inaccurate.
 
-TraceLens is not a video summarizer. It's a **temporal evidence layer**: every observation (a frame, eventually a click or a console error) gets a timestamp, a confidence, and a link back to its source artifact. Claude queries this incrementally -- metadata, then a timeline, then a specific frame -- instead of receiving raw video.
+What Claude Code doesn't have is **memory of a session across time**: a persistent, timestamped, queryable record of what happened, correlated with Git state, retrievable later -- by this session or a different one -- instead of just the current moment. A bug someone reproduced in a screen recording, or reproduced live five minutes ago, is gone from working context once the conversation moves on. Dumping a whole video into a prompt doesn't fix this either -- it's expensive, unbounded, and impossible to ground in timestamps.
+
+TraceLens is not a video summarizer, and it's not a substitute for Claude's own browser capability. It's a **temporal evidence layer**: every observation (a frame, a click, a console error, a network response) gets a timestamp, a confidence, and a link back to its source artifact, persisted the moment it happens. Claude queries this incrementally -- metadata, then a timeline, then a specific frame -- instead of receiving raw video, and can ask "what happened right before this" about a moment that's long since scrolled off screen, in a session that started before this conversation did.
 
 See `docs/product.md` for the full product thesis and workflows, and `docs/competitive-analysis.md` for how this compares to video understanding APIs, video-analysis MCP servers, and browser agents.
 
@@ -105,7 +107,7 @@ See `docs/architecture.md` for the full design rationale (progressive disclosure
 tracelens debug --live --url https://your-app.local
 ```
 
-This opens a real, visible browser window. Interact with it normally -- click around, reproduce a bug -- and TraceLens captures navigation, clicks, input, console messages, network requests/responses/failures, and periodic screenshots into a live session, live, as they happen. Ask Claude Code (in another terminal, once the MCP server is connected) to follow along:
+This opens a real, visible browser window. Interact with it normally -- click around, reproduce a bug -- and TraceLens captures navigation, clicks, input, console messages, network requests/responses/failures, and periodic screenshots into a live session, live, as they happen, persisted to SQLite the moment they occur. This is a different browser than Claude Code's own `--chrome` integration -- that one is for Claude to directly observe/act in a tab in the current turn; this one is for a human-driven repro to become a durable, queryable record Claude (this session or a later one) can rewind through afterward. Ask Claude Code (in another terminal, once the MCP server is connected) to follow along:
 
 ```
 > Look at this -- what just happened? Use get_current_context.
