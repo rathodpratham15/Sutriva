@@ -31,5 +31,10 @@ export function getVisionModel(): string {
 }
 
 export function getTranscriptionProviderName(): string {
-  return process.env.TRACELENS_TRANSCRIPTION_PROVIDER ?? "mock";
+  if (process.env.TRACELENS_TRANSCRIPTION_PROVIDER) return process.env.TRACELENS_TRANSCRIPTION_PROVIDER;
+  return process.env.ELEVENLABS_API_KEY ? "elevenlabs" : "mock";
+}
+
+export function getTranscriptionModel(): string {
+  return process.env.TRACELENS_TRANSCRIPTION_MODEL ?? "scribe_v1";
 }

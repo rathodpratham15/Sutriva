@@ -1,6 +1,6 @@
 import type { Command } from "commander";
 import { spawnSync } from "node:child_process";
-import { getDataDir, getVisionProviderName, MIN_SUPPORTED_NODE_MAJOR } from "@tracelens/core";
+import { getDataDir, getTranscriptionProviderName, getVisionProviderName, MIN_SUPPORTED_NODE_MAJOR } from "@tracelens/core";
 
 function checkBinary(bin: string, args: string[] = ["-version"]): { ok: boolean; detail: string } {
   try {
@@ -44,6 +44,16 @@ export function registerDoctorCommand(program: Command): void {
         name: "vision provider",
         ok: true,
         detail: providerName === "mock" ? "mock (offline, deterministic -- set ANTHROPIC_API_KEY for real analysis)" : providerName,
+      });
+
+      const transcriptionProviderName = getTranscriptionProviderName();
+      checks.push({
+        name: "transcription provider",
+        ok: true,
+        detail:
+          transcriptionProviderName === "mock"
+            ? "mock (offline, placeholder text -- set ELEVENLABS_API_KEY for real speech-to-text)"
+            : transcriptionProviderName,
       });
 
       const dataDir = getDataDir();
