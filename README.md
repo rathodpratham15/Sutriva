@@ -166,9 +166,14 @@ Measures TraceLens against the three demo bugs: temporal localization, evidence 
 context efficiency (sampled frames vs. every frame at native fps; a single targeted frame's size
 vs. an estimated "send every frame" baseline) are fully automated and deterministic -- no paid API
 calls. Root-cause accuracy, code localization, and patch success require an actual agent reading
-the repository, so those are reported with the exact `/debug-video` command to grade them by hand
-rather than faked. See `docs/evaluation.md` for the full methodology and honest discussion of what
-this can and can't measure automatically.
+the repository, so `pnpm eval` reports those with the exact `/debug-video` command to grade them by
+hand rather than faked -- or run `pnpm eval:agentic` (`tracelens eval --agentic`) to automate that
+grading too: it actually drives Claude Code headlessly against a disposable `git worktree` per
+scenario and grades the result deterministically (code-diff overlap, keyword-overlap on root cause,
+and a real before/after check -- `compare_sessions` where the bug produces a console/network
+signal, a direct Playwright assertion where it doesn't). This is a separate, explicitly opt-in path
+that costs a real API call per scenario (not run by `pnpm test`/CI). See `docs/evaluation.md` for
+the full methodology, both harnesses, and an honest discussion of what each can and can't measure.
 
 ## MCP tools
 
@@ -250,13 +255,13 @@ pnpm lint        # eslint
 pnpm test        # vitest -- unit tests + a real MCP-server-over-stdio integration test
 ```
 
-All 70 current tests run offline against the mock providers, generated fixtures, and a local HTTP test server for browser instrumentation -- no paid API calls or external network access are required to validate the system. The live-session tests run a real headless Chromium against a page deliberately designed to trigger a console error, a failed request, and a click, and assert the resulting events/evidence/screenshot/correlation; `compare_sessions` is tested against two real inspected videos through the actual MCP tool call. The eval harness itself is tested too (`tests/eval/harness.test.ts`), skipped automatically if the eval video fixtures haven't been generated.
+All 86 current tests run offline against the mock providers, generated fixtures, and a local HTTP test server for browser instrumentation -- no paid API calls or external network access are required to validate the system. The live-session tests run a real headless Chromium against a page deliberately designed to trigger a console error, a failed request, and a click, and assert the resulting events/evidence/screenshot/correlation; `compare_sessions` is tested against two real inspected videos through the actual MCP tool call. The eval harness itself is tested too (`tests/eval/harness.test.ts`), skipped automatically if the eval video fixtures haven't been generated. (The agentic eval harness, `pnpm eval:agentic`, is a separate opt-in path that costs real API calls -- see Evaluation above -- so it's deliberately not part of this test count.)
 
 ## Limitations & roadmap
 
 Phase 0 (vertical slice) through Phase 6 (evaluation) are done -- the core system from `TraceLens_Master_Plan.md` is complete. Not yet built:
 
-- Root-cause accuracy / code localization / patch success in the eval harness are graded manually (run `/debug-video` and compare against `expectedFiles`/`rootCause`), not automated -- see `docs/evaluation.md` for why.
+- Root-cause accuracy / code localization / patch success in the default `pnpm eval` are still graded manually (run `/debug-video` and compare against `expectedFiles`/`rootCause`) -- automating that inside a normal, paid-API-free benchmark would violate the master plan's own rule against it. `pnpm eval:agentic` is the separate, explicitly opt-in, real-API-call path that automates this grading instead (live-verified against all three demo bugs) -- see `docs/evaluation.md`.
 - A real speech-to-text provider now exists (`ElevenLabsTranscriptionProvider`, `TRACELENS_TRANSCRIPTION_PROVIDER=elevenlabs` with `ELEVENLABS_API_KEY` set) -- live-verified against a real API call (`tracelens inspect fixtures/videos/sample.mp4` produced a real `[audio]` event from the fixture's tone, not the mock's placeholder text), on top of the existing unit tests for config resolution, the not-configured error path, and the word-to-segment grouping heuristic.
 - Live-session screenshots are best-effort: an occasional screenshot capture immediately after a navigation can transiently fail in headless Chromium (a known Playwright quirk); it's logged and skipped rather than crashing the session, and the next trigger/periodic capture fills in.
 - Event correlation (`relatedEventIds`) is a bounded, time-proximity heuristic (network follows a recent interaction; a console error follows a recent network event) -- it links plausible chains, it does not establish causality. `git diff`-based blame/full history correlation beyond "recent commits + working-tree diff" isn't built.
