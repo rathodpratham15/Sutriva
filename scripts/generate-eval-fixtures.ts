@@ -11,6 +11,7 @@ import { mkdirSync, rmSync, existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "@tracelens/browser";
+import { EVAL_REPROS } from "../tests/eval/repros.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..");
@@ -72,27 +73,9 @@ async function main() {
   try {
     await waitForServer(baseUrl);
 
-    await recordScenario("checkout-schema-mismatch", async (page) => {
-      await page.goto(`${baseUrl}/checkout`);
-      await page.waitForTimeout(300);
-      await page.click("#checkout-btn");
-      await page.waitForTimeout(700);
-    });
-
-    await recordScenario("search-race-condition", async (page) => {
-      await page.goto(`${baseUrl}/search`);
-      await page.waitForTimeout(300);
-      await page.type("#search-input", "cat", { delay: 20 });
-      await page.waitForTimeout(150);
-      await page.type("#search-input", "s", { delay: 20 });
-      await page.waitForTimeout(1200);
-    });
-
-    await recordScenario("responsive-regression", async (page) => {
-      await page.setViewportSize({ width: 375, height: 667 });
-      await page.goto(`${baseUrl}/responsive`);
-      await page.waitForTimeout(1000);
-    });
+    for (const [name, repro] of Object.entries(EVAL_REPROS)) {
+      await recordScenario(name, (page) => repro(page, baseUrl));
+    }
   } finally {
     server.kill("SIGTERM");
   }
