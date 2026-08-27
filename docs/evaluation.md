@@ -78,6 +78,57 @@ Compare Claude's stated root cause against `rootCause` and the files it identifi
 user gets -- the "eval" is really "did the flagship demo workflow work," graded by a human once per
 scenario, not simulated.
 
+### Agentic (optional, real API calls, not run by `pnpm test`/CI)
+
+`pnpm eval:agentic` (or `tracelens eval --agentic`) automates the manual grading above instead of
+requiring a human to run `/debug-video` and eyeball the result. This is a genuinely separate,
+explicitly opt-in path from the deterministic harness above -- it costs a real Claude API call per
+scenario (roughly $0.50-$1, a few minutes each) and is never invoked by `pnpm test`, `pnpm eval`, or
+CI, honoring the same "don't make normal tests/benchmarks depend on paid model APIs" rule; it's the
+thing a human would otherwise do by hand, scripted, not a change to what counts as a normal test.
+
+**How it works** (`tests/eval/agentic-harness.ts`), per scenario:
+
+1. Create a disposable `git worktree` at `HEAD` (a full checkout sharing this repo's object store)
+   so Claude's patch can never touch your actual working tree; `git worktree remove --force` always
+   cleans it up, success or failure.
+2. Record a **BEFORE** session: build and start `demo/buggy-app` in the worktree, then drive the
+   exact same scripted repro used to generate the video fixture (`tests/eval/repros.ts`, shared with
+   `scripts/generate-eval-fixtures.ts` so "before" and "after" are guaranteed the same interaction)
+   through a real **live**, instrumented browser session (`startLiveSession` from `@tracelens/live`)
+   -- not another video recording, because real network/console events (what `compare_sessions`
+   reads) only exist on the live path, never from video-replay ingestion.
+3. Run `claude -p "<the expanded /debug-video prompt>" --output-format json --permission-mode
+   bypassPermissions` with `cwd` set to the worktree -- the same MCP server auto-discovery, tools,
+   and workflow as an interactive session, just non-interactive and unattended. (Needs Node >= 22 in
+   the invoking shell: the MCP server subprocess Claude spawns inherits that environment, and its
+   own `assertSupportedNodeVersion` guard silently refuses to start otherwise -- Claude then reports
+   "no MCP servers connected" with no further explanation, which cost real debugging time to track
+   down the first time.)
+4. Grade **code localization**: `git diff --name-only` in the worktree vs. `expectedFiles`.
+5. Grade **root-cause accuracy**: deterministic keyword-overlap between Claude's response text and
+   the scenario's `rootCause` (`keywordOverlapRatio`, `tests/eval/agentic-harness.ts`) -- not a
+   second model call. This is a heuristic, not semantic understanding, same honesty standard as
+   `redactSecrets`/`findRelatedEventIds` elsewhere in this codebase.
+6. Rebuild the worktree's (now patched) `demo/buggy-app` and record an **AFTER** session with the
+   same repro.
+7. Grade **patch success**: `compareSessions(beforeId, afterId)` -- but only for
+   `checkout-schema-mismatch`, whose bug produces a real console error `compare_sessions` can
+   actually see. `search-race-condition` (a stale render, no error, no failing request) and
+   `responsive-regression` (a pure CSS layout bug) produce **no** console/network signal at all --
+   `compare_sessions` genuinely cannot detect either, so those two scenarios use a direct,
+   scenario-specific Playwright assertion instead (`EVAL_FIX_VERIFICATIONS`, `tests/eval/repros.ts`:
+   the rendered search results match the un-stale query, or the button's bounding box no longer
+   overlaps the header's). Being explicit that only 1 of 3 scenarios gets a `compare_sessions`
+   signal -- rather than implying it covers all three -- matches this project's existing posture on
+   heuristic boundaries (see `compare.ts`'s own doc comment, or the context-efficiency note above).
+
+**Live-verified, not just built**: running this against the real demo bugs produced a correct patch,
+a 100% code-localization match, a root-cause hypothesis a human would call correct, and (for all
+three scenarios, via their respective methods above) a confirmed real fix -- for
+`checkout-schema-mismatch` specifically, `compare_sessions` reported "1 console error(s) resolved,
+0 new console error(s)" after Claude's actual patch.
+
 ## Baseline vs. TraceLens (the actual thesis)
 
 `TraceLens_Master_Plan.md` §30 frames the interesting comparison as: a naive approach that sends a

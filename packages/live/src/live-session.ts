@@ -29,6 +29,14 @@ export interface StartLiveSessionOptions {
 
 export interface LiveSessionHandle {
   sessionId: string;
+  /**
+   * The instrumented page, exposed so a caller can script interactions
+   * (clicks, typing, navigation) into this session beyond the initial
+   * `options.url` navigation -- e.g. the eval harness driving a scripted bug
+   * repro instead of a human. A real user driving `tracelens debug --live`
+   * never touches this; it's for programmatic callers.
+   */
+  page: Page;
   stop(): Promise<{ eventCount: number; durationSeconds: number }>;
 }
 
@@ -168,6 +176,7 @@ export async function startLiveSession(options: StartLiveSessionOptions = {}): P
 
   return {
     sessionId: session.id,
+    page,
     async stop() {
       clearInterval(screenshotInterval);
       unsubscribePersist();
