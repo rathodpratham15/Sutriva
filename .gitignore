@@ -2,8 +2,12 @@ node_modules/
 dist/
 .tracelens/
 # Fixtures are generated deterministically -- see scripts/generate-fixtures.sh
-# and scripts/generate-eval-fixtures.ts (eval/ subdirectory).
+# and scripts/generate-eval-fixtures.ts (eval/ subdirectory). Manual test
+# recordings (e.g. a real screen recording used to smoke-test transcription)
+# also don't belong in git -- exclude common video containers broadly.
 fixtures/videos/**/*.mp4
+fixtures/videos/**/*.mov
+fixtures/videos/**/*.webm
 .tracelens-eval-report.json
 *.db
 *.db-journal
