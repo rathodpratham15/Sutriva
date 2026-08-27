@@ -123,11 +123,19 @@ thing a human would otherwise do by hand, scripted, not a change to what counts 
    signal -- rather than implying it covers all three -- matches this project's existing posture on
    heuristic boundaries (see `compare.ts`'s own doc comment, or the context-efficiency note above).
 
-**Live-verified, not just built**: running this against the real demo bugs produced a correct patch,
-a 100% code-localization match, a root-cause hypothesis a human would call correct, and (for all
-three scenarios, via their respective methods above) a confirmed real fix -- for
-`checkout-schema-mismatch` specifically, `compare_sessions` reported "1 console error(s) resolved,
-0 new console error(s)" after Claude's actual patch.
+**Live-verified against all three demo bugs, not just built:** every scenario produced a correct
+patch, a 100% code-localization match, and a root-cause hypothesis a human would call correct.
+Patch success was confirmed for real, via each scenario's respective method above:
+
+- `checkout-schema-mismatch`: `compare_sessions` reported "1 console error(s) resolved, 0 new
+  console error(s)" after Claude's actual patch.
+- `search-race-condition`: the DOM assertion caught the real state change -- before, `#results`
+  showed the stale `["Cat food", "Cat tree", "Cat toy"]`; after Claude's patch, the correct
+  `["Cats (the musical)", "Cats (2019 film)"]`. `compare_sessions` correctly reported all zeros, as
+  expected for a bug with no console/network signal.
+- `responsive-regression`: the bounding-box assertion flipped from overlapping (`button
+  top=190.2px` vs. `header bottom=220.0px`) to clear (`button top=346.2px`) after the patch, again
+  with `compare_sessions` correctly reporting all zeros.
 
 ## Baseline vs. TraceLens (the actual thesis)
 
