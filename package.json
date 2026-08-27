@@ -14,6 +14,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "eval": "tsx tests/eval/run-eval.ts",
+    "eval:agentic": "tsx tests/eval/run-agentic-eval.ts",
     "cli": "tsx apps/cli/src/index.ts",
     "mcp": "tsx apps/mcp-server/src/index.ts",
     "fixtures:generate": "bash scripts/generate-fixtures.sh",

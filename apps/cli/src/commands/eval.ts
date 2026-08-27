@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 // apps/cli/src/commands/eval.ts -> repo root
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../..");
 const harnessPath = path.join(repoRoot, "tests/eval/run-eval.ts");
+const agenticHarnessPath = path.join(repoRoot, "tests/eval/run-agentic-eval.ts");
 // Call the tsx binary directly rather than through npx: npx adds registry-
 // resolution overhead/indirection that isn't needed for an already-installed
 // local devDependency, and running it nested inside another tsx-executed
@@ -19,9 +20,16 @@ export function registerEvalCommand(program: Command): void {
       "Run the TraceLens evaluation benchmark against demo/buggy-app (generate fixtures first with " +
         "`pnpm fixtures:eval:generate` if you haven't already)",
     )
-    .action(async () => {
+    .option(
+      "--agentic",
+      "Also grade root-cause accuracy, code localization, and patch success by actually running Claude Code " +
+        "headlessly against a disposable git worktree per scenario -- costs a real API call per scenario and " +
+        "takes minutes, not milliseconds. See docs/evaluation.md.",
+    )
+    .action(async (options: { agentic?: boolean }) => {
+      const target = options.agentic ? agenticHarnessPath : harnessPath;
       const exitCode = await new Promise<number>((resolve) => {
-        const child = spawn(tsxBin, [harnessPath], { cwd: repoRoot, stdio: "inherit" });
+        const child = spawn(tsxBin, [target], { cwd: repoRoot, stdio: "inherit" });
         child.on("close", (code) => resolve(code ?? 1));
       });
       process.exitCode = exitCode;
