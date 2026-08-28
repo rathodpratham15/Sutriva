@@ -1,6 +1,7 @@
 {
   "name": "@tracelens/cli",
   "version": "0.1.0",
+  "license": "MIT",
   "description": "Temporal context and debugging system for Claude Code -- CLI",
   "private": true,
   "type": "module",
@@ -37,6 +38,7 @@
     "@tracelens/storage": "workspace:*",
     "@tracelens/timeline": "workspace:*",
     "@tracelens/live": "workspace:*",
+    "@tracelens/browser": "workspace:*",
     "typescript": "^5.6.0",
     "tsx": "^4.23.12",
     "tsup": "^8.5.0"

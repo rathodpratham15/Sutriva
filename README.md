@@ -1,20 +1,59 @@
 # TraceLens
 
-**TraceLens gives coding agents temporal memory: it turns developer sessions -- recorded video or a live browser session -- into structured, timestamped evidence that Claude Code can query instead of guessing from source code alone.**
+**TraceLens gives coding agents temporal memory: a persistent, queryable record of what happened across a debugging session -- live or recorded -- that can be retrieved and correlated after the fact, instead of relying only on the current application state.**
 
-> **Status: Phase 0 through Phase 6 (evaluation) -- the core system described in the master plan is complete.** Replay (MP4 → metadata/frames/transcript → timeline) and live (Playwright browser + terminal instrumentation → the same timeline/evidence tables) both work end to end through a 10-tool MCP surface, `/debug-video`, `tracelens debug --live`, and `tracelens exec`. Related events are linked automatically by proximity, `compare_sessions` verifies a fix, and a real evaluation harness (`tracelens eval`) measures the system against three deterministic, real bugs in a demo Next.js app -- see [Evaluation](#evaluation) and [Limitations](#limitations--roadmap) for what's left (mostly documentation/polish now, not core capability).
+> **Status: the full core system is built, tested, and release-hardened.** All 8 master-plan phases plus npm packaging, a real speech-to-text provider, and an automated agentic evaluation harness are done -- see [Limitations & roadmap](#limitations--roadmap) for exactly what's left (naming/publication decisions, not core capability).
+
+**WHAT:** TraceLens gives coding agents temporal memory.
+**WHY:** Debugging often depends on understanding what happened *before* the current state -- a click three steps back, a request that failed a minute ago, a console error that's since scrolled off screen.
+**HOW:** TraceLens records and indexes live or recorded developer sessions as timestamped, confidence-scored evidence that Claude can query through MCP -- incrementally, never as a raw video dump.
 
 ## Why TraceLens exists
 
-Claude Code can already read a repository, run commands, and inspect a browser. What it can't do well is reason about **what happened** during a session -- a screen recording of a bug, a sequence of clicks and failed requests, "watch me reproduce this." Dumping a whole video into a prompt is expensive, unbounded, and impossible to ground in timestamps.
+Claude Code can already read a repository, run commands, and -- via its own native browser integration (`--chrome`, "Claude in Chrome") -- observe and act in a live browser tab directly: screenshots, DOM/console inspection, clicking, navigating. TraceLens doesn't give Claude a capability it's missing there; positioning it that way would be inaccurate.
 
-TraceLens is not a video summarizer. It's a **temporal evidence layer**: every observation (a frame, eventually a click or a console error) gets a timestamp, a confidence, and a link back to its source artifact. Claude queries this incrementally -- metadata, then a timeline, then a specific frame -- instead of receiving raw video.
+What Claude Code doesn't have is **memory of a session across time**: a persistent, timestamped, queryable record of what happened, correlated with Git state, retrievable later -- by this session or a different one -- instead of just the current moment. A bug someone reproduced in a screen recording, or reproduced live five minutes ago, is gone from working context once the conversation moves on. Dumping a whole video into a prompt doesn't fix this either -- it's expensive, unbounded, and impossible to ground in timestamps.
 
-See `docs/product.md` for the full product thesis and workflows, and `docs/competitive-analysis.md` for how this compares to video understanding APIs, video-analysis MCP servers, and browser agents.
+TraceLens is not a video summarizer, and it's not a substitute for Claude's own browser capability. It's a **temporal evidence layer**: every observation (a frame, a click, a console error, a network response) gets a timestamp, a confidence, and a link back to its source artifact, persisted the moment it happens. Claude queries this incrementally -- metadata, then a timeline, then a specific frame -- instead of receiving raw video, and can ask "what happened right before this" about a moment that's long since scrolled off screen, in a session that started before this conversation did.
+
+See `docs/product.md` for the full product thesis and workflows, and `docs/competitive-analysis.md` for how this compares to video understanding APIs, video-analysis MCP servers, Claude Code's own native browser integration, and computer-use agents.
+
+## Architecture
+
+```
+MP4 --ffprobe/ffmpeg--> metadata + sampled frames --VisionProvider--> observations --,
+                                                                                      |
+Playwright browser --instrumentPage--> EventBus (publish/subscribe) ---------------->+
+                                                                                      v
+                                                          TemporalEvent + Evidence (SQLite)
+                                                                                      |
+                                                                                      v
+                                                                    MCP tool surface
+                                                                                      |
+                                                                                      v
+                                                                     Claude Code
+```
+
+**Packages** (`pnpm` workspace, no build step in dev -- everything runs via `tsx`; `apps/cli`/`apps/mcp-server` also build to a standalone bundle for external install, see [Installing outside this repo](#installing-outside-this-repo)):
+
+| Package | Responsibility |
+|---|---|
+| `packages/core` | Domain types (`Session`, `TemporalEvent`, `Evidence`, `Artifact`), the `EventBus`, Zod schemas, actionable errors, path validation, config. |
+| `packages/video` | FFmpeg wrapper: metadata probing, content hashing, frame/audio extraction, bounded sampling. |
+| `packages/providers` | `VisionProvider`/`TranscriptionProvider` interfaces + mock (offline/deterministic) and real (`AnthropicVisionProvider`, `ElevenLabsTranscriptionProvider`) implementations. Provider SDKs never leak outside this package. |
+| `packages/storage` | SQLite (`better-sqlite3`) persistence for sessions, events, evidence, artifacts, transcripts. |
+| `packages/timeline` | Orchestrates ingest (`inspectVideo`) and query (`getTimeline`, `getFrame`, `searchSession`, `analyzeSegment`, `getEvidenceAround`, `getCurrentContext`, `compareSessions`). |
+| `packages/git` | Minimal Git context (branch, commit, working-tree status, recent commits) for correlating evidence with source -- not a full diff/blame engine. |
+| `packages/browser` | Playwright instrumentation: navigation, click, input, console, pageerror, request/response/requestfailed, screenshots. |
+| `packages/live` | Orchestrates a live session -- launches a browser, instruments it, and persists every observation into the *same* sessions/events/evidence tables a replayed MP4 uses. |
+| `apps/mcp-server` | MCP server exposing the tool surface below over stdio. |
+| `apps/cli` | `tracelens` CLI -- useful standalone, without Claude Code. |
+
+See `docs/architecture.md` for the full design rationale (progressive disclosure, content-hash caching, why live and replay share one event model).
 
 ## Quickstart
 
-Requirements: Node.js **>= 22** (better-sqlite3's native binding requires it -- see [Configuration](#configuration)), [FFmpeg](https://ffmpeg.org/) (`ffmpeg`/`ffprobe` on `PATH`), `pnpm`.
+Requirements: Node.js **>= 22** (better-sqlite3's native binding requires it -- see [Provider configuration](#provider-configuration)), [FFmpeg](https://ffmpeg.org/) (`ffmpeg`/`ffprobe` on `PATH`), `pnpm`. Live browser debugging (`tracelens debug --live`) additionally needs Playwright's Chromium, which is **not** downloaded automatically by `npm`/`pnpm install` -- run `npx playwright install chromium` once; `tracelens doctor` checks for this and tells you if it's missing.
 
 ```bash
 git clone <this repo> && cd TraceLens
@@ -38,7 +77,7 @@ pnpm cli search fixtures/videos/sample.mp4 "change"
 pnpm cli analyze fixtures/videos/sample.mp4 --start 5 --end 7 --question "what changed"
 ```
 
-`pnpm verify:clean-install` reproduces the whole above sequence -- plus `build`, `typecheck`, `lint`, and the full test suite -- against a fresh `git clone` of the repo in a temp directory, exactly as a new contributor or CI would experience it. Verified against Node 22.14.0 on macOS: install, doctor, fixtures, build, typecheck, lint, and 68/70 tests all pass clean from an empty clone (the remaining 2 auto-skip until eval video fixtures are generated -- see [Testing](#testing)).
+`pnpm verify:clean-install` reproduces the whole above sequence -- plus `build`, `typecheck`, `lint`, and the full test suite -- against a fresh `git clone` of the repo in a temp directory, exactly as a new contributor or CI would experience it. Verified against Node 22.14.0 on macOS: install, doctor, fixtures, build, typecheck, lint, and 85/87 tests all pass clean from an empty clone (the remaining 2 auto-skip until eval video fixtures are generated -- see [Testing](#testing)).
 
 Without `ANTHROPIC_API_KEY` set, TraceLens uses a deterministic **mock vision provider** (a byte-delta heuristic between sampled frames) so the whole pipeline -- and the test suite -- works offline. Set `ANTHROPIC_API_KEY` to get real scene descriptions from Claude; see [Provider configuration](#provider-configuration).
 
@@ -66,38 +105,15 @@ For the full debugging workflow (evidence → repo inspection → hypothesis →
 
 See `docs/example-sessions.md` for real, captured tool output (CLI and MCP) against this exact fixture -- not a mockup -- if you want to see what Claude actually receives before running it yourself.
 
-## Architecture
+## Temporal rewind example
+
+The specific capability this whole project exists for: asking about a moment that's already passed, after more has happened since. Once a session exists (from `inspect_video` or a live session below):
 
 ```
-MP4 --ffprobe/ffmpeg--> metadata + sampled frames --VisionProvider--> observations --,
-                                                                                      |
-Playwright browser --instrumentPage--> EventBus (publish/subscribe) ---------------->+
-                                                                                      v
-                                                          TemporalEvent + Evidence (SQLite)
-                                                                                      |
-                                                                                      v
-                                                                    MCP tool surface
-                                                                                      |
-                                                                                      v
-                                                                     Claude Code
+> What happened right around the 8-second mark, before anything else changed?
 ```
 
-**Packages** (`pnpm` workspace, no build step -- everything runs via `tsx`):
-
-| Package | Responsibility |
-|---|---|
-| `packages/core` | Domain types (`Session`, `TemporalEvent`, `Evidence`, `Artifact`), the `EventBus`, Zod schemas, actionable errors, path validation, config. |
-| `packages/video` | FFmpeg wrapper: metadata probing, content hashing, frame/audio extraction, bounded sampling. |
-| `packages/providers` | `VisionProvider` interface + `MockVisionProvider` (offline/deterministic) + `AnthropicVisionProvider`. Provider SDKs never leak outside this package. |
-| `packages/storage` | SQLite (`better-sqlite3`) persistence for sessions, events, evidence, artifacts, transcripts. |
-| `packages/timeline` | Orchestrates ingest (`inspectVideo`) and query (`getTimeline`, `getFrame`, `searchSession`, `analyzeSegment`, `getEvidenceAround`, `getCurrentContext`). |
-| `packages/git` | Minimal Git context (branch, commit, working-tree status, recent commits) for correlating evidence with source -- not a full diff/blame engine (that's Phase 4). |
-| `packages/browser` | Playwright instrumentation: navigation, click, input, console, pageerror, request/response/requestfailed, screenshots. |
-| `packages/live` | Orchestrates a live session -- launches a browser, instruments it, and persists every observation into the *same* sessions/events/evidence tables a replayed MP4 uses. |
-| `apps/mcp-server` | MCP server exposing the tool surface below over stdio. |
-| `apps/cli` | `tracelens` CLI -- useful standalone, without Claude Code. |
-
-See `docs/architecture.md` for the full design rationale (progressive disclosure, content-hash caching, why live and replay share one event model).
+Claude calls `get_evidence(sessionId, aroundSeconds: 8, windowSeconds: 3)` and gets back only the evidence in that window -- not the whole timeline, and not whatever is happening "now" in a live session that's since moved on. `tests/integration/canonical-temporal-memory.test.ts` is the automated proof of this: a failure occurs, more unrelated events happen afterward, and a historical query still returns the correct pre-failure evidence while `get_current_context` correctly reflects the newer activity -- two distinct, correctly time-scoped views, neither overwriting the other.
 
 ## Live debugging
 
@@ -105,7 +121,7 @@ See `docs/architecture.md` for the full design rationale (progressive disclosure
 tracelens debug --live --url https://your-app.local
 ```
 
-This opens a real, visible browser window. Interact with it normally -- click around, reproduce a bug -- and TraceLens captures navigation, clicks, input, console messages, network requests/responses/failures, and periodic screenshots into a live session, live, as they happen. Ask Claude Code (in another terminal, once the MCP server is connected) to follow along:
+This opens a real, visible browser window. Interact with it normally -- click around, reproduce a bug -- and TraceLens captures navigation, clicks, input, console messages, network requests/responses/failures, and periodic screenshots into a live session, live, as they happen, persisted to SQLite the moment they occur. This is a different browser than Claude Code's own `--chrome` integration -- that one is for Claude to directly observe/act in a tab in the current turn; this one is for a human-driven repro to become a durable, queryable record Claude (this session or a later one) can rewind through afterward. Ask Claude Code (in another terminal, once the MCP server is connected) to follow along:
 
 ```
 > Look at this -- what just happened? Use get_current_context.
@@ -131,12 +147,11 @@ Reproduce the bug once (live or as a recording) to get a `sessionId`, patch the 
 
 Claude calls `compare_sessions(beforeSessionId, afterSessionId)`, which reports concretely what changed -- e.g. `POST /api/checkout: 500 → 200`, or a console error that no longer appears -- rather than you or Claude eyeballing two timelines side by side. This is the "reproduce → compare" half of the observe→diagnose→patch→test→reproduce→compare agentic loop; `/debug-video`'s workflow (below) drives the whole thing.
 
-## Demo app
+## Flagship demo: the closed loop
 
 `demo/buggy-app` is a small, deterministic Next.js app with three intentional bugs (an API schema
 mismatch, an async race condition, a responsive visual regression -- see `demo/buggy-app/README.md`
-for each bug's symptom, root cause, fix, and a screenshot). It exists to give the flagship workflow
-something real to debug:
+for each bug's symptom, root cause, fix, and a screenshot):
 
 <p>
   <img src="docs/assets/bug-1-checkout.gif" alt="Checkout bug: click Checkout, stuck on Processing..." width="260">
@@ -144,16 +159,48 @@ something real to debug:
   <img src="docs/assets/bug-3-responsive.gif" alt="Responsive bug: submit button hidden under the header" width="260">
 </p>
 
+The full story this project exists to demonstrate:
+
+```
+"Follow me while I reproduce this."
+        ↓
+Bug occurs.
+        ↓
+TraceLens captures the temporal evidence.
+        ↓
+Claude retrieves what happened before the failure (get_timeline / get_evidence).
+        ↓
+Claude correlates the evidence with source/Git (inspect_environment).
+        ↓
+Claude proposes a fix (a labeled hypothesis, not an assertion).
+        ↓
+Claude patches the code, runs tests/typecheck.
+        ↓
+The bug is reproduced again.
+        ↓
+compare_sessions shows the before/after evidence: the failure is gone.
+```
+
+**This isn't aspirational -- it's already been run for real, end to end, with a real Claude API call, no human in the loop:** `pnpm eval:agentic` (`tracelens eval --agentic`) drives exactly this loop headlessly against a disposable `git worktree` per bug. All three demo bugs have been verified this way:
+
+| Bug | Code localization | Root-cause hypothesis | Before → after |
+|---|---|---|---|
+| Checkout schema mismatch | Correct file, first try | "the frontend reads `data.orderId`... a response schema mismatch" -- matches `rootCause` exactly | `compare_sessions`: 1 console error resolved, 0 new |
+| Search race condition | Correct file, first try | "whichever fetch response resolves *last* overwrites state, regardless of which request was issued *last*" | `#results` flips from stale `["Cat food", ...]` to correct `["Cats (the musical)", ...]` |
+| Responsive regression | Correct file, first try | "the header grows... but `.responsive-main`'s padding-top stayed fixed" | Button bounding box flips from overlapping the header to clear |
+
+Exactly how each run was produced (so it's reproducible, not a one-off): `pnpm fixtures:eval:generate` records each bug's repro as a real Playwright interaction; the harness then creates an isolated `git worktree`, records a real **live** browser session against the unpatched app (the "before"), runs `claude -p "<the expanded /debug-video prompt>" --output-format json --permission-mode bypassPermissions` against that worktree with no human involved, rebuilds the now-patched app, records a second live session (the "after"), and grades all three columns above deterministically. See `docs/evaluation.md`'s "Agentic evaluation" section for the full mechanism, and `tests/eval/agentic-harness.ts` for the implementation. This is a genuinely separate, opt-in path (real API cost per run) -- not part of `pnpm test`/CI.
+
+To reproduce the flagship workflow yourself, live, instead of via the harness:
+
 ```bash
 pnpm --filter buggy-app dev   # http://localhost:4173
+tracelens debug --live --url http://localhost:4173/checkout
 ```
 
 ```
 > Follow me while I reproduce a bug in http://localhost:4173.
 ```
-
-(Start `tracelens debug --live --url http://localhost:4173/checkout` first, then ask Claude to
-follow along -- see [Live debugging](#live-debugging).)
 
 ## Evaluation
 
@@ -255,18 +302,20 @@ pnpm lint        # eslint
 pnpm test        # vitest -- unit tests + a real MCP-server-over-stdio integration test
 ```
 
-All 86 current tests run offline against the mock providers, generated fixtures, and a local HTTP test server for browser instrumentation -- no paid API calls or external network access are required to validate the system. The live-session tests run a real headless Chromium against a page deliberately designed to trigger a console error, a failed request, and a click, and assert the resulting events/evidence/screenshot/correlation; `compare_sessions` is tested against two real inspected videos through the actual MCP tool call. The eval harness itself is tested too (`tests/eval/harness.test.ts`), skipped automatically if the eval video fixtures haven't been generated. (The agentic eval harness, `pnpm eval:agentic`, is a separate opt-in path that costs real API calls -- see Evaluation above -- so it's deliberately not part of this test count.)
+All 87 current tests run offline against the mock providers, generated fixtures, and a local HTTP test server for browser instrumentation -- no paid API calls or external network access are required to validate the system. The live-session tests run a real headless Chromium against a page deliberately designed to trigger a console error, a failed request, and a click, and assert the resulting events/evidence/screenshot/correlation; `compare_sessions` is tested against two real inspected videos through the actual MCP tool call; `tests/integration/canonical-temporal-memory.test.ts` proves the central thesis directly (historical retrieval survives later, unrelated events). The eval harness itself is tested too (`tests/eval/harness.test.ts`), skipped automatically if the eval video fixtures haven't been generated. (The agentic eval harness, `pnpm eval:agentic`, is a separate opt-in path that costs real API calls -- see [Flagship demo: the closed loop](#flagship-demo-the-closed-loop) -- so it's deliberately not part of this test count.)
 
 ## Limitations & roadmap
 
-Phase 0 (vertical slice) through Phase 6 (evaluation) are done -- the core system from `TraceLens_Master_Plan.md` is complete. Not yet built:
+The core system (`TraceLens_Master_Plan.md`'s Phases 0-7) is complete, along with three post-plan additions: npm packaging, a real speech-to-text provider, and an automated agentic evaluation harness. Real, permanent limitations worth knowing before you rely on this:
 
-- Root-cause accuracy / code localization / patch success in the default `pnpm eval` are still graded manually (run `/debug-video` and compare against `expectedFiles`/`rootCause`) -- automating that inside a normal, paid-API-free benchmark would violate the master plan's own rule against it. `pnpm eval:agentic` is the separate, explicitly opt-in, real-API-call path that automates this grading instead (live-verified against all three demo bugs) -- see `docs/evaluation.md`.
-- A real speech-to-text provider now exists (`ElevenLabsTranscriptionProvider`, `TRACELENS_TRANSCRIPTION_PROVIDER=elevenlabs` with `ELEVENLABS_API_KEY` set) -- live-verified against a real API call (`tracelens inspect fixtures/videos/sample.mp4` produced a real `[audio]` event from the fixture's tone, not the mock's placeholder text), on top of the existing unit tests for config resolution, the not-configured error path, and the word-to-segment grouping heuristic.
-- Live-session screenshots are best-effort: an occasional screenshot capture immediately after a navigation can transiently fail in headless Chromium (a known Playwright quirk); it's logged and skipped rather than crashing the session, and the next trigger/periodic capture fills in.
-- Event correlation (`relatedEventIds`) is a bounded, time-proximity heuristic (network follows a recent interaction; a console error follows a recent network event) -- it links plausible chains, it does not establish causality. `git diff`-based blame/full history correlation beyond "recent commits + working-tree diff" isn't built.
+- **No visual diffing in `compare_sessions`.** It compares console errors and network endpoint status codes only -- it has no way to detect a purely visual/layout regression (like the demo's `responsive-regression` bug) with no console or network signal. The agentic eval harness works around this for its own grading with a direct, scenario-specific Playwright assertion (a DOM/bounding-box check), not by extending `compare_sessions` itself. If your bug has no console error and no failing request, `compare_sessions` will honestly report "nothing changed" even after a real fix -- verify visually instead.
+- `compare_sessions` also matches endpoints by exact `METHOD URL` string and parses status from the stored event description -- it doesn't normalize URLs (query strings, path params) or diff response bodies, so two calls to what's logically "the same" endpoint with different query strings are treated as different endpoints.
+- **Event correlation (`relatedEventIds`) is a bounded, time-proximity heuristic**, not causal analysis (network follows a recent interaction; a console error follows a recent network event). It links plausible chains, never asserts one event caused another.
+- **Model API costs are real and not free.** `ANTHROPIC_API_KEY` (vision) and `ELEVENLABS_API_KEY` (transcription) both make real, billed API calls the moment a tool that needs them is invoked -- see [Privacy](#privacy) for exactly when. `pnpm eval:agentic` costs roughly $0.50-$1 per scenario per run (a real Claude API call driving an actual patch).
+- **Live browser debugging needs Playwright's Chromium installed separately** (`npx playwright install chromium`) -- `npm`/`pnpm install` does not fetch it automatically (Playwright's own package has no postinstall download step), and `tracelens doctor` checks for and reports this explicitly rather than letting it fail opaquely later.
+- Live-session screenshots are best-effort: an occasional capture immediately after a navigation can transiently fail in headless Chromium (a known Playwright quirk); it's logged and skipped rather than crashing the session.
 - Terminal capture requires explicitly running commands through `tracelens exec`; there's no shell-wide/automatic capture of arbitrary commands you type directly. Redaction (`redactSecrets`) is a best-effort heuristic (common `KEY=value`/Bearer-token/AWS-key/PEM patterns), not a guarantee -- treat captured terminal output as potentially sensitive regardless.
-- Click/input capture describes the target element (tag/id/class/text), not a full DOM diff -- deliberately, per the plan's "don't over-engineer DOM diffing" guidance.
-- `compare_sessions` matches endpoints by exact `METHOD URL` string and parses status from the stored event description -- it doesn't normalize URLs (query strings, path params) or diff response bodies, so two calls to what's logically "the same" endpoint with different query strings are treated as different endpoints.
-
-These are being implemented in subsequent phases.
+- Click/input capture describes the target element (tag/id/class/text), not a full DOM diff -- deliberate, not a gap.
+- **Platform:** developed and tested on macOS (Apple Silicon) only. `better-sqlite3`'s native binding, Playwright's Chromium download, and `ffmpeg`/`ffprobe` are all platform-specific binaries -- Linux/Windows should work in principle (all three support those platforms upstream) but haven't been verified here.
+- **Not yet published to npm.** The build/bundle/pack path is verified working end to end (see [Installing outside this repo](#installing-outside-this-repo)), but the package name is still under review (the obvious names are already taken by unrelated projects on the registry) and actual `npm publish` hasn't happened.
+- `tracelens session report` is stubbed with an explanatory message, not implemented -- session recording/reporting as a distinct artifact wasn't part of the master plan's core phases.

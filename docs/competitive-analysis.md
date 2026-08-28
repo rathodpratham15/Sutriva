@@ -4,6 +4,14 @@ This compares TraceLens conceptually against existing categories of tooling (`Tr
 
 **Ground rule:** TraceLens does not claim novelty in raw multimodal video understanding. It uses an existing multimodal model (`AnthropicVisionProvider`, `packages/providers`) for frame analysis rather than building or claiming a competing perception model. The claim is about what's built *around* that perception: temporal evidence, developer telemetry, source correlation, and a debugging loop.
 
+## Claude Code's own native browser integration
+
+**What it does:** Claude Code has its own native live-browser capability (`--chrome`, "Claude in Chrome") -- Claude can already observe and act in a running browser tab directly: screenshots, DOM/console inspection, clicking, navigating, all in the current conversation turn. This is real, current, and TraceLens does not duplicate or compete with it.
+
+**What it doesn't do:** persist anything across time. There is no timestamped event history to rewind through once a moment has scrolled past, no correlation with the Git state at the moment a failure occurred, and no way for a *different* Claude Code session -- or this same one, later -- to ask "what happened right before the failure" once the tab that showed it is gone. It's observation, not memory.
+
+**TraceLens's relationship to this category:** this is the single most important distinction to get right, and the one most likely to be misunderstood. TraceLens is not "browser access for Claude" -- Claude already has that. TraceLens is the durability layer underneath: whatever produced an observation (a human driving a browser TraceLens instruments via `packages/live`, or a screen recording), every event is persisted the moment it happens into the same timestamped, queryable `TemporalEvent`/`Evidence` tables, retrievable by `get_timeline`/`get_evidence`/`search_session`/`compare_sessions` regardless of which session or how much later asks for it.
+
 ## Video understanding APIs
 
 **What they do:** given a video, return a description, a transcript, or answers to natural-language questions about its content.

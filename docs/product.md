@@ -2,7 +2,7 @@
 
 ## The user problem
 
-Claude Code can read a repository, run commands, and drive a browser. What it cannot do is reason about **what happened during a session it didn't witness** -- a bug someone reproduced in a screen recording, or is reproducing live right now. Today that gap gets filled one of two ways, both bad:
+Claude Code can already read a repository, run commands, and -- via its own native browser integration (`--chrome`) -- observe and act in a live browser directly. **Observation is not the gap.** What Claude Code doesn't have is memory of a session *across time*: a persistent, timestamped, queryable record of what happened, correlated with Git state, retrievable later -- by this session or a different one -- rather than just the current moment. A bug someone reproduced in a screen recording, or reproduced live five minutes ago, is gone from working context once the conversation moves on. Today that gap gets filled one of two ways, both bad:
 
 - The developer narrates it in text ("I clicked checkout, it spun forever, then nothing"), which is lossy -- exact timestamps, the actual failed request, the exact console error text, all get flattened into a paraphrase.
 - The whole video gets dumped into the model's context, which is expensive, unbounded, and ungrounded -- there's no way for Claude to say "at 4.2s the request failed" versus "somewhere in here something failed."
@@ -36,6 +36,7 @@ TraceLens is explicit about what it is *not* claiming (`TraceLens_Master_Plan.md
 - **Video understanding APIs / video search** -- describe or index video content, but have no concept of a debugging session, a Git repository, or a browser's live state.
 - **Video-analysis MCP servers** -- expose a video to a model over MCP, but typically as a single blob or a set of frame descriptions, not a queryable, timestamped, confidence-scored event stream correlated with anything else.
 - **Computer-use / browser agents** -- drive a browser, but for the agent to *act*, not to build a persistent, queryable evidence record of what a human did while reproducing a bug.
+- **Claude Code's own native browser integration (`--chrome`)** -- lets Claude observe and act in a live tab directly, in the current turn. It does not persist a timestamped history across time, correlate it with Git state at the moment of failure, or let a later session (or a different one) query "what happened before this" once the tab has moved on. TraceLens does not compete with or duplicate this -- it's the memory layer underneath it.
 
 TraceLens's actual position is the sum of several existing ideas applied specifically to debugging, not any one of them alone:
 
