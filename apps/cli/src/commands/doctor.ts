@@ -1,6 +1,8 @@
 import type { Command } from "commander";
 import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
 import { getDataDir, getTranscriptionProviderName, getVisionProviderName, MIN_SUPPORTED_NODE_MAJOR } from "@tracelens/core";
+import { chromium } from "@tracelens/browser";
 
 function checkBinary(bin: string, args: string[] = ["-version"]): { ok: boolean; detail: string } {
   try {
@@ -58,6 +60,24 @@ export function registerDoctorCommand(program: Command): void {
 
       const dataDir = getDataDir();
       checks.push({ name: "data directory", ok: true, detail: dataDir });
+
+      // Playwright's own package has no postinstall browser download -- `npm
+      // install` alone does not fetch Chromium. Soft check (doesn't fail
+      // doctor overall): replay-only usage (inspect/timeline/search/analyze)
+      // never touches a browser at all, only `debug --live`/`exec` do.
+      let chromiumInstalled = false;
+      try {
+        chromiumInstalled = existsSync(chromium.executablePath());
+      } catch {
+        chromiumInstalled = false;
+      }
+      checks.push({
+        name: "playwright chromium (for live debugging)",
+        ok: true,
+        detail: chromiumInstalled
+          ? "installed"
+          : "not installed -- run `npx playwright install chromium` before using `tracelens debug --live`",
+      });
 
       let allOk = true;
       for (const check of checks) {
