@@ -62,7 +62,7 @@ See `docs/architecture.md` for the full design rationale (progressive disclosure
 Requirements: Node.js **>= 22** (better-sqlite3's native binding requires it -- see [Provider configuration](#provider-configuration)), [FFmpeg](https://ffmpeg.org/) (`ffmpeg`/`ffprobe` on `PATH`), `pnpm`. Live browser debugging (`sutriva debug --live`) additionally needs Playwright's Chromium, which is **not** downloaded automatically by `npm`/`pnpm install` -- run `npx playwright install chromium` once; `sutriva doctor` checks for this and tells you if it's missing.
 
 ```bash
-git clone <this repo> && cd Sutriva
+git clone https://github.com/rathodpratham15/TraceLens.git && cd TraceLens
 nvm use            # picks up Node 22 via .nvmrc, if you use nvm
 pnpm install
 pnpm cli doctor     # checks ffmpeg/git/Node and prints the active vision provider

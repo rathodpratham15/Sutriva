@@ -54,7 +54,7 @@ export function registerEvalCommand(program: Command): void {
             "published package you have installed.\n\n" +
             "To run the evaluation suite:\n" +
             "  git clone https://github.com/rathodpratham15/TraceLens.git\n" +
-            "  cd Sutriva && pnpm install\n" +
+            "  cd TraceLens && pnpm install\n" +
             "  pnpm fixtures:eval:generate\n" +
             "  pnpm eval          # or: pnpm eval:agentic\n",
         );
