@@ -1,4 +1,4 @@
-import type { TemporalEvent } from "@tracelens/core";
+import type { TemporalEvent } from "@sutriva/core";
 
 /**
  * Lightweight, bounded evidence correlation (TraceLens_Master_Plan.md §24):
@@ -7,7 +7,7 @@ import type { TemporalEvent } from "@tracelens/core";
  * error. This is deliberately *not* a claim of causality: it only populates
  * `relatedEventIds` so Claude can look up what happened immediately before,
  * and reason about observed/likely/possible using its own judgment (§23/§27)
- * -- TraceLens itself never asserts "X caused Y".
+ * -- Sutriva itself never asserts "X caused Y".
  */
 export interface CorrelationOptions {
   /** Max seconds between an interaction and a network event it might have triggered. */

@@ -10,10 +10,10 @@ import {
   type TemporalEvent,
   type TranscriptSegment,
   type VideoMetadata,
-} from "@tracelens/core";
-import { extractAudio, extractFrame, readVideoMetadata, sampleTimestamps, type SamplingOptions } from "@tracelens/video";
-import type { TranscriptionProvider, VisionProvider } from "@tracelens/providers";
-import { getStore } from "@tracelens/storage";
+} from "@sutriva/core";
+import { extractAudio, extractFrame, readVideoMetadata, sampleTimestamps, type SamplingOptions } from "@sutriva/video";
+import type { TranscriptionProvider, VisionProvider } from "@sutriva/providers";
+import { getStore } from "@sutriva/storage";
 
 export interface InspectVideoOptions extends SamplingOptions {
   visionProvider: VisionProvider;
@@ -123,7 +123,7 @@ export async function inspectVideo(filePath: string, options: InspectVideoOption
   } catch (err) {
     // Best-effort cleanup: cascades to the session's events/evidence/artifacts
     // rows (see the ON DELETE CASCADE foreign keys in packages/storage/src/db.ts).
-    // Already-extracted frame files on disk are left for `tracelens clean`.
+    // Already-extracted frame files on disk are left for `sutriva clean`.
     store.deleteSession(session.id);
     throw err;
   }

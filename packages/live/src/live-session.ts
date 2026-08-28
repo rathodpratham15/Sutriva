@@ -8,10 +8,10 @@ import {
   type Evidence,
   type Session,
   type TemporalEvent,
-} from "@tracelens/core";
-import { getStore } from "@tracelens/storage";
-import { chromium, instrumentPage, captureScreenshot, type Browser, type Page } from "@tracelens/browser";
-import { getGitContext } from "@tracelens/git";
+} from "@sutriva/core";
+import { getStore } from "@sutriva/storage";
+import { chromium, instrumentPage, captureScreenshot, type Browser, type Page } from "@sutriva/browser";
+import { getGitContext } from "@sutriva/git";
 import { findRelatedEventIds } from "./correlate.js";
 
 export interface StartLiveSessionOptions {
@@ -33,7 +33,7 @@ export interface LiveSessionHandle {
    * The instrumented page, exposed so a caller can script interactions
    * (clicks, typing, navigation) into this session beyond the initial
    * `options.url` navigation -- e.g. the eval harness driving a scripted bug
-   * repro instead of a human. A real user driving `tracelens debug --live`
+   * repro instead of a human. A real user driving `sutriva debug --live`
    * never touches this; it's for programmatic callers.
    */
   page: Page;
@@ -108,7 +108,7 @@ export async function startLiveSession(options: StartLiveSessionOptions = {}): P
       latestScreenshotArtifactId = artifact.id;
     } catch (err) {
       // A closed page/browser during shutdown is expected; anything else is worth surfacing.
-      console.error("TraceLens: screenshot capture failed:", err);
+      console.error("Sutriva: screenshot capture failed:", err);
     }
   }
 
@@ -194,7 +194,7 @@ export async function startLiveSession(options: StartLiveSessionOptions = {}): P
       const endedAt = new Date().toISOString();
       store.endSession(session.id, endedAt);
       // Query fresh rather than a locally-tracked counter: other processes
-      // (e.g. `tracelens exec`) can insert events into this same session
+      // (e.g. `sutriva exec`) can insert events into this same session
       // between publishes, and a counter only incremented by this process's
       // own bus subscriber would silently undercount them.
       const eventCount = store.listEvents(session.id).length;

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { fileURLToPath } from "node:url";
-import { MockVisionProvider } from "@tracelens/providers";
+import { MockVisionProvider } from "@sutriva/providers";
 
 const thisFile = fileURLToPath(import.meta.url);
 

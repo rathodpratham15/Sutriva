@@ -72,9 +72,9 @@ CREATE TABLE IF NOT EXISTS video_sessions (
 );
 `;
 
-export type TraceLensDb = Database.Database;
+export type SutrivaDb = Database.Database;
 
-export function openDatabase(dbPath: string): TraceLensDb {
+export function openDatabase(dbPath: string): SutrivaDb {
   const db = new Database(dbPath);
   db.pragma("journal_mode = WAL");
   db.pragma("foreign_keys = ON");

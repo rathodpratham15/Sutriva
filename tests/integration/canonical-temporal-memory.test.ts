@@ -4,13 +4,13 @@ import path from "node:path";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import type { AddressInfo } from "node:net";
-import { startLiveSession } from "@tracelens/live";
-import { getTimeline, getEvidenceAround, getCurrentContext } from "@tracelens/timeline";
+import { startLiveSession } from "@sutriva/live";
+import { getTimeline, getEvidenceAround, getCurrentContext } from "@sutriva/timeline";
 
 /**
  * THE CANONICAL TEMPORAL MEMORY TEST.
  *
- * This is the specific, precise capability TraceLens's product thesis
+ * This is the specific, precise capability Sutriva's product thesis
  * claims and Claude Code's own native browser integration (--chrome) does
  * not have: a persistent, timestamped record of a session that can be
  * queried for what happened *before* a specific moment, even after later,
@@ -86,14 +86,14 @@ describe("CANONICAL: temporal memory -- historical retrieval survives later, unr
   let testServer: Awaited<ReturnType<typeof startTestServer>>;
 
   beforeEach(async () => {
-    dataDir = mkdtempSync(path.join(tmpdir(), "tracelens-temporal-memory-test-"));
-    process.env.TRACELENS_DATA_DIR = dataDir;
+    dataDir = mkdtempSync(path.join(tmpdir(), "sutriva-temporal-memory-test-"));
+    process.env.SUTRIVA_DATA_DIR = dataDir;
     testServer = await startTestServer();
   });
 
   afterEach(async () => {
     await testServer.close();
-    delete process.env.TRACELENS_DATA_DIR;
+    delete process.env.SUTRIVA_DATA_DIR;
     rmSync(dataDir, { recursive: true, force: true });
   });
 

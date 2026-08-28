@@ -2,9 +2,9 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import path from "node:path";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { generateId, type TemporalEvent } from "@tracelens/core";
-import { getStore } from "@tracelens/storage";
-import { compareSessions } from "@tracelens/timeline";
+import { generateId, type TemporalEvent } from "@sutriva/core";
+import { getStore } from "@sutriva/storage";
+import { compareSessions } from "@sutriva/timeline";
 
 function makeSession(mode: "live" | "replay" = "live"): string {
   const store = getStore();
@@ -29,12 +29,12 @@ describe("compareSessions", () => {
   let dataDir: string;
 
   beforeEach(() => {
-    dataDir = mkdtempSync(path.join(tmpdir(), "tracelens-compare-test-"));
-    process.env.TRACELENS_DATA_DIR = dataDir;
+    dataDir = mkdtempSync(path.join(tmpdir(), "sutriva-compare-test-"));
+    process.env.SUTRIVA_DATA_DIR = dataDir;
   });
 
   afterEach(() => {
-    delete process.env.TRACELENS_DATA_DIR;
+    delete process.env.SUTRIVA_DATA_DIR;
     rmSync(dataDir, { recursive: true, force: true });
   });
 

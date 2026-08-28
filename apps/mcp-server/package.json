@@ -1,8 +1,8 @@
 {
-  "name": "@tracelens/mcp-server",
+  "name": "@sutriva/mcp-server",
   "version": "0.1.0",
   "license": "MIT",
-  "description": "Temporal context and debugging system for Claude Code -- MCP server",
+  "description": "Sutriva gives coding agents temporal memory -- MCP server",
   "private": true,
   "type": "module",
   "engines": {
@@ -13,8 +13,14 @@
     "url": "git+https://github.com/rathodpratham15/TraceLens.git",
     "directory": "apps/mcp-server"
   },
+  "homepage": "https://github.com/rathodpratham15/TraceLens#readme",
+  "bugs": {
+    "url": "https://github.com/rathodpratham15/TraceLens/issues"
+  },
+  "keywords": ["mcp", "model-context-protocol", "claude", "claude-code", "debugging", "temporal-memory", "agent-tools"],
+  "author": "Pratham Rathod",
   "bin": {
-    "tracelens-mcp": "./dist/index.js"
+    "sutriva-mcp": "./dist/index.js"
   },
   "files": [
     "dist"
@@ -31,12 +37,12 @@
     "better-sqlite3": "^13.0.3"
   },
   "devDependencies": {
-    "@tracelens/core": "workspace:*",
-    "@tracelens/video": "workspace:*",
-    "@tracelens/providers": "workspace:*",
-    "@tracelens/storage": "workspace:*",
-    "@tracelens/timeline": "workspace:*",
-    "@tracelens/git": "workspace:*",
+    "@sutriva/core": "workspace:*",
+    "@sutriva/video": "workspace:*",
+    "@sutriva/providers": "workspace:*",
+    "@sutriva/storage": "workspace:*",
+    "@sutriva/timeline": "workspace:*",
+    "@sutriva/git": "workspace:*",
     "typescript": "^5.6.0",
     "tsx": "^4.23.12",
     "tsup": "^8.5.0"

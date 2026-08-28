@@ -1,4 +1,4 @@
-import { TraceLensError } from "./errors.js";
+import { SutrivaError } from "./errors.js";
 
 /**
  * better-sqlite3's prebuilt native binding requires Node >= 22 -- on Node 20
@@ -8,10 +8,10 @@ import { TraceLensError } from "./errors.js";
  */
 export const MIN_SUPPORTED_NODE_MAJOR = 22;
 
-export function unsupportedNodeVersionError(nodeVersion: string): TraceLensError {
-  return new TraceLensError(
+export function unsupportedNodeVersionError(nodeVersion: string): SutrivaError {
+  return new SutrivaError(
     "UNSUPPORTED_NODE_VERSION",
-    `TraceLens requires Node.js >= ${MIN_SUPPORTED_NODE_MAJOR}, but this process is running Node ${nodeVersion}.`,
+    `Sutriva requires Node.js >= ${MIN_SUPPORTED_NODE_MAJOR}, but this process is running Node ${nodeVersion}.`,
     "Run `nvm use` (this repo's .nvmrc pins Node 22) or otherwise switch to Node 22+. Running on an older Node won't error cleanly -- better-sqlite3's native binding segfaults instead.",
   );
 }

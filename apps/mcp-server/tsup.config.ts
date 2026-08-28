@@ -9,5 +9,5 @@ export default defineConfig({
   dts: false,
   sourcemap: false,
   splitting: false,
-  noExternal: [/^@tracelens\//],
+  noExternal: [/^@sutriva\//],
 });

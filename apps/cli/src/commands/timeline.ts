@@ -1,5 +1,5 @@
 import type { Command } from "commander";
-import { getTimeline } from "@tracelens/timeline";
+import { getTimeline } from "@sutriva/timeline";
 import { resolveVideoSession } from "../lib/resolve.js";
 
 export function registerTimelineCommand(program: Command): void {

@@ -1,6 +1,6 @@
 import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
 import type { ElevenLabs } from "@elevenlabs/elevenlabs-js";
-import { malformedProviderResponseError, providerNotConfiguredError } from "@tracelens/core";
+import { malformedProviderResponseError, providerNotConfiguredError } from "@sutriva/core";
 import type { AudioInput, Transcript, TranscriptSegmentResult, TranscriptionProvider } from "./types.js";
 
 type TimedWord = ElevenLabs.SpeechToTextWordResponseModel & { start: number; end: number };
@@ -66,10 +66,10 @@ export class ElevenLabsTranscriptionProvider implements TranscriptionProvider {
 
   constructor(options: { model?: string } = {}) {
     if (!process.env.ELEVENLABS_API_KEY) {
-      throw providerNotConfiguredError("ElevenLabsTranscriptionProvider", "ELEVENLABS_API_KEY", "TRACELENS_TRANSCRIPTION_PROVIDER");
+      throw providerNotConfiguredError("ElevenLabsTranscriptionProvider", "ELEVENLABS_API_KEY", "SUTRIVA_TRANSCRIPTION_PROVIDER");
     }
     this.client = new ElevenLabsClient();
-    this.model = options.model ?? process.env.TRACELENS_TRANSCRIPTION_MODEL ?? "scribe_v1";
+    this.model = options.model ?? process.env.SUTRIVA_TRANSCRIPTION_MODEL ?? "scribe_v1";
   }
 
   async transcribe(input: AudioInput): Promise<Transcript> {

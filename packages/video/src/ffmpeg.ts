@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
-import { missingFfmpegError, invalidVideoError } from "@tracelens/core";
+import { missingFfmpegError, invalidVideoError } from "@sutriva/core";
 
 let ffmpegChecked = false;
 

@@ -1,9 +1,9 @@
 import { z } from "zod";
 
 /**
- * TraceLens domain model.
+ * Sutriva domain model.
  *
- * Everything TraceLens observes -- a frame from an MP4, a browser click, a
+ * Everything Sutriva observes -- a frame from an MP4, a browser click, a
  * console error, a terminal command -- is normalized into a TemporalEvent.
  * Evidence is a grounded, artifact-backed observation that supports one or
  * more events. Live sessions and replayed MP4s produce the same shapes so

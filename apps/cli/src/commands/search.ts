@@ -1,5 +1,5 @@
 import type { Command } from "commander";
-import { searchSession } from "@tracelens/timeline";
+import { searchSession } from "@sutriva/timeline";
 import { resolveVideoSession } from "../lib/resolve.js";
 
 export function registerSearchCommand(program: Command): void {

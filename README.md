@@ -1,22 +1,28 @@
-# TraceLens
+# Sutriva
 
-**TraceLens gives coding agents temporal memory: a persistent, queryable record of what happened across a debugging session -- live or recorded -- that can be retrieved and correlated after the fact, instead of relying only on the current application state.**
+> Temporal memory for coding agents.
+
+**Sutriva gives coding agents temporal memory: a persistent, queryable record of what happened across a debugging session -- live or recorded -- that can be retrieved and correlated after the fact, instead of relying only on the current application state.**
 
 > **Status: the full core system is built, tested, and release-hardened.** All 8 master-plan phases plus npm packaging, a real speech-to-text provider, and an automated agentic evaluation harness are done -- see [Limitations & roadmap](#limitations--roadmap) for exactly what's left (naming/publication decisions, not core capability).
 
-**WHAT:** TraceLens gives coding agents temporal memory.
+**WHAT:** Sutriva gives coding agents temporal memory.
 **WHY:** Debugging often depends on understanding what happened *before* the current state -- a click three steps back, a request that failed a minute ago, a console error that's since scrolled off screen.
-**HOW:** TraceLens records and indexes live or recorded developer sessions as timestamped, confidence-scored evidence that Claude can query through MCP -- incrementally, never as a raw video dump.
+**HOW:** Sutriva records and indexes live or recorded developer sessions as timestamped, confidence-scored evidence that Claude can query through MCP -- incrementally, never as a raw video dump.
 
-## Why TraceLens exists
+## Why Sutriva exists
 
-Claude Code can already read a repository, run commands, and -- via its own native browser integration (`--chrome`, "Claude in Chrome") -- observe and act in a live browser tab directly: screenshots, DOM/console inspection, clicking, navigating. TraceLens doesn't give Claude a capability it's missing there; positioning it that way would be inaccurate.
+Claude Code can already read a repository, run commands, and -- via its own native browser integration (`--chrome`, "Claude in Chrome") -- observe and act in a live browser tab directly: screenshots, DOM/console inspection, clicking, navigating. Sutriva doesn't give Claude a capability it's missing there; positioning it that way would be inaccurate.
 
 What Claude Code doesn't have is **memory of a session across time**: a persistent, timestamped, queryable record of what happened, correlated with Git state, retrievable later -- by this session or a different one -- instead of just the current moment. A bug someone reproduced in a screen recording, or reproduced live five minutes ago, is gone from working context once the conversation moves on. Dumping a whole video into a prompt doesn't fix this either -- it's expensive, unbounded, and impossible to ground in timestamps.
 
-TraceLens is not a video summarizer, and it's not a substitute for Claude's own browser capability. It's a **temporal evidence layer**: every observation (a frame, a click, a console error, a network response) gets a timestamp, a confidence, and a link back to its source artifact, persisted the moment it happens. Claude queries this incrementally -- metadata, then a timeline, then a specific frame -- instead of receiving raw video, and can ask "what happened right before this" about a moment that's long since scrolled off screen, in a session that started before this conversation did.
+Sutriva is not a video summarizer, and it's not a substitute for Claude's own browser capability. It's a **temporal evidence layer**: every observation (a frame, a click, a console error, a network response) gets a timestamp, a confidence, and a link back to its source artifact, persisted the moment it happens. Claude queries this incrementally -- metadata, then a timeline, then a specific frame -- instead of receiving raw video, and can ask "what happened right before this" about a moment that's long since scrolled off screen, in a session that started before this conversation did.
 
 See `docs/product.md` for the full product thesis and workflows, and `docs/competitive-analysis.md` for how this compares to video understanding APIs, video-analysis MCP servers, Claude Code's own native browser integration, and computer-use agents.
+
+## Why Sutriva?
+
+The name is inspired by the idea of a *sutra* -- a thread that connects things. Sutriva connects the events of a debugging session (screen, browser, network, console, terminal, Git, video, audio) across time into one structured, queryable record a coding agent can reason about.
 
 ## Architecture
 
@@ -47,16 +53,16 @@ Playwright browser --instrumentPage--> EventBus (publish/subscribe) ------------
 | `packages/browser` | Playwright instrumentation: navigation, click, input, console, pageerror, request/response/requestfailed, screenshots. |
 | `packages/live` | Orchestrates a live session -- launches a browser, instruments it, and persists every observation into the *same* sessions/events/evidence tables a replayed MP4 uses. |
 | `apps/mcp-server` | MCP server exposing the tool surface below over stdio. |
-| `apps/cli` | `tracelens` CLI -- useful standalone, without Claude Code. |
+| `apps/cli` | `sutriva` CLI -- useful standalone, without Claude Code. |
 
 See `docs/architecture.md` for the full design rationale (progressive disclosure, content-hash caching, why live and replay share one event model).
 
 ## Quickstart
 
-Requirements: Node.js **>= 22** (better-sqlite3's native binding requires it -- see [Provider configuration](#provider-configuration)), [FFmpeg](https://ffmpeg.org/) (`ffmpeg`/`ffprobe` on `PATH`), `pnpm`. Live browser debugging (`tracelens debug --live`) additionally needs Playwright's Chromium, which is **not** downloaded automatically by `npm`/`pnpm install` -- run `npx playwright install chromium` once; `tracelens doctor` checks for this and tells you if it's missing.
+Requirements: Node.js **>= 22** (better-sqlite3's native binding requires it -- see [Provider configuration](#provider-configuration)), [FFmpeg](https://ffmpeg.org/) (`ffmpeg`/`ffprobe` on `PATH`), `pnpm`. Live browser debugging (`sutriva debug --live`) additionally needs Playwright's Chromium, which is **not** downloaded automatically by `npm`/`pnpm install` -- run `npx playwright install chromium` once; `sutriva doctor` checks for this and tells you if it's missing.
 
 ```bash
-git clone <this repo> && cd TraceLens
+git clone <this repo> && cd Sutriva
 nvm use            # picks up Node 22 via .nvmrc, if you use nvm
 pnpm install
 pnpm cli doctor     # checks ffmpeg/git/Node and prints the active vision provider
@@ -79,11 +85,11 @@ pnpm cli analyze fixtures/videos/sample.mp4 --start 5 --end 7 --question "what c
 
 `pnpm verify:clean-install` reproduces the whole above sequence -- plus `build`, `typecheck`, `lint`, and the full test suite -- against a fresh `git clone` of the repo in a temp directory, exactly as a new contributor or CI would experience it. Verified against Node 22.14.0 on macOS: install, doctor, fixtures, build, typecheck, lint, and 85/87 tests all pass clean from an empty clone (the remaining 2 auto-skip until eval video fixtures are generated -- see [Testing](#testing)).
 
-Without `ANTHROPIC_API_KEY` set, TraceLens uses a deterministic **mock vision provider** (a byte-delta heuristic between sampled frames) so the whole pipeline -- and the test suite -- works offline. Set `ANTHROPIC_API_KEY` to get real scene descriptions from Claude; see [Provider configuration](#provider-configuration).
+Without `ANTHROPIC_API_KEY` set, Sutriva uses a deterministic **mock vision provider** (a byte-delta heuristic between sampled frames) so the whole pipeline -- and the test suite -- works offline. Set `ANTHROPIC_API_KEY` to get real scene descriptions from Claude; see [Provider configuration](#provider-configuration).
 
 ## Claude Code integration
 
-This repo ships a project-level `.mcp.json`, so opening Claude Code here auto-discovers the TraceLens MCP server:
+This repo ships a project-level `.mcp.json`, so opening Claude Code here auto-discovers the Sutriva MCP server:
 
 ```bash
 export ANTHROPIC_API_KEY=sk-...   # optional -- omit to use the mock provider
@@ -91,7 +97,7 @@ claude
 ```
 
 ```
-> Use the TraceLens tools to inspect fixtures/videos/checkout-bug.mp4 and tell me
+> Use the Sutriva tools to inspect fixtures/videos/checkout-bug.mp4 and tell me
 > what happens in it, with timestamps.
 ```
 
@@ -118,24 +124,24 @@ Claude calls `get_evidence(sessionId, aroundSeconds: 8, windowSeconds: 3)` and g
 ## Live debugging
 
 ```bash
-tracelens debug --live --url https://your-app.local
+sutriva debug --live --url https://your-app.local
 ```
 
-This opens a real, visible browser window. Interact with it normally -- click around, reproduce a bug -- and TraceLens captures navigation, clicks, input, console messages, network requests/responses/failures, and periodic screenshots into a live session, live, as they happen, persisted to SQLite the moment they occur. This is a different browser than Claude Code's own `--chrome` integration -- that one is for Claude to directly observe/act in a tab in the current turn; this one is for a human-driven repro to become a durable, queryable record Claude (this session or a later one) can rewind through afterward. Ask Claude Code (in another terminal, once the MCP server is connected) to follow along:
+This opens a real, visible browser window. Interact with it normally -- click around, reproduce a bug -- and Sutriva captures navigation, clicks, input, console messages, network requests/responses/failures, and periodic screenshots into a live session, live, as they happen, persisted to SQLite the moment they occur. This is a different browser than Claude Code's own `--chrome` integration -- that one is for Claude to directly observe/act in a tab in the current turn; this one is for a human-driven repro to become a durable, queryable record Claude (this session or a later one) can rewind through afterward. Ask Claude Code (in another terminal, once the MCP server is connected) to follow along:
 
 ```
 > Look at this -- what just happened? Use get_current_context.
 ```
 
-`get_current_context` returns a compact, bounded snapshot (current screenshot, current URL, recent events, recent console errors, recent network failures, live Git state) without Claude having to poll the whole timeline. Press Ctrl+C in the `tracelens debug --live` terminal to end the session.
+`get_current_context` returns a compact, bounded snapshot (current screenshot, current URL, recent events, recent console errors, recent network failures, live Git state) without Claude having to poll the whole timeline. Press Ctrl+C in the `sutriva debug --live` terminal to end the session.
 
 Run a command and record it into that same timeline (e.g. to capture the test run that reproduces a bug):
 
 ```bash
-tracelens exec -- npm test
+sutriva exec -- npm test
 ```
 
-Output streams to your terminal exactly as if you'd run the command directly; a bounded, redacted copy (command, exit code, stdout/stderr) is recorded as a `terminal` event if a live session is active. Related events get linked automatically: a network request/error is linked back to the click that likely triggered it, purely by time proximity -- this is evidence for Claude to reason over, not a causality claim TraceLens itself makes.
+Output streams to your terminal exactly as if you'd run the command directly; a bounded, redacted copy (command, exit code, stdout/stderr) is recorded as a `terminal` event if a live session is active. Related events get linked automatically: a network request/error is linked back to the click that likely triggered it, purely by time proximity -- this is evidence for Claude to reason over, not a causality claim Sutriva itself makes.
 
 ## Verifying a fix
 
@@ -166,7 +172,7 @@ The full story this project exists to demonstrate:
         ↓
 Bug occurs.
         ↓
-TraceLens captures the temporal evidence.
+Sutriva captures the temporal evidence.
         ↓
 Claude retrieves what happened before the failure (get_timeline / get_evidence).
         ↓
@@ -181,7 +187,7 @@ The bug is reproduced again.
 compare_sessions shows the before/after evidence: the failure is gone.
 ```
 
-**This isn't aspirational -- it's already been run for real, end to end, with a real Claude API call, no human in the loop:** `pnpm eval:agentic` (`tracelens eval --agentic`) drives exactly this loop headlessly against a disposable `git worktree` per bug. All three demo bugs have been verified this way:
+**This isn't aspirational -- it's already been run for real, end to end, with a real Claude API call, no human in the loop:** `pnpm eval:agentic` (`sutriva eval --agentic`) drives exactly this loop headlessly against a disposable `git worktree` per bug. All three demo bugs have been verified this way:
 
 | Bug | Code localization | Root-cause hypothesis | Before → after |
 |---|---|---|---|
@@ -195,7 +201,7 @@ To reproduce the flagship workflow yourself, live, instead of via the harness:
 
 ```bash
 pnpm --filter buggy-app dev   # http://localhost:4173
-tracelens debug --live --url http://localhost:4173/checkout
+sutriva debug --live --url http://localhost:4173/checkout
 ```
 
 ```
@@ -206,15 +212,15 @@ tracelens debug --live --url http://localhost:4173/checkout
 
 ```bash
 pnpm fixtures:eval:generate   # records a real Playwright repro of each demo bug as an MP4
-pnpm eval                     # or: tracelens eval
+pnpm eval                     # or: sutriva eval
 ```
 
-Measures TraceLens against the three demo bugs: temporal localization, evidence retrieval, and
+Measures Sutriva against the three demo bugs: temporal localization, evidence retrieval, and
 context efficiency (sampled frames vs. every frame at native fps; a single targeted frame's size
 vs. an estimated "send every frame" baseline) are fully automated and deterministic -- no paid API
 calls. Root-cause accuracy, code localization, and patch success require an actual agent reading
 the repository, so `pnpm eval` reports those with the exact `/debug-video` command to grade them by
-hand rather than faked -- or run `pnpm eval:agentic` (`tracelens eval --agentic`) to automate that
+hand rather than faked -- or run `pnpm eval:agentic` (`sutriva eval --agentic`) to automate that
 grading too: it actually drives Claude Code headlessly against a disposable `git worktree` per
 scenario and grades the result deterministically (code-diff overlap, keyword-overlap on root cause,
 and a real before/after check -- `compare_sessions` where the bug produces a console/network
@@ -249,44 +255,44 @@ claude
 ## CLI
 
 ```bash
-tracelens doctor                                    # environment check
-tracelens inspect <video>                           # ingest + build timeline
-tracelens timeline <video> [--limit N] [--json]
-tracelens search <video> "<query>"
-tracelens analyze <video> --start S --end E [--question "..."]
-tracelens debug --live [--url <url>] [--headless]   # live browser session (Ctrl+C to stop)
-tracelens exec -- <command>                         # run + record a command into the active live session
-tracelens session list
-tracelens eval                                       # run the evaluation harness against demo/buggy-app
-tracelens clean [--yes]                             # delete .tracelens/ (derived data only)
+sutriva doctor                                    # environment check
+sutriva inspect <video>                           # ingest + build timeline
+sutriva timeline <video> [--limit N] [--json]
+sutriva search <video> "<query>"
+sutriva analyze <video> --start S --end E [--question "..."]
+sutriva debug --live [--url <url>] [--headless]   # live browser session (Ctrl+C to stop)
+sutriva exec -- <command>                         # run + record a command into the active live session
+sutriva session list
+sutriva eval                                       # run the evaluation harness against demo/buggy-app
+sutriva clean [--yes]                             # delete .sutriva/ (derived data only)
 ```
 
-`tracelens debug <video>` explains how to drive replay debugging via Claude Code/MCP rather than duplicating that logic in the CLI. `tracelens session report` is stubbed with an explanatory message -- it lands in a later phase (session recording/reporting wasn't part of the master plan's core phases).
+`sutriva debug <video>` explains how to drive replay debugging via Claude Code/MCP rather than duplicating that logic in the CLI. `sutriva session report` is stubbed with an explanatory message -- it lands in a later phase (session recording/reporting wasn't part of the master plan's core phases).
 
 ### Installing outside this repo
 
-`apps/cli` and `apps/mcp-server` build to a single self-contained `dist/index.js` each (via `tsup`, inlining the internal `@tracelens/*` packages -- see `apps/cli/tsup.config.ts`), so they're installable independently of this monorepo:
+`apps/cli` and `apps/mcp-server` build to a single self-contained `dist/index.js` each (via `tsup`, inlining the internal `@sutriva/*` packages -- see `apps/cli/tsup.config.ts`), so they're installable independently of this monorepo:
 
 ```bash
-pnpm --filter @tracelens/cli build && pnpm --filter @tracelens/cli pack
-npm install -g ./tracelens-cli-0.1.0.tgz   # installs the `tracelens` binary
+pnpm --filter @sutriva/cli build && pnpm --filter @sutriva/cli pack
+npm install -g ./sutriva-cli-0.1.0.tgz   # installs the `sutriva` binary
 ```
 
-Same for `@tracelens/mcp-server` (`tracelens-mcp` binary), which any other repo's `.mcp.json` can point at once installed. Both packages are currently marked `private: true` and are **not published to the npm registry** -- this is a deliberate stop-short: the build/bundle/pack path is verified working end to end (built, packed, installed globally, and run from outside the repo with no workspace context), but actually publishing is a separate decision (package naming, a license, npm org ownership) left for later.
+Same for `@sutriva/mcp-server` (`sutriva-mcp` binary), which any other repo's `.mcp.json` can point at once installed. Both packages are currently marked `private: true` and are **not published to the npm registry** -- this is a deliberate stop-short: the build/bundle/pack path is verified working end to end (built, packed, installed globally, and run from outside the repo with no workspace context), but actually publishing is a separate decision (package naming, a license, npm org ownership) left for later.
 
 ## Provider configuration
 
-TraceLens never calls a model provider unless a tool that needs one is invoked, and never uploads anything automatically.
+Sutriva never calls a model provider unless a tool that needs one is invoked, and never uploads anything automatically.
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `TRACELENS_VISION_PROVIDER` | `anthropic` if `ANTHROPIC_API_KEY` is set, else `mock` | `mock` or `anthropic`. |
+| `SUTRIVA_VISION_PROVIDER` | `anthropic` if `ANTHROPIC_API_KEY` is set, else `mock` | `mock` or `anthropic`. |
 | `ANTHROPIC_API_KEY` | unset | Required for the `anthropic` provider. |
-| `TRACELENS_VISION_MODEL` | `claude-opus-5` | Any current vision-capable Claude model. |
-| `TRACELENS_TRANSCRIPTION_PROVIDER` | `elevenlabs` if `ELEVENLABS_API_KEY` is set, else `mock` | `mock` or `elevenlabs`. |
+| `SUTRIVA_VISION_MODEL` | `claude-opus-5` | Any current vision-capable Claude model. |
+| `SUTRIVA_TRANSCRIPTION_PROVIDER` | `elevenlabs` if `ELEVENLABS_API_KEY` is set, else `mock` | `mock` or `elevenlabs`. |
 | `ELEVENLABS_API_KEY` | unset | Required for the `elevenlabs` (Scribe) transcription provider. |
-| `TRACELENS_TRANSCRIPTION_MODEL` | `scribe_v1` | Passed to ElevenLabs' Speech-to-Text API (`scribe_v1` or `scribe_v2`). |
-| `TRACELENS_DATA_DIR` | `./.tracelens` | Where sessions, timelines, and extracted frames are stored. |
+| `SUTRIVA_TRANSCRIPTION_MODEL` | `scribe_v1` | Passed to ElevenLabs' Speech-to-Text API (`scribe_v1` or `scribe_v2`). |
+| `SUTRIVA_DATA_DIR` | `./.sutriva` | Where sessions, timelines, and extracted frames are stored. |
 
 `VisionProvider`/`TranscriptionProvider` are plain interfaces (`packages/providers/src/types.ts`); adding another provider means adding one file that implements one -- core/timeline code never imports a provider SDK directly.
 
@@ -312,10 +318,10 @@ The core system (`TraceLens_Master_Plan.md`'s Phases 0-7) is complete, along wit
 - `compare_sessions` also matches endpoints by exact `METHOD URL` string and parses status from the stored event description -- it doesn't normalize URLs (query strings, path params) or diff response bodies, so two calls to what's logically "the same" endpoint with different query strings are treated as different endpoints.
 - **Event correlation (`relatedEventIds`) is a bounded, time-proximity heuristic**, not causal analysis (network follows a recent interaction; a console error follows a recent network event). It links plausible chains, never asserts one event caused another.
 - **Model API costs are real and not free.** `ANTHROPIC_API_KEY` (vision) and `ELEVENLABS_API_KEY` (transcription) both make real, billed API calls the moment a tool that needs them is invoked -- see [Privacy](#privacy) for exactly when. `pnpm eval:agentic` costs roughly $0.50-$1 per scenario per run (a real Claude API call driving an actual patch).
-- **Live browser debugging needs Playwright's Chromium installed separately** (`npx playwright install chromium`) -- `npm`/`pnpm install` does not fetch it automatically (Playwright's own package has no postinstall download step), and `tracelens doctor` checks for and reports this explicitly rather than letting it fail opaquely later.
+- **Live browser debugging needs Playwright's Chromium installed separately** (`npx playwright install chromium`) -- `npm`/`pnpm install` does not fetch it automatically (Playwright's own package has no postinstall download step), and `sutriva doctor` checks for and reports this explicitly rather than letting it fail opaquely later.
 - Live-session screenshots are best-effort: an occasional capture immediately after a navigation can transiently fail in headless Chromium (a known Playwright quirk); it's logged and skipped rather than crashing the session.
-- Terminal capture requires explicitly running commands through `tracelens exec`; there's no shell-wide/automatic capture of arbitrary commands you type directly. Redaction (`redactSecrets`) is a best-effort heuristic (common `KEY=value`/Bearer-token/AWS-key/PEM patterns), not a guarantee -- treat captured terminal output as potentially sensitive regardless.
+- Terminal capture requires explicitly running commands through `sutriva exec`; there's no shell-wide/automatic capture of arbitrary commands you type directly. Redaction (`redactSecrets`) is a best-effort heuristic (common `KEY=value`/Bearer-token/AWS-key/PEM patterns), not a guarantee -- treat captured terminal output as potentially sensitive regardless.
 - Click/input capture describes the target element (tag/id/class/text), not a full DOM diff -- deliberate, not a gap.
 - **Platform:** developed and tested on macOS (Apple Silicon) only. `better-sqlite3`'s native binding, Playwright's Chromium download, and `ffmpeg`/`ffprobe` are all platform-specific binaries -- Linux/Windows should work in principle (all three support those platforms upstream) but haven't been verified here.
 - **Not yet published to npm.** The build/bundle/pack path is verified working end to end (see [Installing outside this repo](#installing-outside-this-repo)), but the package name is still under review (the obvious names are already taken by unrelated projects on the registry) and actual `npm publish` hasn't happened.
-- `tracelens session report` is stubbed with an explanatory message, not implemented -- session recording/reporting as a distinct artifact wasn't part of the master plan's core phases.
+- `sutriva session report` is stubbed with an explanatory message, not implemented -- session recording/reporting as a distinct artifact wasn't part of the master plan's core phases.

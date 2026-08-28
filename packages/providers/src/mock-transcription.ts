@@ -2,7 +2,7 @@ import { statSync } from "node:fs";
 import type { AudioInput, Transcript, TranscriptionProvider } from "./types.js";
 
 /**
- * Deterministic, offline transcription provider. TraceLens has no first-party
+ * Deterministic, offline transcription provider. Sutriva has no first-party
  * speech-to-text provider yet (see docs/architecture.md) -- this exists so
  * the transcript pipeline (audio extraction -> segments -> timeline events)
  * is exercisable and testable without a paid API, the same way

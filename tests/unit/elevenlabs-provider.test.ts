@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { ElevenLabsTranscriptionProvider, groupWordsIntoSegments } from "@tracelens/providers";
+import { ElevenLabsTranscriptionProvider, groupWordsIntoSegments } from "@sutriva/providers";
 import type { ElevenLabs } from "@elevenlabs/elevenlabs-js";
-import { getTranscriptionModel, getTranscriptionProviderName } from "@tracelens/core";
+import { getTranscriptionModel, getTranscriptionProviderName } from "@sutriva/core";
 
 function word(
   text: string,
@@ -28,45 +28,45 @@ describe("ElevenLabsTranscriptionProvider", () => {
     expect(() => new ElevenLabsTranscriptionProvider()).toThrow(/ELEVENLABS_API_KEY/);
   });
 
-  it("mentions the mock fallback (TRACELENS_TRANSCRIPTION_PROVIDER), not the vision one", () => {
-    expect(() => new ElevenLabsTranscriptionProvider()).toThrow(/TRACELENS_TRANSCRIPTION_PROVIDER=mock/);
+  it("mentions the mock fallback (SUTRIVA_TRANSCRIPTION_PROVIDER), not the vision one", () => {
+    expect(() => new ElevenLabsTranscriptionProvider()).toThrow(/SUTRIVA_TRANSCRIPTION_PROVIDER=mock/);
   });
 });
 
 describe("transcription provider config resolution", () => {
   const originalKey = process.env.ELEVENLABS_API_KEY;
-  const originalOverride = process.env.TRACELENS_TRANSCRIPTION_PROVIDER;
-  const originalModel = process.env.TRACELENS_TRANSCRIPTION_MODEL;
+  const originalOverride = process.env.SUTRIVA_TRANSCRIPTION_PROVIDER;
+  const originalModel = process.env.SUTRIVA_TRANSCRIPTION_MODEL;
 
   afterEach(() => {
     if (originalKey === undefined) delete process.env.ELEVENLABS_API_KEY;
     else process.env.ELEVENLABS_API_KEY = originalKey;
-    if (originalOverride === undefined) delete process.env.TRACELENS_TRANSCRIPTION_PROVIDER;
-    else process.env.TRACELENS_TRANSCRIPTION_PROVIDER = originalOverride;
-    if (originalModel === undefined) delete process.env.TRACELENS_TRANSCRIPTION_MODEL;
-    else process.env.TRACELENS_TRANSCRIPTION_MODEL = originalModel;
+    if (originalOverride === undefined) delete process.env.SUTRIVA_TRANSCRIPTION_PROVIDER;
+    else process.env.SUTRIVA_TRANSCRIPTION_PROVIDER = originalOverride;
+    if (originalModel === undefined) delete process.env.SUTRIVA_TRANSCRIPTION_MODEL;
+    else process.env.SUTRIVA_TRANSCRIPTION_MODEL = originalModel;
   });
 
   it("defaults to mock when ELEVENLABS_API_KEY is unset", () => {
     delete process.env.ELEVENLABS_API_KEY;
-    delete process.env.TRACELENS_TRANSCRIPTION_PROVIDER;
+    delete process.env.SUTRIVA_TRANSCRIPTION_PROVIDER;
     expect(getTranscriptionProviderName()).toBe("mock");
   });
 
   it("defaults to elevenlabs when ELEVENLABS_API_KEY is set", () => {
-    delete process.env.TRACELENS_TRANSCRIPTION_PROVIDER;
+    delete process.env.SUTRIVA_TRANSCRIPTION_PROVIDER;
     process.env.ELEVENLABS_API_KEY = "el-test";
     expect(getTranscriptionProviderName()).toBe("elevenlabs");
   });
 
-  it("an explicit TRACELENS_TRANSCRIPTION_PROVIDER always wins over the ELEVENLABS_API_KEY heuristic", () => {
+  it("an explicit SUTRIVA_TRANSCRIPTION_PROVIDER always wins over the ELEVENLABS_API_KEY heuristic", () => {
     process.env.ELEVENLABS_API_KEY = "el-test";
-    process.env.TRACELENS_TRANSCRIPTION_PROVIDER = "mock";
+    process.env.SUTRIVA_TRANSCRIPTION_PROVIDER = "mock";
     expect(getTranscriptionProviderName()).toBe("mock");
   });
 
   it("defaults the model to scribe_v1", () => {
-    delete process.env.TRACELENS_TRANSCRIPTION_MODEL;
+    delete process.env.SUTRIVA_TRANSCRIPTION_MODEL;
     expect(getTranscriptionModel()).toBe("scribe_v1");
   });
 });

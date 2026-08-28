@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * TraceLens evaluation harness (TraceLens_Master_Plan.md Sec18/Sec29-30).
+ * Sutriva evaluation harness (TraceLens_Master_Plan.md Sec18/Sec29-30).
  *
  * Automates what can be automated deterministically, without a paid model
  * API call, per the plan's "do not make normal tests depend on paid model
@@ -13,7 +13,7 @@
  *   - Context efficiency: sampled-frame count vs. every-frame-at-native-fps
  *     ("baseline"), and a single targeted frame's byte size vs. the whole
  *     video file's -- the concrete version of the plan's "baseline (full
- *     video context) vs. TraceLens (progressive disclosure)" comparison.
+ *     video context) vs. Sutriva (progressive disclosure)" comparison.
  *   - Latency: wall-clock time for the ingest pipeline.
  *
  * Root-cause accuracy, code localization, and patch success genuinely
@@ -26,8 +26,8 @@
 import path from "node:path";
 import { statSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { inspectVideo, getTimeline, getEvidenceAround, getFrame } from "@tracelens/timeline";
-import { MockVisionProvider } from "@tracelens/providers";
+import { inspectVideo, getTimeline, getEvidenceAround, getFrame } from "@sutriva/timeline";
+import { MockVisionProvider } from "@sutriva/providers";
 import { EVAL_SCENARIOS, type EvalScenario } from "./scenarios.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -40,7 +40,7 @@ export interface ScenarioResult {
   evidenceRetrieval: { count: number; pass: boolean };
   contextEfficiency: {
     baselineFrameCount: number;
-    tracelensSampledFrames: number;
+    sutrivaSampledFrames: number;
     frameReductionPercent: number;
     videoFileBytes: number;
     singleFrameBytes: number;
@@ -76,7 +76,7 @@ export async function runScenario(scenario: EvalScenario): Promise<ScenarioResul
   const evidence = getEvidenceAround(result.session.id, scenario.failureTimestamp, scenario.toleranceSeconds);
 
   const baselineFrameCount = Math.max(1, Math.round(result.metadata.durationSeconds * result.metadata.fps));
-  const tracelensSampledFrames = events.length;
+  const sutrivaSampledFrames = events.length;
   const videoFileBytes = statSync(videoPath).size;
   const frame = await getFrame(result.session.id, scenario.failureTimestamp);
   const singleFrameBytes = Buffer.from(frame.base64, "base64").length;
@@ -97,8 +97,8 @@ export async function runScenario(scenario: EvalScenario): Promise<ScenarioResul
     evidenceRetrieval: { count: evidence.length, pass: evidence.length > 0 },
     contextEfficiency: {
       baselineFrameCount,
-      tracelensSampledFrames,
-      frameReductionPercent: round((1 - tracelensSampledFrames / baselineFrameCount) * 100, 1),
+      sutrivaSampledFrames,
+      frameReductionPercent: round((1 - sutrivaSampledFrames / baselineFrameCount) * 100, 1),
       videoFileBytes,
       singleFrameBytes,
       estimatedBaselineImageBytes,
@@ -112,7 +112,7 @@ export async function runScenario(scenario: EvalScenario): Promise<ScenarioResul
 }
 
 function printReport(results: ScenarioResult[], scenarios: EvalScenario[]): void {
-  console.log("\nTraceLens Evaluation Report\n" + "=".repeat(27) + "\n");
+  console.log("\nSutriva Evaluation Report\n" + "=".repeat(27) + "\n");
   for (const result of results) {
     const scenario = scenarios.find((s) => s.name === result.name)!;
     console.log(`## ${result.name}`);
@@ -126,7 +126,7 @@ function printReport(results: ScenarioResult[], scenarios: EvalScenario[]): void
       `   Evidence retrieval    : ${result.evidenceRetrieval.pass ? "PASS" : "FAIL"} (${result.evidenceRetrieval.count} evidence item(s) found around the failure)`,
     );
     console.log(
-      `   Context efficiency    : ${result.contextEfficiency.tracelensSampledFrames} sampled frame(s) vs. ` +
+      `   Context efficiency    : ${result.contextEfficiency.sutrivaSampledFrames} sampled frame(s) vs. ` +
         `${result.contextEfficiency.baselineFrameCount} at native fps (${result.contextEfficiency.frameReductionPercent}% fewer); ` +
         `a single targeted get_frame call is ${result.contextEfficiency.byteReductionPercent}% smaller than sending every ` +
         `native-fps frame as an image would be (${result.contextEfficiency.singleFrameBytes}B vs an estimated ` +
@@ -169,7 +169,7 @@ export async function main(): Promise<void> {
 
   printReport(results, EVAL_SCENARIOS);
 
-  const reportPath = path.join(repoRoot, ".tracelens-eval-report.json");
+  const reportPath = path.join(repoRoot, ".sutriva-eval-report.json");
   writeFileSync(reportPath, JSON.stringify(results, null, 2));
   console.log(`\nJSON report written to ${path.relative(repoRoot, reportPath)}`);
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { redactSecrets } from "@tracelens/core";
+import { redactSecrets } from "@sutriva/core";
 
 describe("redactSecrets", () => {
   it("redacts KEY=value style assignments for secret-looking names", () => {

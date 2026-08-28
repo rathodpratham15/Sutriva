@@ -1,12 +1,12 @@
-import { getDbPath } from "@tracelens/core";
-import { TraceLensStore } from "./store.js";
+import { getDbPath } from "@sutriva/core";
+import { SutrivaStore } from "./store.js";
 
-let instance: TraceLensStore | undefined;
+let instance: SutrivaStore | undefined;
 
-/** Process-wide store bound to the configured TRACELENS_DATA_DIR. */
-export function getStore(): TraceLensStore {
+/** Process-wide store bound to the configured SUTRIVA_DATA_DIR. */
+export function getStore(): SutrivaStore {
   if (!instance) {
-    instance = new TraceLensStore(getDbPath());
+    instance = new SutrivaStore(getDbPath());
   }
   return instance;
 }

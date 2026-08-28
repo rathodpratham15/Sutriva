@@ -1,8 +1,8 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
-import { TraceLensError } from "@tracelens/core";
-import { createTranscriptionProvider, createVisionProvider } from "@tracelens/providers";
+import { SutrivaError } from "@sutriva/core";
+import { createTranscriptionProvider, createVisionProvider } from "@sutriva/providers";
 import {
   inspectVideo,
   getTimeline,
@@ -13,15 +13,15 @@ import {
   getTranscript,
   getCurrentContext,
   compareSessions,
-} from "@tracelens/timeline";
-import { getGitContext, getDiffStat, getWorkingTreeDiff } from "@tracelens/git";
-import { getStore } from "@tracelens/storage";
+} from "@sutriva/timeline";
+import { getGitContext, getDiffStat, getWorkingTreeDiff } from "@sutriva/git";
+import { getStore } from "@sutriva/storage";
 
 /**
  * Capability flags for inspect_environment. `available` means the capability
  * exists at all -- a session must still be live for any of these to have
  * data (see get_current_context / the liveSession field), and terminal
- * events only appear if the user ran commands through `tracelens exec`.
+ * events only appear if the user ran commands through `sutriva exec`.
  * Kept explicit so Claude never assumes silence means "nothing happening".
  */
 const ENVIRONMENT_SOURCE_CAPABILITIES = {
@@ -30,7 +30,7 @@ const ENVIRONMENT_SOURCE_CAPABILITIES = {
   console: { available: true, note: "Populated only while a live session is running -- see get_current_context." },
   terminal: {
     available: true,
-    note: "Populated only for commands run via `tracelens exec -- <command>` during a live session.",
+    note: "Populated only for commands run via `sutriva exec -- <command>` during a live session.",
   },
 } as const;
 
@@ -39,7 +39,7 @@ function textResult(payload: unknown): CallToolResult {
 }
 
 function errorResult(err: unknown): CallToolResult {
-  if (err instanceof TraceLensError) {
+  if (err instanceof SutrivaError) {
     return { content: [{ type: "text", text: `${err.code}: ${err.message}` }], isError: true };
   }
   const message = err instanceof Error ? err.message : String(err);
@@ -52,7 +52,7 @@ export function registerTools(server: McpServer): void {
     {
       title: "Inspect video",
       description:
-        "Ingests a local MP4 (or other ffmpeg-readable video) into a TraceLens session: extracts metadata, " +
+        "Ingests a local MP4 (or other ffmpeg-readable video) into a Sutriva session: extracts metadata, " +
         "samples frames, runs vision analysis, and builds a timeline. Returns session metadata and an event count " +
         "-- call get_timeline next to see what happened, rather than requesting raw video data. Re-inspecting an " +
         "unchanged file (by content hash) reuses the existing session instead of re-analyzing.",
@@ -337,7 +337,7 @@ export function registerTools(server: McpServer): void {
           git: { ...git, diffStat: diffStat || undefined, diff: fullDiff },
           liveSession: activeLiveSession
             ? { active: true, sessionId: activeLiveSession.id }
-            : { active: false, note: "Start one with `tracelens debug --live` to get live browser/network/console context." },
+            : { active: false, note: "Start one with `sutriva debug --live` to get live browser/network/console context." },
           ...ENVIRONMENT_SOURCE_CAPABILITIES,
         });
       } catch (err) {

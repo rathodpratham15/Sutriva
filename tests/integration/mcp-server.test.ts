@@ -12,25 +12,25 @@ const serverEntry = path.join(repoRoot, "apps/mcp-server/src/index.ts");
 const sampleVideo = path.join(repoRoot, "fixtures/videos/sample.mp4");
 const checkoutBugVideo = path.join(repoRoot, "fixtures/videos/checkout-bug.mp4");
 
-describe("TraceLens MCP server (end-to-end)", () => {
+describe("Sutriva MCP server (end-to-end)", () => {
   let client: Client;
   let transport: StdioClientTransport;
   let dataDir: string;
 
   beforeAll(async () => {
-    dataDir = mkdtempSync(path.join(tmpdir(), "tracelens-mcp-test-"));
+    dataDir = mkdtempSync(path.join(tmpdir(), "sutriva-mcp-test-"));
     transport = new StdioClientTransport({
       command: "npx",
       args: ["tsx", serverEntry],
       cwd: repoRoot,
       env: {
         ...(process.env as Record<string, string>),
-        TRACELENS_DATA_DIR: dataDir,
-        TRACELENS_VISION_PROVIDER: "mock",
+        SUTRIVA_DATA_DIR: dataDir,
+        SUTRIVA_VISION_PROVIDER: "mock",
       },
       stderr: "pipe",
     });
-    client = new Client({ name: "tracelens-test-client", version: "0.1.0" });
+    client = new Client({ name: "sutriva-test-client", version: "0.1.0" });
     await client.connect(transport);
   }, 30_000);
 

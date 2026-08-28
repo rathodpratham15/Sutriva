@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { fileURLToPath } from "node:url";
-import { MockTranscriptionProvider } from "@tracelens/providers";
+import { MockTranscriptionProvider } from "@sutriva/providers";
 
 const thisFile = fileURLToPath(import.meta.url);
 

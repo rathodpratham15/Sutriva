@@ -1,5 +1,5 @@
-import { getStore } from "@tracelens/storage";
-import type { TemporalEvent } from "@tracelens/core";
+import { getStore } from "@sutriva/storage";
+import type { TemporalEvent } from "@sutriva/core";
 
 /**
  * Before/after verification (TraceLens_Master_Plan.md Sec16/Sec26/Sec27): compares

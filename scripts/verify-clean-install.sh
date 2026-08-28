@@ -6,7 +6,7 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-tmp_dir="$(mktemp -d -t tracelens-clean-install)"
+tmp_dir="$(mktemp -d -t sutriva-clean-install)"
 trap 'rm -rf "$tmp_dir"' EXIT
 
 echo "==> Cloning $repo_root into $tmp_dir"

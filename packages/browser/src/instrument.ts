@@ -1,5 +1,5 @@
 import type { Page } from "playwright";
-import type { EventType } from "@tracelens/core";
+import type { EventType } from "@sutriva/core";
 
 /**
  * Browser instrumentation (TraceLens_Master_Plan.md §21). Captures the
@@ -40,7 +40,7 @@ const CLIENT_SCRIPT = `
   }
   document.addEventListener("click", (e) => {
     try {
-      window.__tracelensReport("click", { selector: describe(e.target) });
+      window.__sutrivaReport("click", { selector: describe(e.target) });
     } catch (_) {}
   }, true);
   document.addEventListener("input", (e) => {
@@ -48,7 +48,7 @@ const CLIENT_SCRIPT = `
       const el = e.target;
       const isSensitive = el && (el.type === "password" || (el.autocomplete || "").includes("cc-"));
       const value = isSensitive ? "[redacted]" : (el && "value" in el ? String(el.value).slice(0, 80) : "");
-      window.__tracelensReport("input", { selector: describe(el), value });
+      window.__sutrivaReport("input", { selector: describe(el), value });
     } catch (_) {}
   }, true);
 })();
@@ -119,7 +119,7 @@ export async function instrumentPage(page: Page, onObservation: ObservationHandl
   page.on("framenavigated", onFrameNavigated);
 
   await page.exposeFunction(
-    "__tracelensReport",
+    "__sutrivaReport",
     (kind: "click" | "input", detail: { selector: string; value?: string }) => {
       onObservation({
         type: "interaction",

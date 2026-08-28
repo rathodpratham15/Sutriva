@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
-import { malformedProviderResponseError, providerNotConfiguredError } from "@tracelens/core";
+import { malformedProviderResponseError, providerNotConfiguredError } from "@sutriva/core";
 import type {
   FrameAnalysisInput,
   FrameAnalysisResult,
@@ -52,7 +52,7 @@ export class AnthropicVisionProvider implements VisionProvider {
       throw providerNotConfiguredError("AnthropicVisionProvider", "ANTHROPIC_API_KEY");
     }
     this.client = new Anthropic();
-    this.model = options.model ?? process.env.TRACELENS_VISION_MODEL ?? "claude-opus-5";
+    this.model = options.model ?? process.env.SUTRIVA_VISION_MODEL ?? "claude-opus-5";
   }
 
   async analyzeFrames(input: FrameAnalysisInput): Promise<FrameAnalysisResult> {

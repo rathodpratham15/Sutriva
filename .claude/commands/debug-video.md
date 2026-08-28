@@ -1,11 +1,11 @@
 ---
-description: Debug a reproduced bug from a screen recording using TraceLens's temporal evidence, then propose and verify a fix.
+description: Debug a reproduced bug from a screen recording using Sutriva's temporal evidence, then propose and verify a fix.
 argument-hint: <path-to-video>
 ---
 
 You are debugging the issue reproduced in the video at: $ARGUMENTS
 
-Use TraceLens's MCP tools (`inspect_video`, `get_timeline`, `get_frame`, `search_session`,
+Use Sutriva's MCP tools (`inspect_video`, `get_timeline`, `get_frame`, `search_session`,
 `get_evidence`, `analyze_segment`, `get_transcript`, `inspect_environment`, `get_current_context`,
 `compare_sessions`) as your primary source of temporal evidence about what happened in the
 recording. Do not ask the user to describe the video to you -- inspect it yourself. Do not guess
@@ -43,7 +43,7 @@ Follow this workflow (`TraceLens_Master_Plan.md` §25):
    - **Possible** -- a plausible explanation you have not confirmed.
    Never claim a code change *caused* the observed failure, or that a correlated event *caused*
    another, merely because they're linked or nearby -- that's "likely" or "possible" evidence
-   (TraceLens's correlation is a time-proximity heuristic, not a causality engine), not proof.
+   (Sutriva's correlation is a time-proximity heuristic, not a causality engine), not proof.
 9. **Identify the most likely root cause** from your hypotheses.
 10. **Ask before making risky or broad changes.** For a small, well-evidenced fix you may
     propose the patch directly; for anything invasive, ask for approval first.
@@ -76,7 +76,7 @@ Follow this workflow (`TraceLens_Master_Plan.md` §25):
 ## Live debugging
 
 If the user says "follow me while I reproduce this" instead of pointing you at a video, the same
-workflow applies to a live session (`tracelens debug --live`, and `tracelens exec` for terminal
+workflow applies to a live session (`sutriva debug --live`, and `sutriva exec` for terminal
 commands) -- use `get_current_context` for a quick "what just happened?" snapshot, and the same
 `get_timeline`/`get_evidence`/`search_session` tools against the live `sessionId`
 (`inspect_environment`'s `liveSession` field tells you if one is active). To verify a fix live,

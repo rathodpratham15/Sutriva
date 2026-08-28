@@ -11,7 +11,7 @@ import { spawn, execFileSync } from "node:child_process";
 import { mkdirSync, rmSync, existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium, type Page } from "@tracelens/browser";
+import { chromium, type Page } from "@sutriva/browser";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..");

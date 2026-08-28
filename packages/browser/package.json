@@ -1,5 +1,5 @@
 {
-  "name": "@tracelens/browser",
+  "name": "@sutriva/browser",
   "version": "0.1.0",
   "license": "MIT",
   "private": true,
@@ -13,7 +13,7 @@
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@tracelens/core": "workspace:*",
+    "@sutriva/core": "workspace:*",
     "playwright": "^1.62.1"
   },
   "devDependencies": {

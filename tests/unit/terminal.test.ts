@@ -2,20 +2,20 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import path from "node:path";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { generateId } from "@tracelens/core";
-import { getStore } from "@tracelens/storage";
-import { runAndCapture } from "@tracelens/live";
+import { generateId } from "@sutriva/core";
+import { getStore } from "@sutriva/storage";
+import { runAndCapture } from "@sutriva/live";
 
 describe("runAndCapture", () => {
   let dataDir: string;
 
   beforeEach(() => {
-    dataDir = mkdtempSync(path.join(tmpdir(), "tracelens-terminal-test-"));
-    process.env.TRACELENS_DATA_DIR = dataDir;
+    dataDir = mkdtempSync(path.join(tmpdir(), "sutriva-terminal-test-"));
+    process.env.SUTRIVA_DATA_DIR = dataDir;
   });
 
   afterEach(() => {
-    delete process.env.TRACELENS_DATA_DIR;
+    delete process.env.SUTRIVA_DATA_DIR;
     rmSync(dataDir, { recursive: true, force: true });
   });
 

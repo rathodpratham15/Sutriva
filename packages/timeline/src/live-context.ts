@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
-import { TraceLensError } from "@tracelens/core";
-import { getStore } from "@tracelens/storage";
-import { getGitContext, type GitContext } from "@tracelens/git";
+import { SutrivaError } from "@sutriva/core";
+import { getStore } from "@sutriva/storage";
+import { getGitContext, type GitContext } from "@sutriva/git";
 
 const RECENT_TIMELINE_LIMIT = 15;
 const ERROR_LOOKBACK_LIMIT = 100;
@@ -42,10 +42,10 @@ export async function getCurrentContext(sessionId?: string): Promise<CurrentCont
   const store = getStore();
   const session = sessionId ? store.getSession(sessionId) : store.findActiveLiveSession();
   if (!session) {
-    throw new TraceLensError(
+    throw new SutrivaError(
       "NO_ACTIVE_SESSION",
       sessionId ? `No session found with id "${sessionId}".` : "No live session is currently running.",
-      "Start one with `tracelens debug --live`, or pass an explicit sessionId from inspect_video.",
+      "Start one with `sutriva debug --live`, or pass an explicit sessionId from inspect_video.",
     );
   }
 
