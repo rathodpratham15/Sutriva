@@ -5,20 +5,29 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import type { AddressInfo } from "node:net";
 import { startLiveSession } from "@tracelens/live";
-import { getTimeline, getEvidenceAround } from "@tracelens/timeline";
+import { getTimeline, getEvidenceAround, getCurrentContext } from "@tracelens/timeline";
 
 /**
- * The precise capability this project claims and Claude Code's own native
- * browser integration (--chrome) does not have: a persistent, timestamped
- * record of a session that can be queried for what happened *before* a
- * specific moment, even after later, unrelated events have since occurred.
- * Observation alone (watching a live tab) doesn't need this -- there's
- * nothing to "look back" at until something has actually passed and more
- * has happened since. This test constructs exactly that shape: an action,
- * then a failure, then *more* action after the failure, then asserts a
- * time-bounded query correctly returns only the pre-failure history and
- * excludes what happened afterward -- not just "did capture happen"
- * (already covered by live-session.test.ts).
+ * THE CANONICAL TEMPORAL MEMORY TEST.
+ *
+ * This is the specific, precise capability TraceLens's product thesis
+ * claims and Claude Code's own native browser integration (--chrome) does
+ * not have: a persistent, timestamped record of a session that can be
+ * queried for what happened *before* a specific moment, even after later,
+ * unrelated events have since occurred. Observation alone (watching a live
+ * tab) doesn't need this -- there's nothing to "look back" at until
+ * something has actually passed and more has happened since.
+ *
+ * Scenario: several events occur, a failure occurs, *more*, unrelated
+ * events occur after the failure, then:
+ *   1. a historical query (get_evidence/get_timeline bounded to before the
+ *      failure) must return the correct pre-failure evidence, and
+ *   2. a *current-state* query (get_current_context) must reflect the
+ *      latest activity, not the failure -- proving the two are genuinely
+ *      distinct views neither overwrites the other, not one cache that
+ *      happens to answer both questions the same way.
+ *
+ * Not just "did capture happen" (already covered by live-session.test.ts).
  */
 
 const PAGE_HTML = `<!doctype html>
@@ -72,7 +81,7 @@ function wait(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-describe("temporal memory: querying history before a moment, after more has happened since", () => {
+describe("CANONICAL: temporal memory -- historical retrieval survives later, unrelated events", () => {
   let dataDir: string;
   let testServer: Awaited<ReturnType<typeof startTestServer>>;
 
@@ -137,6 +146,25 @@ describe("temporal memory: querying history before a moment, after more has happ
     expect(timelineBeforeFailure.some((e) => /setup-btn|Do setup/i.test(e.description))).toBe(true);
     expect(timelineBeforeFailure.some((e) => /Checkout failed/.test(e.description))).toBe(true);
     expect(timelineBeforeFailure.some((e) => /cleanup-btn|Do cleanup/i.test(e.description))).toBe(false);
+
+    // Step 7 of the canonical scenario: current state must not silently
+    // replace historical state, or vice versa. get_current_context's
+    // recentEvents (the "look at this -- what just happened?" live
+    // snapshot, bounded to the most recent 15) reflects the *latest*
+    // activity -- cleanup, the last thing that happened -- confirming
+    // "current" genuinely tracks forward in time. The historical queries
+    // above, run against that exact same live session, independently and
+    // correctly still return the earlier failure. Two distinct, correctly
+    // time-scoped views of the same session, neither one silently
+    // overwriting or hiding the other.
+    const currentContext = await getCurrentContext(handle.sessionId);
+    const mostRecentEvent = currentContext.recentEvents[currentContext.recentEvents.length - 1];
+    expect(mostRecentEvent?.description).toMatch(/cleanup-btn|Do cleanup|cleanup status/i);
+    // Re-confirms (independent of the assertions above) that the failure
+    // remains genuinely retrievable historically even once it's no longer
+    // "current" -- it was correctly scoped out of "what's happening right
+    // now", not dropped from the record entirely.
+    expect(evidenceDescriptions.some((d) => /Checkout failed/.test(d))).toBe(true);
 
     await handle.stop();
   }, 20_000);
