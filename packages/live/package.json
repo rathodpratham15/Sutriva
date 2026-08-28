@@ -1,5 +1,5 @@
 {
-  "name": "@tracelens/live",
+  "name": "@sutriva/live",
   "version": "0.1.0",
   "license": "MIT",
   "private": true,
@@ -13,10 +13,10 @@
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@tracelens/core": "workspace:*",
-    "@tracelens/storage": "workspace:*",
-    "@tracelens/browser": "workspace:*",
-    "@tracelens/git": "workspace:*"
+    "@sutriva/core": "workspace:*",
+    "@sutriva/storage": "workspace:*",
+    "@sutriva/browser": "workspace:*",
+    "@sutriva/git": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.6.0"

@@ -3,10 +3,10 @@ import path from "node:path";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
-import { inspectVideo } from "@tracelens/timeline";
-import { getStore } from "@tracelens/storage";
-import { MockVisionProvider } from "@tracelens/providers";
-import type { FrameAnalysisInput, FrameAnalysisResult, VisionProvider } from "@tracelens/providers";
+import { inspectVideo } from "@sutriva/timeline";
+import { getStore } from "@sutriva/storage";
+import { MockVisionProvider } from "@sutriva/providers";
+import type { FrameAnalysisInput, FrameAnalysisResult, VisionProvider } from "@sutriva/providers";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const sampleVideo = path.resolve(here, "../../fixtures/videos/sample.mp4");
@@ -25,12 +25,12 @@ describe("inspectVideo failure recovery", () => {
   let dataDir: string;
 
   beforeEach(() => {
-    dataDir = mkdtempSync(path.join(tmpdir(), "tracelens-ingest-failure-"));
-    process.env.TRACELENS_DATA_DIR = dataDir;
+    dataDir = mkdtempSync(path.join(tmpdir(), "sutriva-ingest-failure-"));
+    process.env.SUTRIVA_DATA_DIR = dataDir;
   });
 
   afterEach(() => {
-    delete process.env.TRACELENS_DATA_DIR;
+    delete process.env.SUTRIVA_DATA_DIR;
     rmSync(dataDir, { recursive: true, force: true });
   });
 
@@ -42,7 +42,7 @@ describe("inspectVideo failure recovery", () => {
     const store = getStore();
     // The file's content hash must not be linked to a (broken, eventless) session --
     // otherwise every future inspect_video call on this file would silently reuse it.
-    const metadata = await import("@tracelens/video").then((m) => m.readVideoMetadata(sampleVideo));
+    const metadata = await import("@sutriva/video").then((m) => m.readVideoMetadata(sampleVideo));
     expect(store.findSessionIdByContentHash(metadata.contentHash)).toBeUndefined();
 
     // A subsequent call with a working provider should ingest fresh, not reuse anything broken.

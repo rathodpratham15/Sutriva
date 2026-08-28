@@ -3,15 +3,15 @@ import { readFileSync } from "node:fs";
 import {
   generateId,
   getArtifactsDir,
-  TraceLensError,
+  SutrivaError,
   type Artifact,
   type Evidence,
   type TemporalEvent,
   type TranscriptSegment,
-} from "@tracelens/core";
-import { extractFrame, denseSampleAround } from "@tracelens/video";
-import type { VisionProvider } from "@tracelens/providers";
-import { getStore } from "@tracelens/storage";
+} from "@sutriva/core";
+import { extractFrame, denseSampleAround } from "@sutriva/video";
+import type { VisionProvider } from "@sutriva/providers";
+import { getStore } from "@sutriva/storage";
 
 const FRAME_REUSE_TOLERANCE_SECONDS = 0.4;
 
@@ -50,7 +50,7 @@ function findSessionVideoPath(sessionId: string): string {
   const session = store.getSession(sessionId);
   const videoSource = session.sources.find((s) => s.kind === "video");
   if (!videoSource) {
-    throw new TraceLensError(
+    throw new SutrivaError(
       "NO_VIDEO_SOURCE",
       `Session "${sessionId}" has no video source.`,
       "get_frame and analyze_segment require a replay session created via inspect_video.",

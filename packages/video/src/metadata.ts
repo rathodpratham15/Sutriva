@@ -1,5 +1,5 @@
 import { statSync } from "node:fs";
-import type { VideoMetadata } from "@tracelens/core";
+import type { VideoMetadata } from "@sutriva/core";
 import { probeRaw, toVideoInfo } from "./ffmpeg.js";
 import { contentHash } from "./hash.js";
 

@@ -4,9 +4,9 @@ import path from "node:path";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import type { AddressInfo } from "node:net";
-import { startLiveSession, runAndCapture } from "@tracelens/live";
-import { getStore } from "@tracelens/storage";
-import { getCurrentContext } from "@tracelens/timeline";
+import { startLiveSession, runAndCapture } from "@sutriva/live";
+import { getStore } from "@sutriva/storage";
+import { getCurrentContext } from "@sutriva/timeline";
 
 const PAGE_HTML = `<!doctype html>
 <html>
@@ -54,14 +54,14 @@ describe("live browser session (end-to-end)", () => {
   let testServer: Awaited<ReturnType<typeof startTestServer>>;
 
   beforeEach(async () => {
-    dataDir = mkdtempSync(path.join(tmpdir(), "tracelens-live-test-"));
-    process.env.TRACELENS_DATA_DIR = dataDir;
+    dataDir = mkdtempSync(path.join(tmpdir(), "sutriva-live-test-"));
+    process.env.SUTRIVA_DATA_DIR = dataDir;
     testServer = await startTestServer();
   });
 
   afterEach(async () => {
     await testServer.close();
-    delete process.env.TRACELENS_DATA_DIR;
+    delete process.env.SUTRIVA_DATA_DIR;
     rmSync(dataDir, { recursive: true, force: true });
   });
 
@@ -130,7 +130,7 @@ describe("live browser session (end-to-end)", () => {
     await handle.stop();
   }, 20_000);
 
-  it("stop()'s final event count reflects events inserted by other processes (e.g. tracelens exec)", async () => {
+  it("stop()'s final event count reflects events inserted by other processes (e.g. sutriva exec)", async () => {
     const handle = await startLiveSession({
       url: testServer.url,
       headless: true,
@@ -142,7 +142,7 @@ describe("live browser session (end-to-end)", () => {
     const beforeExecCount = store.listEvents(handle.sessionId).length;
 
     // runAndCapture auto-discovers the active live session, the same way the
-    // separate `tracelens exec` CLI process would -- it isn't wired through
+    // separate `sutriva exec` CLI process would -- it isn't wired through
     // this handle's own in-memory event bus at all.
     await runAndCapture({ command: "node", args: ["-e", "process.exit(0)"] });
 

@@ -1,5 +1,5 @@
 import type { Command } from "commander";
-import { startLiveSession } from "@tracelens/live";
+import { startLiveSession } from "@sutriva/live";
 
 export function registerDebugCommand(program: Command): void {
   program
@@ -14,14 +14,14 @@ export function registerDebugCommand(program: Command): void {
         return;
       }
       if (!video) {
-        console.log("Usage: tracelens debug <video.mp4>  |  tracelens debug --live");
+        console.log("Usage: sutriva debug <video.mp4>  |  sutriva debug --live");
         process.exitCode = 1;
         return;
       }
       console.log(
         `Replay debugging over ${video} is driven by Claude Code via the MCP tools (inspect_video, get_timeline, ` +
           "get_frame) or the /debug-video slash command. Start the MCP server (see README) and ask Claude to debug " +
-          `the video, or explore it yourself with:\n  tracelens inspect "${video}"\n  tracelens timeline "${video}"`,
+          `the video, or explore it yourself with:\n  sutriva inspect "${video}"\n  sutriva timeline "${video}"`,
       );
     });
 }
@@ -36,7 +36,7 @@ async function runLiveSession(opts: { url?: string; headless?: boolean }): Promi
   console.log(`Live session started: ${handle.sessionId}`);
   console.log(
     "Follow along in Claude Code -- ask it to call get_current_context or get_timeline with this sessionId, " +
-      'or just say "look at this" / "what just happened?" once the TraceLens MCP server is connected.',
+      'or just say "look at this" / "what just happened?" once the Sutriva MCP server is connected.',
   );
   console.log("Press Ctrl+C to stop.\n");
 

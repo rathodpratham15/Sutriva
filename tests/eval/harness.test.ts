@@ -15,8 +15,8 @@ const fixturesExist = EVAL_SCENARIOS.every((s) => existsSync(path.join(fixturesD
 describe.skipIf(!fixturesExist)("runScenario (eval harness)", () => {
   // One shared data dir for the whole suite, not one per test: the storage
   // singleton (packages/storage/src/singleton.ts) caches its DB connection
-  // on first use and does not re-read TRACELENS_DATA_DIR afterwards -- the
-  // same as a real single `tracelens eval` process, which only ever sees
+  // on first use and does not re-read SUTRIVA_DATA_DIR afterwards -- the
+  // same as a real single `sutriva eval` process, which only ever sees
   // one value for the env var during its lifetime. Swapping it per-test
   // would leave the cached connection pointed at an already-deleted
   // directory while inspectVideo's content-hash cache still "remembers"
@@ -25,12 +25,12 @@ describe.skipIf(!fixturesExist)("runScenario (eval harness)", () => {
   let dataDir: string;
 
   beforeAll(() => {
-    dataDir = mkdtempSync(path.join(tmpdir(), "tracelens-eval-test-"));
-    process.env.TRACELENS_DATA_DIR = dataDir;
+    dataDir = mkdtempSync(path.join(tmpdir(), "sutriva-eval-test-"));
+    process.env.SUTRIVA_DATA_DIR = dataDir;
   });
 
   afterAll(() => {
-    delete process.env.TRACELENS_DATA_DIR;
+    delete process.env.SUTRIVA_DATA_DIR;
     rmSync(dataDir, { recursive: true, force: true });
   });
 
@@ -41,8 +41,8 @@ describe.skipIf(!fixturesExist)("runScenario (eval harness)", () => {
       expect(result.name).toBe(scenario.name);
       expect(result.temporalLocalization.closestDeltaSeconds).toBeGreaterThanOrEqual(0);
       expect(result.evidenceRetrieval.count).toBeGreaterThan(0);
-      expect(result.contextEfficiency.tracelensSampledFrames).toBeGreaterThan(0);
-      expect(result.contextEfficiency.tracelensSampledFrames).toBeLessThan(result.contextEfficiency.baselineFrameCount);
+      expect(result.contextEfficiency.sutrivaSampledFrames).toBeGreaterThan(0);
+      expect(result.contextEfficiency.sutrivaSampledFrames).toBeLessThan(result.contextEfficiency.baselineFrameCount);
       // The whole point of progressive disclosure: one targeted frame must cost less
       // than the estimated "send every native-fps frame" baseline, not more.
       expect(result.contextEfficiency.singleFrameBytes).toBeLessThan(result.contextEfficiency.estimatedBaselineImageBytes);

@@ -14,28 +14,28 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: ^1.30.0
         version: 1.30.0(zod@4.4.3)
-      '@tracelens/browser':
+      '@sutriva/browser':
         specifier: workspace:*
         version: link:packages/browser
-      '@tracelens/core':
+      '@sutriva/core':
         specifier: workspace:*
         version: link:packages/core
-      '@tracelens/git':
+      '@sutriva/git':
         specifier: workspace:*
         version: link:packages/git
-      '@tracelens/live':
+      '@sutriva/live':
         specifier: workspace:*
         version: link:packages/live
-      '@tracelens/providers':
+      '@sutriva/providers':
         specifier: workspace:*
         version: link:packages/providers
-      '@tracelens/storage':
+      '@sutriva/storage':
         specifier: workspace:*
         version: link:packages/storage
-      '@tracelens/timeline':
+      '@sutriva/timeline':
         specifier: workspace:*
         version: link:packages/timeline
-      '@tracelens/video':
+      '@sutriva/video':
         specifier: workspace:*
         version: link:packages/video
       '@types/node':
@@ -78,25 +78,25 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@tracelens/browser':
+      '@sutriva/browser':
         specifier: workspace:*
         version: link:../../packages/browser
-      '@tracelens/core':
+      '@sutriva/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@tracelens/live':
+      '@sutriva/live':
         specifier: workspace:*
         version: link:../../packages/live
-      '@tracelens/providers':
+      '@sutriva/providers':
         specifier: workspace:*
         version: link:../../packages/providers
-      '@tracelens/storage':
+      '@sutriva/storage':
         specifier: workspace:*
         version: link:../../packages/storage
-      '@tracelens/timeline':
+      '@sutriva/timeline':
         specifier: workspace:*
         version: link:../../packages/timeline
-      '@tracelens/video':
+      '@sutriva/video':
         specifier: workspace:*
         version: link:../../packages/video
       tsup:
@@ -127,22 +127,22 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@tracelens/core':
+      '@sutriva/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@tracelens/git':
+      '@sutriva/git':
         specifier: workspace:*
         version: link:../../packages/git
-      '@tracelens/providers':
+      '@sutriva/providers':
         specifier: workspace:*
         version: link:../../packages/providers
-      '@tracelens/storage':
+      '@sutriva/storage':
         specifier: workspace:*
         version: link:../../packages/storage
-      '@tracelens/timeline':
+      '@sutriva/timeline':
         specifier: workspace:*
         version: link:../../packages/timeline
-      '@tracelens/video':
+      '@sutriva/video':
         specifier: workspace:*
         version: link:../../packages/video
       tsup:
@@ -179,7 +179,7 @@ importers:
 
   packages/browser:
     dependencies:
-      '@tracelens/core':
+      '@sutriva/core':
         specifier: workspace:*
         version: link:../core
       playwright:
@@ -202,7 +202,7 @@ importers:
 
   packages/git:
     dependencies:
-      '@tracelens/core':
+      '@sutriva/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -212,16 +212,16 @@ importers:
 
   packages/live:
     dependencies:
-      '@tracelens/browser':
+      '@sutriva/browser':
         specifier: workspace:*
         version: link:../browser
-      '@tracelens/core':
+      '@sutriva/core':
         specifier: workspace:*
         version: link:../core
-      '@tracelens/git':
+      '@sutriva/git':
         specifier: workspace:*
         version: link:../git
-      '@tracelens/storage':
+      '@sutriva/storage':
         specifier: workspace:*
         version: link:../storage
     devDependencies:
@@ -237,7 +237,7 @@ importers:
       '@elevenlabs/elevenlabs-js':
         specifier: ^2.64.0
         version: 2.64.0
-      '@tracelens/core':
+      '@sutriva/core':
         specifier: workspace:*
         version: link:../core
       zod:
@@ -250,7 +250,7 @@ importers:
 
   packages/storage:
     dependencies:
-      '@tracelens/core':
+      '@sutriva/core':
         specifier: workspace:*
         version: link:../core
       better-sqlite3:
@@ -266,19 +266,19 @@ importers:
 
   packages/timeline:
     dependencies:
-      '@tracelens/core':
+      '@sutriva/core':
         specifier: workspace:*
         version: link:../core
-      '@tracelens/git':
+      '@sutriva/git':
         specifier: workspace:*
         version: link:../git
-      '@tracelens/providers':
+      '@sutriva/providers':
         specifier: workspace:*
         version: link:../providers
-      '@tracelens/storage':
+      '@sutriva/storage':
         specifier: workspace:*
         version: link:../storage
-      '@tracelens/video':
+      '@sutriva/video':
         specifier: workspace:*
         version: link:../video
     devDependencies:
@@ -288,7 +288,7 @@ importers:
 
   packages/video:
     dependencies:
-      '@tracelens/core':
+      '@sutriva/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:

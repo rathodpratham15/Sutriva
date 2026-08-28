@@ -3,7 +3,7 @@ import "./responsive.css";
 export default function ResponsivePage() {
   return (
     <>
-      <header className="app-header">TraceLens Demo Shop</header>
+      <header className="app-header">Sutriva Demo Shop</header>
       <main className="responsive-main">
         <h1>Checkout</h1>
         <p>Review your order and submit below.</p>

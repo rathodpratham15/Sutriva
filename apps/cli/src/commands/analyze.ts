@@ -1,6 +1,6 @@
 import type { Command } from "commander";
-import { createVisionProvider } from "@tracelens/providers";
-import { analyzeSegment } from "@tracelens/timeline";
+import { createVisionProvider } from "@sutriva/providers";
+import { analyzeSegment } from "@sutriva/timeline";
 import { resolveVideoSession } from "../lib/resolve.js";
 
 export function registerAnalyzeCommand(program: Command): void {

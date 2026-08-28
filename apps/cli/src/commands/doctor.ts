@@ -1,8 +1,8 @@
 import type { Command } from "commander";
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
-import { getDataDir, getTranscriptionProviderName, getVisionProviderName, MIN_SUPPORTED_NODE_MAJOR } from "@tracelens/core";
-import { chromium } from "@tracelens/browser";
+import { getDataDir, getTranscriptionProviderName, getVisionProviderName, MIN_SUPPORTED_NODE_MAJOR } from "@sutriva/core";
+import { chromium } from "@sutriva/browser";
 
 function checkBinary(bin: string, args: string[] = ["-version"]): { ok: boolean; detail: string } {
   try {
@@ -20,7 +20,7 @@ function checkBinary(bin: string, args: string[] = ["-version"]): { ok: boolean;
 export function registerDoctorCommand(program: Command): void {
   program
     .command("doctor")
-    .description("Check that TraceLens's dependencies (ffmpeg, git, Node) are available and configured")
+    .description("Check that Sutriva's dependencies (ffmpeg, git, Node) are available and configured")
     .action(() => {
       const checks: { name: string; ok: boolean; detail: string }[] = [];
 
@@ -76,7 +76,7 @@ export function registerDoctorCommand(program: Command): void {
         ok: true,
         detail: chromiumInstalled
           ? "installed"
-          : "not installed -- run `npx playwright install chromium` before using `tracelens debug --live`",
+          : "not installed -- run `npx playwright install chromium` before using `sutriva debug --live`",
       });
 
       let allOk = true;

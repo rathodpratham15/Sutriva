@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { fileURLToPath } from "node:url";
-import { resolveExistingFile, assertWithinRoot, TraceLensError } from "@tracelens/core";
+import { resolveExistingFile, assertWithinRoot, SutrivaError } from "@sutriva/core";
 
 const thisFile = fileURLToPath(import.meta.url);
 
@@ -10,11 +10,11 @@ describe("resolveExistingFile", () => {
   });
 
   it("rejects a missing file", () => {
-    expect(() => resolveExistingFile("/definitely/not/a/real/path.mp4")).toThrow(TraceLensError);
+    expect(() => resolveExistingFile("/definitely/not/a/real/path.mp4")).toThrow(SutrivaError);
   });
 
   it("rejects null bytes", () => {
-    expect(() => resolveExistingFile("foo\0bar")).toThrow(TraceLensError);
+    expect(() => resolveExistingFile("foo\0bar")).toThrow(SutrivaError);
   });
 });
 
@@ -24,6 +24,6 @@ describe("assertWithinRoot", () => {
   });
 
   it("rejects traversal outside the root", () => {
-    expect(() => assertWithinRoot("/data/../etc/passwd", "/data")).toThrow(TraceLensError);
+    expect(() => assertWithinRoot("/data/../etc/passwd", "/data")).toThrow(SutrivaError);
   });
 });

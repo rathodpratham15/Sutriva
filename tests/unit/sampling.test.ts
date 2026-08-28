@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { sampleTimestamps, denseSampleAround } from "@tracelens/video";
+import { sampleTimestamps, denseSampleAround } from "@sutriva/video";
 
 describe("sampleTimestamps", () => {
   it("bounds the number of samples for long videos", () => {

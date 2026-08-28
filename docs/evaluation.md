@@ -1,6 +1,6 @@
 # Evaluation
 
-TraceLens's central claim is that structured temporal evidence is more useful to a coding agent
+Sutriva's central claim is that structured temporal evidence is more useful to a coding agent
 than a raw video dump (`TraceLens_Master_Plan.md` §30). This document explains how that claim is
 actually measured here, what's automated, what isn't, and why.
 
@@ -8,7 +8,7 @@ actually measured here, what's automated, what isn't, and why.
 
 ```bash
 pnpm fixtures:eval:generate   # builds demo/buggy-app, records a real repro of each bug via Playwright
-pnpm eval                     # or: tracelens eval
+pnpm eval                     # or: sutriva eval
 ```
 
 `pnpm eval` fails fast with a clear message (and a nonzero exit code) if the fixtures haven't been
@@ -47,7 +47,7 @@ resulting imprecision.
 |---|---|
 | **Temporal localization** | `inspectVideo` (with the offline `MockVisionProvider`) samples frames and builds a timeline; the metric is the distance from the *nearest* sampled event to `failureTimestamp`. Passes if within `toleranceSeconds`. |
 | **Evidence retrieval** | Calls `getEvidenceAround(sessionId, failureTimestamp, toleranceSeconds)` and checks it's non-empty. |
-| **Context efficiency** | Two comparisons: (1) frames TraceLens actually samples vs. every frame at the video's native fps ("baseline" = what you'd get decoding the whole thing); (2) the byte size of one `get_frame` call vs. an *estimated* baseline of sending every native-fps frame as a separate image (`baselineFrameCount * singleFrameBytes`). See the note below on why this isn't compared to the raw video *file* size. |
+| **Context efficiency** | Two comparisons: (1) frames Sutriva actually samples vs. every frame at the video's native fps ("baseline" = what you'd get decoding the whole thing); (2) the byte size of one `get_frame` call vs. an *estimated* baseline of sending every native-fps frame as a separate image (`baselineFrameCount * singleFrameBytes`). See the note below on why this isn't compared to the raw video *file* size. |
 | **Latency** | Wall-clock time for the `inspectVideo` ingest pipeline (mock provider, so this measures pipeline overhead, not model latency). |
 
 **Why context efficiency isn't "single frame vs. video file size":** an earlier version of this
@@ -80,7 +80,7 @@ scenario, not simulated.
 
 ### Agentic (optional, real API calls, not run by `pnpm test`/CI)
 
-`pnpm eval:agentic` (or `tracelens eval --agentic`) automates the manual grading above instead of
+`pnpm eval:agentic` (or `sutriva eval --agentic`) automates the manual grading above instead of
 requiring a human to run `/debug-video` and eyeball the result. This is a genuinely separate,
 explicitly opt-in path from the deterministic harness above -- it costs a real Claude API call per
 scenario (roughly $0.50-$1, a few minutes each) and is never invoked by `pnpm test`, `pnpm eval`, or
@@ -95,7 +95,7 @@ thing a human would otherwise do by hand, scripted, not a change to what counts 
 2. Record a **BEFORE** session: build and start `demo/buggy-app` in the worktree, then drive the
    exact same scripted repro used to generate the video fixture (`tests/eval/repros.ts`, shared with
    `scripts/generate-eval-fixtures.ts` so "before" and "after" are guaranteed the same interaction)
-   through a real **live**, instrumented browser session (`startLiveSession` from `@tracelens/live`)
+   through a real **live**, instrumented browser session (`startLiveSession` from `@sutriva/live`)
    -- not another video recording, because real network/console events (what `compare_sessions`
    reads) only exist on the live path, never from video-replay ingestion.
 3. Run `claude -p "<the expanded /debug-video prompt>" --output-format json --permission-mode
@@ -137,19 +137,19 @@ Patch success was confirmed for real, via each scenario's respective method abov
   top=190.2px` vs. `header bottom=220.0px`) to clear (`button top=346.2px`) after the patch, again
   with `compare_sessions` correctly reporting all zeros.
 
-## Baseline vs. TraceLens (the actual thesis)
+## Baseline vs. Sutriva (the actual thesis)
 
 `TraceLens_Master_Plan.md` §30 frames the interesting comparison as: a naive approach that sends a
-whole video (or every frame) to a model, vs. TraceLens's progressive disclosure (metadata →
+whole video (or every frame) to a model, vs. Sutriva's progressive disclosure (metadata →
 timeline → targeted evidence → targeted frame). The context-efficiency metric above *is* that
-comparison, made concrete and measured: on the three demo bugs, TraceLens samples 92-96% fewer
+comparison, made concrete and measured: on the three demo bugs, Sutriva samples 92-96% fewer
 frames than native fps would require, and a single targeted frame retrieval is 96-98.6% smaller
 than an estimated "send every frame" baseline. That's the number worth citing, not a raw feature
 count.
 
 ## Interpreting a report
 
-`pnpm eval` prints a per-scenario breakdown and writes `.tracelens-eval-report.json` (gitignored --
+`pnpm eval` prints a per-scenario breakdown and writes `.sutriva-eval-report.json` (gitignored --
 regenerate it, don't commit it) with the same data in machine-readable form. "Automated checks: N/M
 scenarios pass" at the end summarizes temporal localization + evidence retrieval across all
 scenarios; root-cause/code-localization/patch-success require the manual `/debug-video` pass

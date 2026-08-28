@@ -1,4 +1,4 @@
-import { getTranscriptionModel, getTranscriptionProviderName, getVisionModel, getVisionProviderName } from "@tracelens/core";
+import { getTranscriptionModel, getTranscriptionProviderName, getVisionModel, getVisionProviderName } from "@sutriva/core";
 import { MockVisionProvider } from "./mock.js";
 import { MockTranscriptionProvider } from "./mock-transcription.js";
 import { AnthropicVisionProvider } from "./anthropic.js";
@@ -13,7 +13,7 @@ export function createVisionProvider(): VisionProvider {
     case "mock":
       return new MockVisionProvider();
     default:
-      throw new Error(`Unknown TRACELENS_VISION_PROVIDER "${name}". Expected "anthropic" or "mock".`);
+      throw new Error(`Unknown SUTRIVA_VISION_PROVIDER "${name}". Expected "anthropic" or "mock".`);
   }
 }
 
@@ -25,6 +25,6 @@ export function createTranscriptionProvider(): TranscriptionProvider {
     case "mock":
       return new MockTranscriptionProvider();
     default:
-      throw new Error(`Unknown TRACELENS_TRANSCRIPTION_PROVIDER "${name}". Expected "elevenlabs" or "mock".`);
+      throw new Error(`Unknown SUTRIVA_TRANSCRIPTION_PROVIDER "${name}". Expected "elevenlabs" or "mock".`);
   }
 }

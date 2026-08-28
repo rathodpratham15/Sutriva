@@ -1,6 +1,6 @@
 import type { Command } from "commander";
 import { rmSync } from "node:fs";
-import { getDataDir } from "@tracelens/core";
+import { getDataDir } from "@sutriva/core";
 
 export function registerCleanCommand(program: Command): void {
   program

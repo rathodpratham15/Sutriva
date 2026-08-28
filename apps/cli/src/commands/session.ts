@@ -1,8 +1,8 @@
 import type { Command } from "commander";
-import { getStore } from "@tracelens/storage";
+import { getStore } from "@sutriva/storage";
 
 export function registerSessionCommand(program: Command): void {
-  const session = program.command("session").description("Inspect stored TraceLens sessions");
+  const session = program.command("session").description("Inspect stored Sutriva sessions");
 
   session
     .command("list")
@@ -10,7 +10,7 @@ export function registerSessionCommand(program: Command): void {
     .action(() => {
       const sessions = getStore().listSessions();
       if (sessions.length === 0) {
-        console.log("No sessions yet. Run `tracelens inspect <video>` first.");
+        console.log("No sessions yet. Run `sutriva inspect <video>` first.");
         return;
       }
       for (const s of sessions) {
@@ -24,7 +24,7 @@ export function registerSessionCommand(program: Command): void {
     .action(() => {
       console.log(
         "session report is part of Phase 3+ (live/recorded developer sessions) and is not yet implemented.\n" +
-          "For now, use `tracelens timeline <video>` to inspect a replayed session's events.",
+          "For now, use `sutriva timeline <video>` to inspect a replayed session's events.",
       );
     });
 }

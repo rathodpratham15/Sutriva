@@ -22,9 +22,9 @@ import crypto from "node:crypto";
 import { execFileSync, spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 import { mkdirSync, copyFileSync, existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { assertSupportedNodeVersion } from "@tracelens/core";
-import { startLiveSession } from "@tracelens/live";
-import { compareSessions, type SessionComparisonResult } from "@tracelens/timeline";
+import { assertSupportedNodeVersion } from "@sutriva/core";
+import { startLiveSession } from "@sutriva/live";
+import { compareSessions, type SessionComparisonResult } from "@sutriva/timeline";
 import { EVAL_SCENARIOS, type EvalScenario } from "./scenarios.js";
 import { EVAL_REPROS, EVAL_FIX_VERIFICATIONS } from "./repros.js";
 
@@ -110,7 +110,7 @@ export function keywordOverlapRatio(expected: string, actual: string): number {
 }
 
 function uniqueWorktreeDir(): string {
-  return path.join(os.tmpdir(), `tracelens-agentic-eval-${crypto.randomUUID()}`);
+  return path.join(os.tmpdir(), `sutriva-agentic-eval-${crypto.randomUUID()}`);
 }
 
 async function withWorktree<T>(fn: (worktreeDir: string) => Promise<T>): Promise<T> {
@@ -229,7 +229,7 @@ export async function runAgenticScenario(scenario: EvalScenario): Promise<Agenti
 }
 
 function printReport(results: AgenticScenarioResult[]): void {
-  console.log("\nTraceLens Agentic Evaluation Report\n" + "=".repeat(36) + "\n");
+  console.log("\nSutriva Agentic Evaluation Report\n" + "=".repeat(36) + "\n");
   let totalCostUsd = 0;
   for (const r of results) {
     totalCostUsd += r.claude.costUsd;

@@ -1,6 +1,6 @@
 # Example sessions
 
-Real, captured output from running TraceLens against the fixtures already in this repo -- not a
+Real, captured output from running Sutriva against the fixtures already in this repo -- not a
 mockup. Every command below runs offline against the deterministic mock vision provider (no
 `ANTHROPIC_API_KEY` needed); with a real key set, `[visual]` descriptions come from
 `AnthropicVisionProvider`'s actual scene analysis instead of the mock's byte-delta heuristic. See
@@ -9,7 +9,7 @@ the [Quickstart](../README.md#quickstart) to reproduce this yourself.
 ## Replay debugging, via the CLI
 
 ```bash
-$ tracelens inspect fixtures/videos/checkout-bug.mp4
+$ sutriva inspect fixtures/videos/checkout-bug.mp4
 Session:   session_76cff337-d2a3-426f-89c7-dffd961eb57a
 Provider:  mock
 Duration:  14.00s
@@ -19,11 +19,11 @@ Audio:     no
 Hash:      6919e265a2907baf...
 Events:    8
 
-Next: tracelens timeline "fixtures/videos/checkout-bug.mp4"
+Next: sutriva timeline "fixtures/videos/checkout-bug.mp4"
 ```
 
 ```bash
-$ tracelens timeline fixtures/videos/checkout-bug.mp4
+$ sutriva timeline fixtures/videos/checkout-bug.mp4
 Session session_76cff337-d2a3-426f-89c7-dffd961eb57a -- 8 event(s)
 
     0.00s  [visual]  Frame 1 at t=0.00s.
@@ -40,14 +40,14 @@ The mock provider flagged a byte-delta change at `t=8.00s` -- that's the moment 
 more closely, without anyone having watched the whole 14s video.
 
 ```bash
-$ tracelens search fixtures/videos/checkout-bug.mp4 "change"
+$ sutriva search fixtures/videos/checkout-bug.mp4 "change"
 1 match(es) for "change":
 
     8.00s  [visual]  Frame 5 at t=8.00s. Possible visual change since previous frame.
 ```
 
 ```bash
-$ tracelens analyze fixtures/videos/checkout-bug.mp4 --start 7 --end 9 \
+$ sutriva analyze fixtures/videos/checkout-bug.mp4 --start 7 --end 9 \
     --question "what changed at this moment"
 Segment 7s-9s (5 frame(s) sampled)
 
@@ -106,12 +106,12 @@ guess whether silence means "nothing happening" versus "not currently observable
   },
   "liveSession": {
     "active": false,
-    "note": "Start one with `tracelens debug --live` to get live browser/network/console context."
+    "note": "Start one with `sutriva debug --live` to get live browser/network/console context."
   },
   "browser": { "available": true, "note": "Populated only while a live session is running -- see get_current_context." },
   "network": { "available": true, "note": "Populated only while a live session is running -- see get_current_context." },
   "console": { "available": true, "note": "Populated only while a live session is running -- see get_current_context." },
-  "terminal": { "available": true, "note": "Populated only for commands run via `tracelens exec -- <command>` during a live session." }
+  "terminal": { "available": true, "note": "Populated only for commands run via `sutriva exec -- <command>` during a live session." }
 }
 ```
 
@@ -144,7 +144,7 @@ just because two sessions differ. Run it against a real `demo/buggy-app` before/
 
 ## The full agentic workflow
 
-The steps above are what `/debug-video` and `tracelens debug --live` automate end to end --
+The steps above are what `/debug-video` and `sutriva debug --live` automate end to end --
 inspect/instrument → timeline → evidence/frames → `inspect_environment` → a confidence-labeled
 hypothesis (`observed`/`likely`/`possible`/`confirmed`, never asserted causality) → a patch → a
 test → reproducing the bug again → `compare_sessions`. See `.claude/commands/debug-video.md` for the

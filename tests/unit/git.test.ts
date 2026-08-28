@@ -4,7 +4,7 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
-import { getGitContext, getDiffStat, getWorkingTreeDiff } from "@tracelens/git";
+import { getGitContext, getDiffStat, getWorkingTreeDiff } from "@sutriva/git";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "../..");
@@ -27,7 +27,7 @@ describe("getGitContext", () => {
   });
 
   it("returns isRepo: false for a directory outside any Git working tree", async () => {
-    const dir = mkdtempSync(path.join(tmpdir(), "tracelens-not-a-repo-"));
+    const dir = mkdtempSync(path.join(tmpdir(), "sutriva-not-a-repo-"));
     try {
       const context = await getGitContext(dir);
       expect(context).toEqual({ isRepo: false });
@@ -39,7 +39,7 @@ describe("getGitContext", () => {
 
 describe("getDiffStat / getWorkingTreeDiff", () => {
   function makeScratchRepo(): string {
-    const dir = mkdtempSync(path.join(tmpdir(), "tracelens-diff-test-"));
+    const dir = mkdtempSync(path.join(tmpdir(), "sutriva-diff-test-"));
     const git = (...args: string[]) => execFileSync("git", args, { cwd: dir, stdio: "pipe" });
     git("init", "-q");
     git("config", "user.email", "test@example.com");

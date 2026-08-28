@@ -2,10 +2,10 @@ import { describe, it, expect, afterEach } from "vitest";
 import { mkdtempSync, rmSync } from "node:fs";
 import path from "node:path";
 import { tmpdir } from "node:os";
-import { generateId } from "@tracelens/core";
-import { TraceLensStore } from "@tracelens/storage";
+import { generateId } from "@sutriva/core";
+import { SutrivaStore } from "@sutriva/storage";
 
-describe("TraceLensStore", () => {
+describe("SutrivaStore", () => {
   let dir: string;
 
   afterEach(() => {
@@ -13,8 +13,8 @@ describe("TraceLensStore", () => {
   });
 
   it("round-trips sessions, events, and evidence", () => {
-    dir = mkdtempSync(path.join(tmpdir(), "tracelens-store-test-"));
-    const store = new TraceLensStore(path.join(dir, "test.db"));
+    dir = mkdtempSync(path.join(tmpdir(), "sutriva-store-test-"));
+    const store = new SutrivaStore(path.join(dir, "test.db"));
 
     const sessionId = generateId("session");
     store.createSession({
@@ -64,8 +64,8 @@ describe("TraceLensStore", () => {
   });
 
   it("throws an actionable error for an unknown session", () => {
-    dir = mkdtempSync(path.join(tmpdir(), "tracelens-store-test-"));
-    const store = new TraceLensStore(path.join(dir, "test.db"));
+    dir = mkdtempSync(path.join(tmpdir(), "sutriva-store-test-"));
+    const store = new SutrivaStore(path.join(dir, "test.db"));
     expect(() => store.getSession("session_missing")).toThrowError(/no session found/i);
     store.close();
   });

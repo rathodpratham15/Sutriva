@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
-import { generateId, redactSecrets, type Evidence, type TemporalEvent } from "@tracelens/core";
-import { getStore } from "@tracelens/storage";
+import { generateId, redactSecrets, type Evidence, type TemporalEvent } from "@sutriva/core";
+import { getStore } from "@sutriva/storage";
 
 export interface RunAndCaptureOptions {
   command: string;

@@ -1,6 +1,6 @@
 import type { Command } from "commander";
-import { createTranscriptionProvider, createVisionProvider } from "@tracelens/providers";
-import { inspectVideo } from "@tracelens/timeline";
+import { createTranscriptionProvider, createVisionProvider } from "@sutriva/providers";
+import { inspectVideo } from "@sutriva/timeline";
 
 export function registerInspectCommand(program: Command): void {
   program
@@ -27,6 +27,6 @@ export function registerInspectCommand(program: Command): void {
       console.log(`Audio:     ${result.metadata.hasAudio ? "yes" : "no"}`);
       console.log(`Hash:      ${result.metadata.contentHash.slice(0, 16)}...`);
       console.log(`Events:    ${result.eventCount}`);
-      console.log(`\nNext: tracelens timeline "${video}"`);
+      console.log(`\nNext: sutriva timeline "${video}"`);
     });
 }

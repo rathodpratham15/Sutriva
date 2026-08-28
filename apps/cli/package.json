@@ -1,8 +1,8 @@
 {
-  "name": "@tracelens/cli",
+  "name": "sutriva",
   "version": "0.1.0",
   "license": "MIT",
-  "description": "Temporal context and debugging system for Claude Code -- CLI",
+  "description": "Sutriva gives coding agents temporal memory -- CLI",
   "private": true,
   "type": "module",
   "engines": {
@@ -13,8 +13,14 @@
     "url": "git+https://github.com/rathodpratham15/TraceLens.git",
     "directory": "apps/cli"
   },
+  "homepage": "https://github.com/rathodpratham15/TraceLens#readme",
+  "bugs": {
+    "url": "https://github.com/rathodpratham15/TraceLens/issues"
+  },
+  "keywords": ["mcp", "model-context-protocol", "claude", "claude-code", "debugging", "temporal-memory", "agent-tools"],
+  "author": "Pratham Rathod",
   "bin": {
-    "tracelens": "./dist/index.js"
+    "sutriva": "./dist/index.js"
   },
   "files": [
     "dist"
@@ -32,13 +38,13 @@
     "playwright": "^1.62.1"
   },
   "devDependencies": {
-    "@tracelens/core": "workspace:*",
-    "@tracelens/video": "workspace:*",
-    "@tracelens/providers": "workspace:*",
-    "@tracelens/storage": "workspace:*",
-    "@tracelens/timeline": "workspace:*",
-    "@tracelens/live": "workspace:*",
-    "@tracelens/browser": "workspace:*",
+    "@sutriva/core": "workspace:*",
+    "@sutriva/video": "workspace:*",
+    "@sutriva/providers": "workspace:*",
+    "@sutriva/storage": "workspace:*",
+    "@sutriva/timeline": "workspace:*",
+    "@sutriva/live": "workspace:*",
+    "@sutriva/browser": "workspace:*",
     "typescript": "^5.6.0",
     "tsx": "^4.23.12",
     "tsup": "^8.5.0"

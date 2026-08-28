@@ -1,5 +1,5 @@
 {
-  "name": "@tracelens/providers",
+  "name": "@sutriva/providers",
   "version": "0.1.0",
   "license": "MIT",
   "private": true,
@@ -15,7 +15,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.117.1",
     "@elevenlabs/elevenlabs-js": "^2.64.0",
-    "@tracelens/core": "workspace:*",
+    "@sutriva/core": "workspace:*",
     "zod": "^4.4.3"
   },
   "devDependencies": {

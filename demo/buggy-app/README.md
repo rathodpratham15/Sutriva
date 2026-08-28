@@ -1,7 +1,7 @@
 # buggy-app
 
 A small, deterministic Next.js app with three intentional bugs, used to demo and benchmark
-TraceLens (`docs/evaluation.md`, `tests/eval/`). Every bug is designed to reproduce identically
+Sutriva (`docs/evaluation.md`, `tests/eval/`). Every bug is designed to reproduce identically
 every run -- no flaky timing, no real network dependency.
 
 ```bash
@@ -25,7 +25,7 @@ frontend, since `expectedFiles` in the eval scenario names `app/checkout/page.ts
 ![Checkout stuck on "Processing..." after clicking Place order](../../docs/assets/bug-1-checkout.png)
 
 The button never leaves "Processing..." because the click handler throws before `setStatus("done")`
-runs -- the console (not visible in a static screenshot) shows the exact evidence TraceLens
+runs -- the console (not visible in a static screenshot) shows the exact evidence Sutriva
 captures: `TypeError: Cannot read properties of undefined (reading 'toString')`.
 
 ## Bug 2 -- async race condition (`/search`)
@@ -75,7 +75,7 @@ They match the three categories from `TraceLens_Master_Plan.md` §28, and are de
 *not* network-level failures the way the earlier `checkout-bug.mp4` synthetic fixture is (a 500
 error) -- these are a schema mismatch (still throws, but the request itself succeeds), a timing
 bug (nothing "fails", the data is just stale), and a pure-CSS visual bug (no error at all, no
-network activity) -- exercising different parts of what TraceLens can observe (console errors,
+network activity) -- exercising different parts of what Sutriva can observe (console errors,
 network response bodies/timing, and visual/screenshot evidence respectively).
 
 ## Regenerating the screenshots

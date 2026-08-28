@@ -1,6 +1,6 @@
-import type { Artifact, ArtifactKind, Evidence, Session, TemporalEvent, TranscriptSegment } from "@tracelens/core";
-import { sessionNotFoundError } from "@tracelens/core";
-import { openDatabase, type TraceLensDb } from "./db.js";
+import type { Artifact, ArtifactKind, Evidence, Session, TemporalEvent, TranscriptSegment } from "@sutriva/core";
+import { sessionNotFoundError } from "@sutriva/core";
+import { openDatabase, type SutrivaDb } from "./db.js";
 
 interface SessionRow {
   id: string;
@@ -106,8 +106,8 @@ function rowToArtifact(row: ArtifactRow): Artifact {
   };
 }
 
-export class TraceLensStore {
-  readonly db: TraceLensDb;
+export class SutrivaStore {
+  readonly db: SutrivaDb;
 
   constructor(dbPath: string) {
     this.db = openDatabase(dbPath);

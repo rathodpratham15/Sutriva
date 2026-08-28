@@ -3,7 +3,7 @@ import path from "node:path";
 import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
-import { readVideoMetadata, extractFrame } from "@tracelens/video";
+import { readVideoMetadata, extractFrame } from "@sutriva/video";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const sampleVideo = path.resolve(here, "../../fixtures/videos/sample.mp4");
@@ -25,7 +25,7 @@ describe("video metadata + frame extraction", () => {
   });
 
   it("extracts a frame to disk at a given timestamp", async () => {
-    const dir = mkdtempSync(path.join(tmpdir(), "tracelens-frame-test-"));
+    const dir = mkdtempSync(path.join(tmpdir(), "sutriva-frame-test-"));
     try {
       const framePath = path.join(dir, "frame.png");
       await extractFrame(sampleVideo, 3, framePath);

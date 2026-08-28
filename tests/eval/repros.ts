@@ -1,4 +1,4 @@
-import type { Page } from "@tracelens/browser";
+import type { Page } from "@sutriva/browser";
 
 /**
  * One scripted Playwright interaction per eval scenario (tests/eval/scenarios.ts),

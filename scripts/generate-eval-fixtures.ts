@@ -10,7 +10,7 @@ import { spawn, execFileSync } from "node:child_process";
 import { mkdirSync, rmSync, existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium } from "@tracelens/browser";
+import { chromium } from "@sutriva/browser";
 import { EVAL_REPROS } from "../tests/eval/repros.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));

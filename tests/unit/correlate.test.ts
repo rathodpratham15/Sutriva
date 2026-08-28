@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import type { TemporalEvent } from "@tracelens/core";
-import { findRelatedEventIds } from "@tracelens/live";
+import type { TemporalEvent } from "@sutriva/core";
+import { findRelatedEventIds } from "@sutriva/live";
 
 function makeEvent(id: string, type: TemporalEvent["type"], start: number, description = "event"): TemporalEvent {
   return {

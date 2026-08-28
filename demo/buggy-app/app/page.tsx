@@ -3,9 +3,9 @@ import Link from "next/link";
 export default function Home() {
   return (
     <main>
-      <h1>TraceLens demo -- buggy-app</h1>
+      <h1>Sutriva demo -- buggy-app</h1>
       <p>
-        A small, deterministic app with three intentional bugs, used to demo/benchmark TraceLens
+        A small, deterministic app with three intentional bugs, used to demo/benchmark Sutriva
         (see <code>demo/buggy-app/README.md</code> and <code>docs/evaluation.md</code> for
         reproduction steps and expected root causes).
       </p>

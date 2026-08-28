@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "tracelens": {
+    "sutriva": {
       "command": "npx",
       "args": ["tsx", "apps/mcp-server/src/index.ts"]
     }

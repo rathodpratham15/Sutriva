@@ -23,7 +23,7 @@ const agenticHarnessPath = path.join(repoRoot, "tests/eval/run-agentic-eval.ts")
 const tsxBin = path.join(repoRoot, "node_modules/.bin/tsx");
 
 /**
- * `pnpm-workspace.yaml` only exists in a real TraceLens monorepo checkout --
+ * `pnpm-workspace.yaml` only exists in a real Sutriva monorepo checkout --
  * never in a published package (only `dist/` is shipped, see
  * apps/cli/package.json's `files`). Checking for it, rather than just the
  * harness file itself, catches partial/corrupted installs the same way.
@@ -36,8 +36,8 @@ export function registerEvalCommand(program: Command): void {
   program
     .command("eval")
     .description(
-      "Run the TraceLens evaluation benchmark against demo/buggy-app (generate fixtures first with " +
-        "`pnpm fixtures:eval:generate` if you haven't already). Development-only: requires a full TraceLens " +
+      "Run the Sutriva evaluation benchmark against demo/buggy-app (generate fixtures first with " +
+        "`pnpm fixtures:eval:generate` if you haven't already). Development-only: requires a full Sutriva " +
         "monorepo checkout, not available when installed as a standalone package.",
     )
     .option(
@@ -49,7 +49,7 @@ export function registerEvalCommand(program: Command): void {
     .action(async (options: { agentic?: boolean }) => {
       if (!isRunningFromMonorepoCheckout()) {
         console.error(
-          "`tracelens eval` requires the full TraceLens monorepo (demo/buggy-app, the eval fixtures, and the " +
+          "`sutriva eval` requires the full Sutriva monorepo (demo/buggy-app, the eval fixtures, and the " +
             "harness itself) -- these are development-only assets and are intentionally not part of the " +
             "published package you have installed.\n\n" +
             "To run the evaluation suite:\n" +
