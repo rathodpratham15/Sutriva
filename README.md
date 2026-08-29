@@ -2,9 +2,14 @@
 
 > Temporal memory for coding agents.
 
+[![npm: sutriva](https://img.shields.io/npm/v/sutriva?label=sutriva)](https://www.npmjs.com/package/sutriva)
+[![npm: @sutriva/mcp-server](https://img.shields.io/npm/v/%40sutriva%2Fmcp-server?label=%40sutriva%2Fmcp-server)](https://www.npmjs.com/package/@sutriva/mcp-server)
+[![GitHub](https://img.shields.io/badge/GitHub-rathodpratham15%2FTraceLens-181717?logo=github)](https://github.com/rathodpratham15/TraceLens)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 **Sutriva gives coding agents temporal memory: a persistent, queryable record of what happened across a debugging session -- live or recorded -- that can be retrieved and correlated after the fact, instead of relying only on the current application state.**
 
-> **Status: the full core system is built, tested, and release-hardened.** All 8 master-plan phases plus npm packaging, a real speech-to-text provider, and an automated agentic evaluation harness are done -- see [Limitations & roadmap](#limitations--roadmap) for exactly what's left (naming/publication decisions, not core capability).
+> **Status: published and release-hardened.** `npm install -g sutriva` / `npm install -g @sutriva/mcp-server` -- both live on the public npm registry. All 8 master-plan phases plus a real speech-to-text provider and an automated agentic evaluation harness are done -- see [Limitations & roadmap](#limitations--roadmap) for what's genuinely still open (MCP Registry listing, GitHub repo rename -- neither blocks using it today).
 
 **WHAT:** Sutriva gives coding agents temporal memory.
 **WHY:** Debugging often depends on understanding what happened *before* the current state -- a click three steps back, a request that failed a minute ago, a console error that's since scrolled off screen.
@@ -271,14 +276,30 @@ sutriva clean [--yes]                             # delete .sutriva/ (derived da
 
 ### Installing outside this repo
 
-`apps/cli` and `apps/mcp-server` build to a single self-contained `dist/index.js` each (via `tsup`, inlining the internal `@sutriva/*` packages -- see `apps/cli/tsup.config.ts`), so they're installable independently of this monorepo:
+Both packages are published to npm and installable independently of this monorepo -- no `git clone`, no `pnpm`, no workspace context required:
 
 ```bash
-pnpm --filter @sutriva/cli build && pnpm --filter @sutriva/cli pack
-npm install -g ./sutriva-cli-0.1.0.tgz   # installs the `sutriva` binary
+npm install -g sutriva               # installs the `sutriva` CLI binary
+npm install -g @sutriva/mcp-server   # installs the `sutriva-mcp` MCP server binary
 ```
 
-Same for `@sutriva/mcp-server` (`sutriva-mcp` binary), which any other repo's `.mcp.json` can point at once installed. Both packages are currently marked `private: true` and are **not published to the npm registry** -- this is a deliberate stop-short: the build/bundle/pack path is verified working end to end (built, packed, installed globally, and run from outside the repo with no workspace context), but actually publishing is a separate decision (package naming, a license, npm org ownership) left for later.
+Verified via a real global install from the public registry into a clean environment with zero monorepo present -- `sutriva doctor`, the replay workflow (`inspect`/`timeline`/`search`), and the MCP server startup all work identically to running from source. `apps/cli`/`apps/mcp-server` build to a single self-contained `dist/index.js` each (via `tsup`, inlining the internal `@sutriva/*` workspace packages -- see `apps/cli/tsup.config.ts`), which is what makes this possible.
+
+### Using the MCP server in another project
+
+Once `@sutriva/mcp-server` is installed globally, point any other project's `.mcp.json` at the `sutriva-mcp` binary instead of this repo's dev-mode `npx tsx apps/mcp-server/src/index.ts` invocation:
+
+```json
+{
+  "mcpServers": {
+    "sutriva": {
+      "command": "sutriva-mcp"
+    }
+  }
+}
+```
+
+Then open Claude Code from that project. There's nothing Sutriva-specific to configure beyond this -- `SUTRIVA_DATA_DIR` (default `./.sutriva` relative to wherever `sutriva-mcp` runs), `ANTHROPIC_API_KEY`, and `ELEVENLABS_API_KEY` are the only optional environment variables (see [Provider configuration](#provider-configuration)). Same 10 tools, same behavior, whether Sutriva is installed globally or run from this source checkout.
 
 ## Provider configuration
 
@@ -323,5 +344,6 @@ The core system (`TraceLens_Master_Plan.md`'s Phases 0-7) is complete, along wit
 - Terminal capture requires explicitly running commands through `sutriva exec`; there's no shell-wide/automatic capture of arbitrary commands you type directly. Redaction (`redactSecrets`) is a best-effort heuristic (common `KEY=value`/Bearer-token/AWS-key/PEM patterns), not a guarantee -- treat captured terminal output as potentially sensitive regardless.
 - Click/input capture describes the target element (tag/id/class/text), not a full DOM diff -- deliberate, not a gap.
 - **Platform:** developed and tested on macOS (Apple Silicon) only. `better-sqlite3`'s native binding, Playwright's Chromium download, and `ffmpeg`/`ffprobe` are all platform-specific binaries -- Linux/Windows should work in principle (all three support those platforms upstream) but haven't been verified here.
-- **Not yet published to npm.** The build/bundle/pack path is verified working end to end (see [Installing outside this repo](#installing-outside-this-repo)), but the package name is still under review (the obvious names are already taken by unrelated projects on the registry) and actual `npm publish` hasn't happened.
+- **Not yet listed on the official MCP Registry.** `sutriva` and `@sutriva/mcp-server` are both published and installable via `npm install -g` (see [Installing outside this repo](#installing-outside-this-repo)) -- what's still open is registering with registry.modelcontextprotocol.io, which requires republishing with an `mcpName` field already added to `package.json` (see `docs/mcp-registry.md` for exactly what's prepared and the remaining steps).
+- **The GitHub repository itself hasn't been renamed** from `rathodpratham15/TraceLens` to match the `Sutriva` product name -- a deliberate, separate decision (see `docs/github-rename-checklist.md`), not a blocker to using the package.
 - `sutriva session report` is stubbed with an explanatory message, not implemented -- session recording/reporting as a distinct artifact wasn't part of the master plan's core phases.
