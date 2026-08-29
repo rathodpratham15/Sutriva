@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "license": "MIT",
   "description": "Sutriva gives coding agents temporal memory -- MCP server",
+  "mcpName": "io.github.rathodpratham15/sutriva",
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -16,7 +17,7 @@
   "bugs": {
     "url": "https://github.com/rathodpratham15/TraceLens/issues"
   },
-  "keywords": ["mcp", "model-context-protocol", "claude", "claude-code", "debugging", "temporal-memory", "agent-tools"],
+  "keywords": ["mcp", "model-context-protocol", "claude", "claude-code", "coding-agent", "coding-agents", "debugging", "browser-debugging", "session-replay", "temporal-memory", "developer-tools", "video-debugging", "playwright", "agent-tools"],
   "author": "Pratham Rathod",
   "bin": {
     "sutriva-mcp": "./dist/index.js"
