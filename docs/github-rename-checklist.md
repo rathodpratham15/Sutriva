@@ -66,6 +66,6 @@ Note step 3 will still show `TraceLens_Master_Plan.md` citations and any code co
 
 ## Downstream consequences beyond this repo
 
-- **If `@sutriva/mcp-server`/`sutriva` have already been published to npm with the old repository URL in their metadata** (they have, as of `0.1.0`): npm package metadata is immutable per-version. The URL only updates for whichever version is published *after* this file change -- e.g., bump to `0.1.1`/`0.2.0` and republish. Existing installs of `0.1.0` will keep showing the old URL in `npm view`/npmjs.com until someone installs a newer version.
+- **If `@sutriva/mcp-server`/`sutriva` have already been published to npm with the old repository URL in their metadata** (they have, as of `0.1.1` -- the current live version on both packages): npm package metadata is immutable per-version. The URL only updates for whichever version is published *after* this file change -- e.g., bump to `0.1.2`/`0.2.0` and republish. Existing installs of `0.1.0`/`0.1.1` will keep showing the old URL in `npm view`/npmjs.com until someone installs a newer version.
 - **The MCP Registry entry** (once registered, see `docs/mcp-registry.md`) references the repository URL in `server.json` too -- same consideration: a new registry version publish is needed to update it.
 - **Anything external you've already posted** (a LinkedIn post, a forum reply, etc.) with the old URL will keep working via GitHub's redirect, but won't visually show the new name -- purely cosmetic, not broken.
