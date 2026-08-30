@@ -9,7 +9,7 @@ A concrete script for recording the flagship demo (see the README's "Flagship de
 ## Prerequisites (set up before recording, not on camera)
 
 ```bash
-git clone https://github.com/rathodpratham15/TraceLens.git && cd TraceLens
+git clone https://github.com/rathodpratham15/Sutriva.git && cd Sutriva
 pnpm install && pnpm build
 pnpm --filter buggy-app build
 pnpm --filter buggy-app start &   # http://localhost:4173, leave running

@@ -21,7 +21,7 @@ No domain has been purchased and no site exists yet. `apps/mcp-server/server.jso
 | **Evaluation** | Both harnesses, the actual live-verified agentic results table, and that it costs real API calls | README "Flagship demo" and "Evaluation"; `docs/evaluation.md` |
 | **Privacy** | Local-first, no telemetry, exactly when data leaves the machine | `docs/privacy.md` |
 | **Limitations** | The real, current list -- no visual diffing, heuristic correlation, platform (macOS-only verified), MCP Registry not yet listed, GitHub repo not yet renamed | README "Limitations & roadmap" |
-| **GitHub link** | `github.com/rathodpratham15/TraceLens` today -- **must be updated if/when the rename in `docs/github-rename-checklist.md` happens**; do not hardcode without checking current state | `docs/github-rename-checklist.md` |
+| **GitHub link** | `github.com/rathodpratham15/Sutriva` (renamed from `TraceLens`; old URL redirects) -- do not hardcode without checking current state, in case of a future rename | `docs/github-rename-checklist.md` |
 | **npm links** | `npmjs.com/package/sutriva`, `npmjs.com/package/@sutriva/mcp-server` | This doc; live npm registry |
 | **MCP Registry** | Accurately state current status (not yet registered, as of this writing) -- do not claim registry presence before it's real | `docs/mcp-registry.md` |
 

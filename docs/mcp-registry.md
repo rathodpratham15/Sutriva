@@ -28,7 +28,7 @@ The MCP Registry only hosts **metadata** (a `server.json` describing the server,
      "description": "Sutriva gives coding agents temporal memory: ...",
      "title": "Sutriva",
      "websiteUrl": "https://sutriva.pratham.click",
-     "repository": { "url": "https://github.com/rathodpratham15/TraceLens", "source": "github" },
+     "repository": { "url": "https://github.com/rathodpratham15/Sutriva", "source": "github" },
      "version": "0.1.1",
      "packages": [{
        "registryType": "npm",
@@ -74,7 +74,7 @@ Per `server.json`'s `description` field above: **"Temporal memory for coding age
 ## Documented for the registry entry (once live)
 
 - **Package**: `@sutriva/mcp-server` (npm)
-- **Repository**: https://github.com/rathodpratham15/TraceLens
+- **Repository**: https://github.com/rathodpratham15/Sutriva
 - **Installation**: `npm install -g @sutriva/mcp-server`, binary `sutriva-mcp`
 - **Runtime requirements**: Node.js >= 22 (checked at startup, fails with a clear error otherwise); FFmpeg/ffprobe on `PATH` for the replay path; Playwright's Chromium (`npx playwright install chromium`) for the live-debugging path.
 - **Available tools**: `inspect_video`, `get_timeline`, `get_frame`, `search_session`, `get_evidence`, `analyze_segment`, `get_transcript`, `inspect_environment`, `get_current_context`, `compare_sessions` (10 total, unchanged).

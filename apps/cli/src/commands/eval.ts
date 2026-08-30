@@ -53,8 +53,8 @@ export function registerEvalCommand(program: Command): void {
             "harness itself) -- these are development-only assets and are intentionally not part of the " +
             "published package you have installed.\n\n" +
             "To run the evaluation suite:\n" +
-            "  git clone https://github.com/rathodpratham15/TraceLens.git\n" +
-            "  cd TraceLens && pnpm install\n" +
+            "  git clone https://github.com/rathodpratham15/Sutriva.git\n" +
+            "  cd Sutriva && pnpm install\n" +
             "  pnpm fixtures:eval:generate\n" +
             "  pnpm eval          # or: pnpm eval:agentic\n",
         );

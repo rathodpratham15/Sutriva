@@ -38,7 +38,7 @@ npm install -g @sutriva/mcp-server
 sutriva doctor
 ```
 
-- GitHub: https://github.com/rathodpratham15/TraceLens
+- GitHub: https://github.com/rathodpratham15/Sutriva
 - npm: https://www.npmjs.com/package/sutriva, https://www.npmjs.com/package/@sutriva/mcp-server
 - MCP: 10 tools over stdio, see `docs/mcp-registry.md` for setup in another project
 
