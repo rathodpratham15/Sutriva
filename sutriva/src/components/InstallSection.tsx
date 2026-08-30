@@ -123,7 +123,7 @@ export const InstallSection: React.FC<InstallSectionProps> = ({ onNavigate }) =>
                   <button
                     id={`btn-copy-install-${idx}`}
                     onClick={() => handleCopy(c.cmd, idx)}
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-zinc-850 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-700 text-xs transition-colors flex-shrink-0"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-hover hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-700 text-xs transition-colors flex-shrink-0"
                     title="Copy command"
                   >
                     {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}

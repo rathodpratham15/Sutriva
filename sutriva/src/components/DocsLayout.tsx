@@ -101,7 +101,7 @@ export const DocsLayout: React.FC<DocsLayoutProps> = ({ currentPath, onNavigate 
                             className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between ${
                               isActive
                                 ? 'bg-emerald-500/15 text-emerald-300 font-semibold border border-emerald-500/30'
-                                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-850'
+                                : 'text-zinc-400 hover:text-zinc-200 hover:bg-surface-hover'
                             }`}
                           >
                             <span className="truncate">{doc.title}</span>
@@ -237,7 +237,7 @@ export const DocsLayout: React.FC<DocsLayoutProps> = ({ currentPath, onNavigate 
             {prevDoc ? (
               <button
                 onClick={() => onNavigate(prevDoc.path)}
-                className="flex items-center gap-2 p-3 rounded-lg bg-zinc-900 hover:bg-zinc-850 text-zinc-300 hover:text-white transition-colors"
+                className="flex items-center gap-2 p-3 rounded-lg bg-zinc-900 hover:bg-surface-hover text-zinc-300 hover:text-white transition-colors"
               >
                 <ArrowLeft className="w-3.5 h-3.5 text-emerald-400" />
                 <div className="text-left">
@@ -250,7 +250,7 @@ export const DocsLayout: React.FC<DocsLayoutProps> = ({ currentPath, onNavigate 
             {nextDoc && (
               <button
                 onClick={() => onNavigate(nextDoc.path)}
-                className="flex items-center gap-2 p-3 rounded-lg bg-zinc-900 hover:bg-zinc-850 text-zinc-300 hover:text-white transition-colors"
+                className="flex items-center gap-2 p-3 rounded-lg bg-zinc-900 hover:bg-surface-hover text-zinc-300 hover:text-white transition-colors"
               >
                 <div className="text-right">
                   <div className="text-[10px] text-zinc-500 uppercase">Next</div>
