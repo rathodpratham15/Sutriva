@@ -9,12 +9,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rathodpratham15/TraceLens.git",
+    "url": "git+https://github.com/rathodpratham15/Sutriva.git",
     "directory": "apps/cli"
   },
-  "homepage": "https://github.com/rathodpratham15/TraceLens#readme",
+  "homepage": "https://github.com/rathodpratham15/Sutriva#readme",
   "bugs": {
-    "url": "https://github.com/rathodpratham15/TraceLens/issues"
+    "url": "https://github.com/rathodpratham15/Sutriva/issues"
   },
   "keywords": ["mcp", "model-context-protocol", "claude", "claude-code", "coding-agent", "coding-agents", "debugging", "browser-debugging", "session-replay", "temporal-memory", "developer-tools", "video-debugging", "playwright", "agent-tools", "cli"],
   "author": "Pratham Rathod",

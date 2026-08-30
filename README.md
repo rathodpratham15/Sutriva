@@ -4,12 +4,12 @@
 
 [![npm: sutriva](https://img.shields.io/npm/v/sutriva?label=sutriva)](https://www.npmjs.com/package/sutriva)
 [![npm: @sutriva/mcp-server](https://img.shields.io/npm/v/%40sutriva%2Fmcp-server?label=%40sutriva%2Fmcp-server)](https://www.npmjs.com/package/@sutriva/mcp-server)
-[![GitHub](https://img.shields.io/badge/GitHub-rathodpratham15%2FTraceLens-181717?logo=github)](https://github.com/rathodpratham15/TraceLens)
+[![GitHub](https://img.shields.io/badge/GitHub-rathodpratham15%2FSutriva-181717?logo=github)](https://github.com/rathodpratham15/Sutriva)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 **Sutriva gives coding agents temporal memory: a persistent, queryable record of what happened across a debugging session -- live or recorded -- that can be retrieved and correlated after the fact, instead of relying only on the current application state.**
 
-> **Status: published and release-hardened.** `npm install -g sutriva` / `npm install -g @sutriva/mcp-server` -- both live on the public npm registry. All 8 master-plan phases plus a real speech-to-text provider and an automated agentic evaluation harness are done -- see [Limitations & roadmap](#limitations--roadmap) for what's genuinely still open (MCP Registry listing, GitHub repo rename -- neither blocks using it today).
+> **Status: published and release-hardened.** `npm install -g sutriva` / `npm install -g @sutriva/mcp-server` -- both live on the public npm registry. All 8 master-plan phases plus a real speech-to-text provider and an automated agentic evaluation harness are done -- see [Limitations & roadmap](#limitations--roadmap) for what's genuinely still open (MCP Registry listing -- the GitHub repository rename is done).
 
 **WHAT:** Sutriva gives coding agents temporal memory.
 **WHY:** Debugging often depends on understanding what happened *before* the current state -- a click three steps back, a request that failed a minute ago, a console error that's since scrolled off screen.
@@ -67,7 +67,7 @@ See `docs/architecture.md` for the full design rationale (progressive disclosure
 Requirements: Node.js **>= 22** (better-sqlite3's native binding requires it -- see [Provider configuration](#provider-configuration)), [FFmpeg](https://ffmpeg.org/) (`ffmpeg`/`ffprobe` on `PATH`), `pnpm`. Live browser debugging (`sutriva debug --live`) additionally needs Playwright's Chromium, which is **not** downloaded automatically by `npm`/`pnpm install` -- run `npx playwright install chromium` once; `sutriva doctor` checks for this and tells you if it's missing.
 
 ```bash
-git clone https://github.com/rathodpratham15/TraceLens.git && cd TraceLens
+git clone https://github.com/rathodpratham15/Sutriva.git && cd Sutriva
 nvm use            # picks up Node 22 via .nvmrc, if you use nvm
 pnpm install
 pnpm cli doctor     # checks ffmpeg/git/Node and prints the active vision provider
@@ -344,6 +344,5 @@ The core system (`TraceLens_Master_Plan.md`'s Phases 0-7) is complete, along wit
 - Terminal capture requires explicitly running commands through `sutriva exec`; there's no shell-wide/automatic capture of arbitrary commands you type directly. Redaction (`redactSecrets`) is a best-effort heuristic (common `KEY=value`/Bearer-token/AWS-key/PEM patterns), not a guarantee -- treat captured terminal output as potentially sensitive regardless.
 - Click/input capture describes the target element (tag/id/class/text), not a full DOM diff -- deliberate, not a gap.
 - **Platform:** developed and tested on macOS (Apple Silicon) only. `better-sqlite3`'s native binding, Playwright's Chromium download, and `ffmpeg`/`ffprobe` are all platform-specific binaries -- Linux/Windows should work in principle (all three support those platforms upstream) but haven't been verified here.
-- **Not yet listed on the official MCP Registry.** `sutriva` and `@sutriva/mcp-server` are both published and installable via `npm install -g` (see [Installing outside this repo](#installing-outside-this-repo)) -- what's still open is registering with registry.modelcontextprotocol.io, which requires republishing with an `mcpName` field already added to `package.json` (see `docs/mcp-registry.md` for exactly what's prepared and the remaining steps).
-- **The GitHub repository itself hasn't been renamed** from `rathodpratham15/TraceLens` to match the `Sutriva` product name -- a deliberate, separate decision (see `docs/github-rename-checklist.md`), not a blocker to using the package.
+- **Not yet listed on the official MCP Registry.** `sutriva` and `@sutriva/mcp-server` are both published and installable via `npm install -g` (see [Installing outside this repo](#installing-outside-this-repo)); `@sutriva/mcp-server@0.1.1`'s published `mcpName` field satisfies the one npm-side prerequisite for registering with registry.modelcontextprotocol.io (see `docs/mcp-registry.md` for the exact remaining steps).
 - `sutriva session report` is stubbed with an explanatory message, not implemented -- session recording/reporting as a distinct artifact wasn't part of the master plan's core phases.
