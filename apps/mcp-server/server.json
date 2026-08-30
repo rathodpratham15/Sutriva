@@ -2,16 +2,18 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.rathodpratham15/sutriva",
   "description": "Sutriva gives coding agents temporal memory: a persistent, queryable record of what happened across a debugging session -- live or recorded -- retrievable and correlated after the fact, instead of relying only on the current application state.",
+  "title": "Sutriva",
+  "websiteUrl": "https://sutriva.pratham.click",
   "repository": {
     "url": "https://github.com/rathodpratham15/TraceLens",
     "source": "github"
   },
-  "version": "0.1.0",
+  "version": "0.1.1",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "@sutriva/mcp-server",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "transport": {
         "type": "stdio"
       }

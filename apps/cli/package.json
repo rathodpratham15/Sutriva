@@ -1,6 +1,6 @@
 {
   "name": "sutriva",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "description": "Sutriva gives coding agents temporal memory -- CLI",
   "type": "module",

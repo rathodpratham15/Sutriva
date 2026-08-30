@@ -4,7 +4,7 @@ This documents what's required to register `@sutriva/mcp-server` on the [officia
 
 ## What the registry actually is
 
-The MCP Registry only hosts **metadata** (a `server.json` describing the server, which package/version it maps to, and how to run it) -- not artifacts. The real package still has to be published to npm (already done: `@sutriva/mcp-server@0.1.0`) *before* registering.
+The MCP Registry only hosts **metadata** (a `server.json` describing the server, which package/version it maps to, and how to run it) -- not artifacts. The real package still has to be published to npm *before* registering. `@sutriva/mcp-server@0.1.0` is the version currently live on npm; `0.1.1` (with `mcpName` included) is prepared in this repo but **not yet published**.
 
 ## Prerequisites (per the official quickstart)
 
@@ -20,28 +20,31 @@ The MCP Registry only hosts **metadata** (a `server.json` describing the server,
    ```
    This is how the registry verifies the published npm package actually belongs to the claimed registry entry. Because registration uses GitHub auth, this value **must** start with `io.github.rathodpratham15/`.
 
-2. **`apps/mcp-server/server.json`** -- the registry manifest itself, matching the schema `mcp-publisher init` would generate:
+2. **`apps/mcp-server/server.json`** -- the registry manifest itself, matching the schema `mcp-publisher init` would generate, verified directly against the current official schema (`static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json`) and the official quickstart guide (`modelcontextprotocol/registry` repo, `docs/modelcontextprotocol-io/quickstart.mdx`):
    ```json
    {
      "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
      "name": "io.github.rathodpratham15/sutriva",
      "description": "Sutriva gives coding agents temporal memory: ...",
+     "title": "Sutriva",
+     "websiteUrl": "https://sutriva.pratham.click",
      "repository": { "url": "https://github.com/rathodpratham15/TraceLens", "source": "github" },
-     "version": "0.1.0",
+     "version": "0.1.1",
      "packages": [{
        "registryType": "npm",
        "identifier": "@sutriva/mcp-server",
-       "version": "0.1.0",
+       "version": "0.1.1",
        "transport": { "type": "stdio" }
      }]
    }
    ```
+   `title` and `websiteUrl` are both optional per the schema (`ServerDetail`) and included for display purposes once a client/subregistry chooses to show them. **`websiteUrl` points to a domain that does not exist yet** (`sutriva.pratham.click` -- planned for a future documentation site, see `docs/website-checklist.md`; the domain has not been purchased). This is safe while the entry is only prepared and not submitted, but **must resolve to a real page before `mcp-publisher publish` is actually run** -- either the real site, or this field should be removed/pointed at the GitHub README instead if the site isn't live yet at registration time.
 
 ## The one thing blocking actual registration right now
 
-**`mcpName` is not in the *published* `0.1.0` package on npm** -- it was added to this repo's `package.json` after `0.1.0` was already published (see PR history). The registry validates the *live npm package*, not this repo's source, so registering right now would fail validation.
+`@sutriva/mcp-server@0.1.0` -- the version currently live on npm -- does not have the `mcpName` field; it was added to this repo's `package.json` after `0.1.0` was already published. The registry validates the *live npm package*, not this repo's source, so registering against `0.1.0` would fail validation ("Registry validation failed for package" per the official troubleshooting table).
 
-**Before registering, publish a new version** (e.g. `0.1.1`) of `@sutriva/mcp-server` that includes the `mcpName` field, then update `server.json`'s `version` to match. This is a real, separate `npm publish` action -- not done as part of this documentation pass, per instruction not to publish anything further right now.
+This repo now has `0.1.1` prepared (both `package.json` files and `server.json` bumped in this same release-prep pass) with `mcpName` included -- but **`0.1.1` has not been published to npm yet**. That real `npm publish` (Section 7 below) is the actual remaining blocker before registration can succeed.
 
 ## Exact commands to actually register (once ready)
 
@@ -50,22 +53,24 @@ The MCP Registry only hosts **metadata** (a `server.json` describing the server,
 brew install mcp-publisher
 # or: curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher && sudo mv mcp-publisher /usr/local/bin/
 
-# 2. Bump the version, add mcpName if not already present, and re-publish to npm first
+# 2. Publish @sutriva/mcp-server@0.1.1 to npm (version/mcpName already prepared in this repo)
 cd apps/mcp-server
-npm version patch   # -> 0.1.1
+npm login          # if not already authenticated
 npm publish --access public
 
-# 3. Update server.json's "version" to match (0.1.1), then authenticate
+# 3. Authenticate with the MCP Registry (GitHub device-auth flow)
 mcp-publisher login github
-# opens a GitHub device-auth flow: visit github.com/login/device, enter the code shown
+# visit github.com/login/device, enter the code shown
 
-# 4. Publish the registry entry itself
+# 4. Publish the registry entry itself (run from apps/mcp-server, where server.json lives)
 mcp-publisher validate   # sanity check server.json before publishing
 mcp-publisher publish
 
 # 5. Verify
 curl "https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.rathodpratham15/sutriva"
 ```
+
+If `websiteUrl` in `server.json` still points at a domain that isn't live at the time of step 4, remove that field (or point it at the GitHub README URL instead) before running `mcp-publisher publish` -- see the note in the previous section.
 
 ## What the registry entry will communicate
 
