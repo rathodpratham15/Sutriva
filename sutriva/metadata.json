@@ -1,0 +1,6 @@
+{
+  "name": "Sutriva",
+  "description": "Temporal memory for coding agents. Persistent, queryable historical context for live and recorded debugging sessions.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

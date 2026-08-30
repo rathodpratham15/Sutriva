@@ -22,3 +22,4 @@ coverage/
 # Personal/local Claude Code settings (permission allowlists etc.) -- .claude/commands
 # and .claude/settings.json (if added later) are project-shared and should be committed.
 .claude/settings.local.json
+# /sutriva
