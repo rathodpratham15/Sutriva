@@ -4,7 +4,7 @@ This documents what's required to register `@sutriva/mcp-server` on the [officia
 
 ## What the registry actually is
 
-The MCP Registry only hosts **metadata** (a `server.json` describing the server, which package/version it maps to, and how to run it) -- not artifacts. The real package still has to be published to npm *before* registering. `@sutriva/mcp-server@0.1.0` is the version currently live on npm; `0.1.1` (with `mcpName` included) is prepared in this repo but **not yet published**.
+The MCP Registry only hosts **metadata** (a `server.json` describing the server, which package/version it maps to, and how to run it) -- not artifacts. The real package still has to be published to npm *before* registering. `@sutriva/mcp-server@0.1.1` -- the version with `mcpName` included -- is now the version live on npm (published after this doc was first written; confirmed via `npm view @sutriva/mcp-server mcpName` returning `io.github.rathodpratham15/sutriva`). The registration blocker described below is resolved.
 
 ## Prerequisites (per the official quickstart)
 
@@ -40,37 +40,32 @@ The MCP Registry only hosts **metadata** (a `server.json` describing the server,
    ```
    `title` and `websiteUrl` are both optional per the schema (`ServerDetail`) and included for display purposes once a client/subregistry chooses to show them. **`websiteUrl` points to a domain that does not exist yet** (`sutriva.pratham.click` -- planned for a future documentation site, see `docs/website-checklist.md`; the domain has not been purchased). This is safe while the entry is only prepared and not submitted, but **must resolve to a real page before `mcp-publisher publish` is actually run** -- either the real site, or this field should be removed/pointed at the GitHub README instead if the site isn't live yet at registration time.
 
-## The one thing blocking actual registration right now
+## Status: the npm-side blocker is resolved
 
-`@sutriva/mcp-server@0.1.0` -- the version currently live on npm -- does not have the `mcpName` field; it was added to this repo's `package.json` after `0.1.0` was already published. The registry validates the *live npm package*, not this repo's source, so registering against `0.1.0` would fail validation ("Registry validation failed for package" per the official troubleshooting table).
-
-This repo now has `0.1.1` prepared (both `package.json` files and `server.json` bumped in this same release-prep pass) with `mcpName` included -- but **`0.1.1` has not been published to npm yet**. That real `npm publish` (Section 7 below) is the actual remaining blocker before registration can succeed.
+`@sutriva/mcp-server@0.1.1` -- published to npm with `mcpName` included -- is now live. The registry validates the *live npm package*, and `0.1.1` satisfies that check; registering would no longer fail on this ground. **Nothing has been registered yet** -- the remaining steps are still a deliberate, separate action (see the `websiteUrl` caveat below).
 
 ## Exact commands to actually register (once ready)
+
+`npm publish` for `@sutriva/mcp-server@0.1.1` is **already done** -- what's left is entirely on the registry side:
 
 ```bash
 # 1. One-time: install the publisher CLI
 brew install mcp-publisher
 # or: curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher && sudo mv mcp-publisher /usr/local/bin/
 
-# 2. Publish @sutriva/mcp-server@0.1.1 to npm (version/mcpName already prepared in this repo)
-cd apps/mcp-server
-npm login          # if not already authenticated
-npm publish --access public
-
-# 3. Authenticate with the MCP Registry (GitHub device-auth flow)
+# 2. Authenticate with the MCP Registry (GitHub device-auth flow)
 mcp-publisher login github
 # visit github.com/login/device, enter the code shown
 
-# 4. Publish the registry entry itself (run from apps/mcp-server, where server.json lives)
+# 3. Publish the registry entry itself (run from apps/mcp-server, where server.json lives)
 mcp-publisher validate   # sanity check server.json before publishing
 mcp-publisher publish
 
-# 5. Verify
+# 4. Verify
 curl "https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.rathodpratham15/sutriva"
 ```
 
-If `websiteUrl` in `server.json` still points at a domain that isn't live at the time of step 4, remove that field (or point it at the GitHub README URL instead) before running `mcp-publisher publish` -- see the note in the previous section.
+If `websiteUrl` in `server.json` still points at a domain that isn't live at the time of step 3, remove that field (or point it at the GitHub README URL instead) before running `mcp-publisher publish` -- see the note in the previous section.
 
 ## What the registry entry will communicate
 
