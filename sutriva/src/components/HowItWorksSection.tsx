@@ -128,6 +128,19 @@ export const HowItWorksSection: React.FC = () => {
           </p>
         </div>
 
+        {/* At-a-glance pipeline: the 5-word version of the 6 detailed steps
+            below, so the shape of the system reads before the detail does. */}
+        <div className="mb-10 flex flex-wrap items-center gap-2 font-mono text-xs text-zinc-400">
+          {['Capture', 'Index', 'Correlate', 'Query', 'Verify'].map((step, idx, arr) => (
+            <React.Fragment key={step}>
+              <span className="px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-300">
+                {step}
+              </span>
+              {idx < arr.length - 1 && <span className="text-zinc-700">→</span>}
+            </React.Fragment>
+          ))}
+        </div>
+
         {/* Inputs & Outputs Top Bar */}
         <div className="mb-14 p-6 rounded-2xl bg-zinc-900/40 border border-zinc-800/80">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
