@@ -57,6 +57,7 @@ export const InteractiveDemoModal: React.FC<InteractiveDemoModalProps> = ({ isOp
           <div className="flex items-center gap-2">
             <button
               onClick={onClose}
+              aria-label="Close interactive demo"
               className="p-1.5 rounded-lg bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors"
             >
               <X className="w-4 h-4" />

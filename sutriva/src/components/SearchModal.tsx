@@ -60,6 +60,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
           />
           <button
             onClick={onClose}
+            aria-label="Close search"
             className="p-1 rounded bg-zinc-800 text-zinc-400 hover:text-white"
           >
             <X className="w-4 h-4" />
