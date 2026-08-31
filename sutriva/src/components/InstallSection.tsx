@@ -67,7 +67,7 @@ export const InstallSection: React.FC<InstallSectionProps> = ({ onNavigate }) =>
         
         {/* Section Header */}
         <div className="max-w-3xl mb-14">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-emerald-400 mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-brand-400 mb-4">
             <Terminal className="w-3.5 h-3.5" />
             <span>Quick Setup</span>
           </div>
@@ -88,7 +88,7 @@ export const InstallSection: React.FC<InstallSectionProps> = ({ onNavigate }) =>
               onClick={() => setPkgManager(pm)}
               className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-colors ${
                 pkgManager === pm 
-                  ? 'bg-emerald-400 text-zinc-950 font-bold shadow-sm' 
+                  ? 'bg-brand-400 text-zinc-950 font-bold shadow-sm' 
                   : 'bg-zinc-900 text-zinc-400 hover:text-zinc-200 border border-zinc-800'
               }`}
             >
@@ -117,7 +117,7 @@ export const InstallSection: React.FC<InstallSectionProps> = ({ onNavigate }) =>
                 </div>
 
                 <div className="flex items-center gap-3 self-stretch md:self-auto justify-between md:justify-end">
-                  <div className="p-2.5 rounded-lg bg-zinc-900 border border-zinc-800 text-emerald-300 overflow-x-auto select-all">
+                  <div className="p-2.5 rounded-lg bg-zinc-900 border border-zinc-800 text-brand-300 overflow-x-auto select-all">
                     <code>{c.cmd}</code>
                   </div>
                   <button
@@ -126,7 +126,7 @@ export const InstallSection: React.FC<InstallSectionProps> = ({ onNavigate }) =>
                     className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-hover hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-700 text-xs transition-colors flex-shrink-0"
                     title="Copy command"
                   >
-                    {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    {isCopied ? <Check className="w-3.5 h-3.5 text-brand-400" /> : <Copy className="w-3.5 h-3.5" />}
                     <span>{isCopied ? 'Copied' : 'Copy'}</span>
                   </button>
                 </div>
@@ -142,14 +142,14 @@ export const InstallSection: React.FC<InstallSectionProps> = ({ onNavigate }) =>
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-700 text-xs font-mono transition-colors"
           >
             <span>Claude Code Setup Guide</span>
-            <ArrowRight className="w-3.5 h-3.5 text-emerald-400" />
+            <ArrowRight className="w-3.5 h-3.5 text-brand-400" />
           </button>
           <button
             onClick={() => onNavigate('/docs/mcp')}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-700 text-xs font-mono transition-colors"
           >
             <span>View all MCP Tool Definitions</span>
-            <ArrowRight className="w-3.5 h-3.5 text-cyan-400" />
+            <ArrowRight className="w-3.5 h-3.5 text-info-400" />
           </button>
         </div>
 

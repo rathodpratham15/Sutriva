@@ -55,7 +55,7 @@ export const LimitationsSection: React.FC = () => {
         
         {/* Section Header */}
         <div className="max-w-3xl mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-amber-400 mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-history-400 mb-4">
             <AlertTriangle className="w-3.5 h-3.5" />
             <span>Honest Technical Scope</span>
           </div>
@@ -74,7 +74,7 @@ export const LimitationsSection: React.FC = () => {
               key={idx}
               className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800/80 hover:border-zinc-700 transition-all font-mono"
             >
-              <div className="flex items-center justify-between text-xs text-amber-400 mb-2 font-bold">
+              <div className="flex items-center justify-between text-xs text-history-400 mb-2 font-bold">
                 <span>0{idx + 1}.</span>
                 <span className="text-[10px] text-zinc-500 font-normal">Constraint</span>
               </div>

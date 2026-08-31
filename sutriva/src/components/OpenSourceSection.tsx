@@ -17,7 +17,7 @@ export const OpenSourceSection: React.FC = () => {
         
         {/* Section Header */}
         <div className="max-w-3xl mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-emerald-400 mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-brand-400 mb-4">
             <Github className="w-3.5 h-3.5" />
             <span>Open Source</span>
           </div>
@@ -47,14 +47,14 @@ export const OpenSourceSection: React.FC = () => {
               <div className="text-xs text-zinc-400 uppercase tracking-wider mb-1">Source Repository</div>
               <h3 className="text-base font-bold text-white mb-2 flex items-center gap-2">
                 <span>GitHub</span>
-                <ExternalLink className="w-3.5 h-3.5 text-zinc-500 group-hover:text-emerald-400 transition-colors" />
+                <ExternalLink className="w-3.5 h-3.5 text-zinc-500 group-hover:text-brand-400 transition-colors" />
               </h3>
               <p className="text-xs text-zinc-400 font-sans leading-relaxed">
                 rathodpratham15/Sutriva — issues, pull requests, test harnesses, and architecture discussions.
               </p>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-zinc-800/80 text-[11px] text-emerald-400 flex items-center justify-between">
+            <div className="mt-6 pt-4 border-t border-zinc-800/80 text-[11px] text-brand-400 flex items-center justify-between">
               <span>github.com/rathodpratham15/Sutriva</span>
               <span>→</span>
             </div>
@@ -69,20 +69,20 @@ export const OpenSourceSection: React.FC = () => {
             className="p-6 rounded-2xl bg-zinc-900/40 hover:bg-zinc-900/80 border border-zinc-800 hover:border-zinc-700 transition-all font-mono group flex flex-col justify-between"
           >
             <div>
-              <div className="w-10 h-10 rounded-xl bg-emerald-950/80 border border-emerald-800/60 flex items-center justify-center text-emerald-400 mb-4 group-hover:scale-105 transition-transform">
+              <div className="w-10 h-10 rounded-xl bg-brand-950/80 border border-brand-800/60 flex items-center justify-center text-brand-400 mb-4 group-hover:scale-105 transition-transform">
                 <Globe className="w-5 h-5" />
               </div>
               <div className="text-xs text-zinc-400 uppercase tracking-wider mb-1">Official Website</div>
               <h3 className="text-base font-bold text-white mb-2 flex items-center gap-2">
                 <span>sutriva.pratham.click</span>
-                <ExternalLink className="w-3.5 h-3.5 text-zinc-500 group-hover:text-emerald-400 transition-colors" />
+                <ExternalLink className="w-3.5 h-3.5 text-zinc-500 group-hover:text-brand-400 transition-colors" />
               </h3>
               <p className="text-xs text-zinc-400 font-sans leading-relaxed">
                 Canonical documentation, release announcements, and project guidelines.
               </p>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-zinc-800/80 text-[11px] text-emerald-400 flex items-center justify-between">
+            <div className="mt-6 pt-4 border-t border-zinc-800/80 text-[11px] text-brand-400 flex items-center justify-between">
               <span>sutriva.pratham.click</span>
               <span>→</span>
             </div>
@@ -91,7 +91,7 @@ export const OpenSourceSection: React.FC = () => {
           {/* 3. npm Registry Packages */}
           <div className="p-6 rounded-2xl bg-zinc-900/40 border border-zinc-800 font-mono flex flex-col justify-between">
             <div>
-              <div className="w-10 h-10 rounded-xl bg-red-950/80 border border-red-800/60 flex items-center justify-center text-red-400 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-failure-950/80 border border-failure-800/60 flex items-center justify-center text-failure-400 mb-4">
                 <Package className="w-5 h-5" />
               </div>
               <div className="text-xs text-zinc-400 uppercase tracking-wider mb-1">Package Ecosystem</div>

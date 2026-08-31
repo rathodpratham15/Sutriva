@@ -68,7 +68,7 @@ export default function App() {
   const isDocsView = currentPath.startsWith('/docs');
 
   return (
-    <div className="min-h-screen bg-[#08090d] text-zinc-100 selection:bg-emerald-500/30 selection:text-emerald-200">
+    <div className="min-h-screen bg-[#08090d] text-zinc-100 selection:bg-brand-500/30 selection:text-brand-200">
       
       {/* Top Fixed Navigation Bar */}
       <Navbar

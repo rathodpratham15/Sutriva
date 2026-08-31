@@ -41,13 +41,13 @@ export const InteractiveDemoModal: React.FC<InteractiveDemoModalProps> = ({ isOp
         {/* Header */}
         <div className="px-6 py-4 bg-[#090a0f] border-b border-zinc-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-lg bg-emerald-950/80 border border-emerald-700/60 flex items-center justify-center text-emerald-400">
+            <div className="w-7 h-7 rounded-lg bg-brand-950/80 border border-brand-700/60 flex items-center justify-center text-brand-400">
               <Clock className="w-4 h-4" />
             </div>
             <div>
               <h3 className="font-mono text-sm font-bold text-white flex items-center gap-2">
                 <span>Sutriva Interactive Temporal Sandbox</span>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-emerald-400 font-mono">
+                <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-brand-400 font-mono">
                   Live Simulation
                 </span>
               </h3>
@@ -71,7 +71,7 @@ export const InteractiveDemoModal: React.FC<InteractiveDemoModalProps> = ({ isOp
               onClick={() => setActiveTab('timeline')}
               className={`px-3 py-1.5 rounded-lg transition-colors ${
                 activeTab === 'timeline'
-                  ? 'bg-zinc-800 text-emerald-300 font-semibold shadow-sm'
+                  ? 'bg-zinc-800 text-brand-300 font-semibold shadow-sm'
                   : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
@@ -81,7 +81,7 @@ export const InteractiveDemoModal: React.FC<InteractiveDemoModalProps> = ({ isOp
               onClick={() => setActiveTab('mcp_query')}
               className={`px-3 py-1.5 rounded-lg transition-colors ${
                 activeTab === 'mcp_query'
-                  ? 'bg-zinc-800 text-cyan-300 font-semibold shadow-sm'
+                  ? 'bg-zinc-800 text-info-300 font-semibold shadow-sm'
                   : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
@@ -91,7 +91,7 @@ export const InteractiveDemoModal: React.FC<InteractiveDemoModalProps> = ({ isOp
               onClick={() => setActiveTab('verification')}
               className={`px-3 py-1.5 rounded-lg transition-colors ${
                 activeTab === 'verification'
-                  ? 'bg-zinc-800 text-amber-300 font-semibold shadow-sm'
+                  ? 'bg-zinc-800 text-brand-300 font-semibold shadow-sm'
                   : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
@@ -111,7 +111,7 @@ export const InteractiveDemoModal: React.FC<InteractiveDemoModalProps> = ({ isOp
             <div className="space-y-6">
               <div className="p-3.5 rounded-xl bg-zinc-900/60 border border-zinc-800 text-xs font-mono text-zinc-300 flex items-center justify-between">
                 <span>Click any timestamp event below to inspect the temporal slice extracted by Sutriva:</span>
-                <span className="text-emerald-400 font-bold">Selected: {currentEvent.timestamp} ({currentEvent.timeSec.toFixed(2)}s)</span>
+                <span className="text-brand-400 font-bold">Selected: {currentEvent.timestamp} ({currentEvent.timeSec.toFixed(2)}s)</span>
               </div>
 
               {/* Scrubbable Event Sequence */}
@@ -127,22 +127,22 @@ export const InteractiveDemoModal: React.FC<InteractiveDemoModalProps> = ({ isOp
                       className={`p-3 rounded-xl border text-left transition-all flex items-center justify-between ${
                         isSelected
                           ? isErr 
-                            ? 'bg-red-950/50 border-red-500 shadow-md' 
-                            : 'bg-zinc-800 border-emerald-500 shadow-md'
+                            ? 'bg-failure-950/50 border-failure-500 shadow-md' 
+                            : 'bg-zinc-800 border-brand-500 shadow-md'
                           : isErr
-                            ? 'bg-red-950/20 border-red-900/40 hover:border-red-700'
+                            ? 'bg-failure-950/20 border-failure-900/40 hover:border-failure-700'
                             : 'bg-zinc-900/30 border-zinc-800 hover:bg-zinc-900/70'
                       }`}
                     >
                       <div className="flex items-center gap-2.5">
-                        <span className={`font-bold ${isErr ? 'text-red-400' : 'text-zinc-400'}`}>
+                        <span className={`font-bold ${isErr ? 'text-failure-400' : 'text-zinc-400'}`}>
                           {ev.timestamp}
                         </span>
-                        <span className={`truncate ${isErr ? 'text-red-200 font-semibold' : 'text-zinc-300'}`}>
+                        <span className={`truncate ${isErr ? 'text-failure-200 font-semibold' : 'text-zinc-300'}`}>
                           {ev.title}
                         </span>
                       </div>
-                      {isErr && <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-900 text-red-200">500 CRASH</span>}
+                      {isErr && <span className="text-[10px] px-1.5 py-0.5 rounded bg-failure-900 text-failure-200">CONSOLE ERROR</span>}
                     </button>
                   );
                 })}
@@ -150,7 +150,7 @@ export const InteractiveDemoModal: React.FC<InteractiveDemoModalProps> = ({ isOp
 
               {/* Event Inspector Box */}
               <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 font-mono text-xs space-y-3">
-                <div className="flex items-center justify-between text-emerald-400 font-bold border-b border-zinc-800 pb-2">
+                <div className="flex items-center justify-between text-brand-400 font-bold border-b border-zinc-800 pb-2">
                   <span>Event Detail: {currentEvent.title}</span>
                   <span className="text-zinc-400 text-[11px] font-normal">Offset: {currentEvent.timeSec.toFixed(2)}s</span>
                 </div>
@@ -161,12 +161,12 @@ export const InteractiveDemoModal: React.FC<InteractiveDemoModalProps> = ({ isOp
 
                 {currentEvent.sourceFile && (
                   <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800 space-y-2">
-                    <div className="flex items-center justify-between text-amber-300 text-[11px]">
+                    <div className="flex items-center justify-between text-history-300 text-[11px]">
                       <span>Source Correlation: {currentEvent.sourceFile}:{currentEvent.sourceLine}</span>
                       <span className="text-zinc-500 font-mono">Git Commit #7a8b92c</span>
                     </div>
                     {currentEvent.codeSnippet && (
-                      <div className="p-2 rounded bg-black/80 text-amber-300/90 text-[11px]">
+                      <div className="p-2 rounded bg-black/80 text-history-300/90 text-[11px]">
                         {currentEvent.codeSnippet}
                       </div>
                     )}
@@ -186,7 +186,7 @@ export const InteractiveDemoModal: React.FC<InteractiveDemoModalProps> = ({ isOp
                     onClick={() => setSelectedMcpTool(tool)}
                     className={`px-3 py-1.5 rounded-lg transition-colors ${
                       selectedMcpTool === tool
-                        ? 'bg-emerald-400 text-zinc-950 font-bold'
+                        ? 'bg-brand-400 text-zinc-950 font-bold'
                         : 'bg-zinc-900 text-zinc-400 hover:text-zinc-200 border border-zinc-800'
                     }`}
                   >
@@ -197,11 +197,11 @@ export const InteractiveDemoModal: React.FC<InteractiveDemoModalProps> = ({ isOp
 
               <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-3">
                 <div className="flex items-center justify-between text-zinc-400 pb-2 border-b border-zinc-800">
-                  <span className="text-emerald-400 font-bold">Executed: {selectedMcpTool}</span>
+                  <span className="text-brand-400 font-bold">Executed: {selectedMcpTool}</span>
                   <span className="text-[11px]">stdio response</span>
                 </div>
 
-                <pre className="p-4 rounded-xl bg-zinc-900 border border-zinc-800 text-emerald-300 text-[11px] overflow-x-auto leading-relaxed max-h-72">
+                <pre className="p-4 rounded-xl bg-zinc-900 border border-zinc-800 text-brand-300 text-[11px] overflow-x-auto leading-relaxed max-h-72">
                   {selectedMcpTool === 'get_evidence' && `{
   "sessionId": "session_a1b2c3d4",
   "aroundSeconds": 14.82,
@@ -255,8 +255,8 @@ export const InteractiveDemoModal: React.FC<InteractiveDemoModalProps> = ({ isOp
                   onClick={() => setIsPatched(!isPatched)}
                   className={`px-4 py-2 rounded-xl font-mono text-xs font-semibold transition-all ${
                     isPatched
-                      ? 'bg-amber-400 text-zinc-950 hover:bg-amber-300'
-                      : 'bg-emerald-400 text-zinc-950 hover:bg-emerald-300 shadow-lg shadow-emerald-500/20'
+                      ? 'bg-history-400 text-zinc-950 hover:bg-history-300'
+                      : 'bg-brand-400 text-zinc-950 hover:bg-brand-300 shadow-lg shadow-brand-500/20'
                   }`}
                 >
                   {isPatched ? 'Reset to Unpatched (Console Error)' : 'Apply Patch & Run compare_sessions'}
@@ -266,22 +266,22 @@ export const InteractiveDemoModal: React.FC<InteractiveDemoModalProps> = ({ isOp
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-2">
                   <span className="text-zinc-400 text-[11px] uppercase block font-semibold">Baseline Telemetry</span>
-                  <div className="text-red-400 font-bold">POST /api/checkout → 200 (console error)</div>
+                  <div className="text-failure-400 font-bold">POST /api/checkout → 200 (console error)</div>
                   <div className="text-zinc-400 text-[11px]">Uncaught TypeError: data.orderId is undefined</div>
                   <div className="text-zinc-500 text-[10px]">Session ID: session_before</div>
                 </div>
 
                 <div className={`p-4 rounded-xl border transition-all space-y-2 ${
                   isPatched
-                    ? 'bg-emerald-950/40 border-emerald-500/80 text-emerald-300'
+                    ? 'bg-brand-950/40 border-brand-500/80 text-brand-300'
                     : 'bg-zinc-950 border-zinc-800 text-zinc-500'
                 }`}>
                   <span className="text-zinc-400 text-[11px] uppercase block font-semibold">Verification Telemetry</span>
                   {isPatched ? (
                     <>
-                      <div className="text-emerald-400 font-bold">POST /api/checkout → 200 (no console error)</div>
+                      <div className="text-brand-400 font-bold">POST /api/checkout → 200 (no console error)</div>
                       <div className="text-zinc-300 text-[11px]">"Order ORD-1234 confirmed!" shown correctly.</div>
-                      <div className="text-emerald-400 font-bold text-[11px] pt-1">compare_sessions: 1 resolved, 0 new ✓</div>
+                      <div className="text-brand-400 font-bold text-[11px] pt-1">compare_sessions: 1 resolved, 0 new ✓</div>
                     </>
                   ) : (
                     <div className="text-zinc-500 text-xs py-2">

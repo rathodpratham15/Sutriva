@@ -38,7 +38,7 @@ export const PrivacySection: React.FC = () => {
         
         {/* Section Header */}
         <div className="max-w-3xl mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-emerald-400 mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-brand-400 mb-4">
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>Data Sovereignty</span>
           </div>
@@ -59,7 +59,7 @@ export const PrivacySection: React.FC = () => {
                 key={idx}
                 className="p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/80 hover:border-zinc-700 transition-all font-mono"
               >
-                <div className="w-10 h-10 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-emerald-400 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-brand-400 mb-4">
                   <Icon className="w-5 h-5" />
                 </div>
                 <h3 className="text-base font-bold text-white mb-2">

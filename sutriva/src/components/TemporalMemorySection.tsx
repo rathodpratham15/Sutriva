@@ -34,7 +34,7 @@ export const TemporalMemorySection: React.FC = () => {
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-emerald-400 mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-brand-400 mb-4">
             <Clock className="w-3.5 h-3.5" />
             <span>Foundational Concept</span>
           </div>
@@ -67,18 +67,18 @@ export const TemporalMemorySection: React.FC = () => {
                   key={ev.id}
                   className={`p-4 rounded-xl border transition-all flex flex-col justify-between font-mono ${
                     isHighlighted
-                      ? isFail 
-                        ? 'bg-red-950/40 border-red-500/80 shadow-lg shadow-red-950/30' 
-                        : isCur 
-                          ? 'bg-cyan-950/40 border-cyan-500/80 shadow-lg shadow-cyan-950/30'
-                          : 'bg-emerald-950/40 border-emerald-500/80 shadow-lg shadow-emerald-950/30'
+                      ? isFail
+                        ? 'bg-failure-950/40 border-failure-500/80 shadow-lg shadow-failure-950/30'
+                        : isCur
+                          ? 'bg-brand-950/40 border-brand-500/80 shadow-lg shadow-brand-950/30'
+                          : 'bg-history-950/40 border-history-500/80 shadow-lg shadow-history-950/30'
                       : 'bg-zinc-900/30 border-zinc-800/80 opacity-50'
                   }`}
                 >
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <span className={`text-xs font-bold ${
-                        isFail ? 'text-red-400' : isCur ? 'text-cyan-400' : 'text-emerald-400'
+                        isFail ? 'text-failure-400' : isCur ? 'text-brand-400' : 'text-history-400'
                       }`}>
                         {ev.name}
                       </span>
@@ -90,8 +90,8 @@ export const TemporalMemorySection: React.FC = () => {
                   </div>
 
                   <div className="mt-3 pt-2 border-t border-zinc-800/60 text-[10px]">
-                    {isFail && <span className="text-red-400 font-bold uppercase">Root Failure</span>}
-                    {isCur && <span className="text-cyan-400 font-bold uppercase">Resting State</span>}
+                    {isFail && <span className="text-failure-400 font-bold uppercase">Root Failure</span>}
+                    {isCur && <span className="text-brand-400 font-bold uppercase">Resting State</span>}
                     {!isFail && !isCur && <span className="text-zinc-400">Recorded</span>}
                   </div>
                 </div>
@@ -110,7 +110,7 @@ export const TemporalMemorySection: React.FC = () => {
               onClick={() => setActiveQueryMode('historical')}
               className={`px-5 py-2.5 rounded-xl font-mono text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
                 activeQueryMode === 'historical'
-                  ? 'bg-emerald-400 text-zinc-950 shadow-lg shadow-emerald-500/20'
+                  ? 'bg-history-400 text-zinc-950 shadow-lg shadow-history-500/20'
                   : 'bg-zinc-900 text-zinc-400 hover:text-zinc-200 border border-zinc-800'
               }`}
             >
@@ -123,7 +123,7 @@ export const TemporalMemorySection: React.FC = () => {
               onClick={() => setActiveQueryMode('current')}
               className={`px-5 py-2.5 rounded-xl font-mono text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
                 activeQueryMode === 'current'
-                  ? 'bg-cyan-400 text-zinc-950 shadow-lg shadow-cyan-500/20'
+                  ? 'bg-brand-400 text-zinc-950 shadow-lg shadow-brand-500/20'
                   : 'bg-zinc-900 text-zinc-400 hover:text-zinc-200 border border-zinc-800'
               }`}
             >
@@ -135,23 +135,23 @@ export const TemporalMemorySection: React.FC = () => {
           {/* Query Response Display */}
           {activeQueryMode === 'historical' ? (
             <div className="space-y-4 font-mono text-xs animate-fadeIn">
-              <div className="p-4 rounded-xl bg-emerald-950/30 border border-emerald-500/50 space-y-3">
-                <div className="flex items-center justify-between text-emerald-300 font-bold">
+              <div className="p-4 rounded-xl bg-history-950/30 border border-history-500/50 space-y-3">
+                <div className="flex items-center justify-between text-history-300 font-bold">
                   <span>Sutriva Temporal Memory Result:</span>
-                  <span className="text-[11px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">
+                  <span className="text-[11px] px-2 py-0.5 rounded bg-history-950 text-history-400 border border-history-800">
                     Slices Retrieved: Event B + Failure Context
                   </span>
                 </div>
 
                 <div className="space-y-2">
                   <div className="p-2.5 rounded bg-zinc-950 border border-zinc-800 text-zinc-300">
-                    <span className="text-emerald-400 font-semibold">[00:04.12 - Event B]:</span> User clicked "Place order". POST /api/checkout dispatched.
+                    <span className="text-history-400 font-semibold">[00:04.12 - Event B]:</span> User clicked "Place order". POST /api/checkout dispatched.
                   </div>
-                  <div className="p-2.5 rounded bg-red-950/60 border border-red-800/80 text-red-200">
-                    <span className="text-red-400 font-bold">[00:14.91 - Failure Event]:</span> Uncaught TypeError: Cannot read properties of undefined (reading 'toString') in app/checkout/page.tsx:15 — the API response has no `orderId` field.
+                  <div className="p-2.5 rounded bg-failure-950/60 border border-failure-800/80 text-failure-200">
+                    <span className="text-failure-400 font-bold">[00:14.91 - Failure Event]:</span> Uncaught TypeError: Cannot read properties of undefined (reading 'toString') in app/checkout/page.tsx:15 — the API response has no `orderId` field.
                   </div>
                   <div className="p-2.5 rounded bg-zinc-950 border border-zinc-800 text-zinc-300">
-                    <span className="text-amber-400 font-semibold">[00:15.32 - Event C]:</span> Click handler threw before setStatus("done") ran — button stuck on "Processing...".
+                    <span className="text-history-400 font-semibold">[00:15.32 - Event C]:</span> Click handler threw before setStatus("done") ran — button stuck on "Processing...".
                   </div>
                 </div>
 
@@ -162,19 +162,19 @@ export const TemporalMemorySection: React.FC = () => {
             </div>
           ) : (
             <div className="space-y-4 font-mono text-xs animate-fadeIn">
-              <div className="p-4 rounded-xl bg-cyan-950/30 border border-cyan-500/50 space-y-3">
-                <div className="flex items-center justify-between text-cyan-300 font-bold">
+              <div className="p-4 rounded-xl bg-brand-950/30 border border-brand-500/50 space-y-3">
+                <div className="flex items-center justify-between text-brand-300 font-bold">
                   <span>Observation Alone Result:</span>
-                  <span className="text-[11px] px-2 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800">
+                  <span className="text-[11px] px-2 py-0.5 rounded bg-brand-950 text-brand-400 border border-brand-800">
                     Single Snapshot: Event E
                   </span>
                 </div>
 
                 <div className="p-3 rounded bg-zinc-950 border border-zinc-800 text-zinc-300">
-                  <span className="text-cyan-400 font-semibold">[00:19.41 - Event E]:</span> Browser resting state is still on /checkout. Button shows "Processing...". No errors in the current console buffer.
+                  <span className="text-brand-400 font-semibold">[00:19.41 - Event E]:</span> Browser resting state is still on /checkout. Button shows "Processing...". No errors in the current console buffer.
                 </div>
 
-                <div className="p-3 rounded bg-amber-950/40 border border-amber-900/60 text-amber-200 font-sans text-xs">
+                <div className="p-3 rounded bg-history-950/40 border border-history-900/60 text-history-200 font-sans text-xs">
                   <strong>Outcome:</strong> Agent cannot determine why checkout is stuck because the console error (Event Fail) already scrolled off and the current console buffer shows nothing.
                 </div>
               </div>
@@ -189,7 +189,7 @@ export const TemporalMemorySection: React.FC = () => {
             <span className="text-xs font-mono text-zinc-400 uppercase tracking-widest block mb-1">
               Core Axiom
             </span>
-            <div className="text-xl sm:text-2xl font-mono font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">
+            <div className="text-xl sm:text-2xl font-mono font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-history-400 to-brand-400">
               HISTORICAL CONTEXT ≠ CURRENT STATE
             </div>
           </div>
