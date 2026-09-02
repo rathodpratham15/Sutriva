@@ -68,8 +68,8 @@ export const LiveDebuggingSection: React.FC = () => {
         
         {/* Section Header */}
         <div className="max-w-3xl mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-emerald-400 mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-brand-400 mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-400" />
             <span>Interactive Workflow</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-mono font-bold tracking-tight text-white mb-6">
@@ -98,15 +98,15 @@ export const LiveDebuggingSection: React.FC = () => {
                 >
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center font-mono text-xs font-bold transition-all ${
                     isActive 
-                      ? 'bg-emerald-400 text-zinc-950 ring-4 ring-emerald-500/20 scale-110' 
+                      ? 'bg-brand-400 text-zinc-950 ring-4 ring-brand-500/20 scale-110' 
                       : isPast 
-                        ? 'bg-emerald-950 text-emerald-400 border border-emerald-700' 
+                        ? 'bg-brand-950 text-brand-400 border border-brand-700' 
                         : 'bg-zinc-900 text-zinc-400 border border-zinc-700 group-hover:border-zinc-500'
                   }`}>
                     {isPast ? <Check className="w-3.5 h-3.5" /> : idx + 1}
                   </div>
                   <span className={`mt-2 font-mono text-xs font-medium ${
-                    isActive ? 'text-emerald-400' : 'text-zinc-400 group-hover:text-zinc-300'
+                    isActive ? 'text-brand-400' : 'text-zinc-400 group-hover:text-zinc-300'
                   }`}>
                     {step.name}
                   </span>
@@ -123,7 +123,7 @@ export const LiveDebuggingSection: React.FC = () => {
           <div className="lg:col-span-6 rounded-2xl bg-[#0c0e14] border border-zinc-800 p-6 space-y-4 shadow-xl">
             <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
               <span className="font-mono text-xs text-zinc-400 font-semibold uppercase tracking-wider flex items-center gap-2">
-                <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
+                <MessageSquare className="w-3.5 h-3.5 text-brand-400" />
                 Live Agent Interaction
               </span>
               <span className="text-[11px] font-mono text-zinc-400">Step {activeStep + 1} of 7</span>
@@ -138,7 +138,7 @@ export const LiveDebuggingSection: React.FC = () => {
                   <User className="w-3 h-3 text-zinc-300" />
                   <span className="text-zinc-300 font-semibold">Developer</span>
                 </div>
-                <p className="text-emerald-300 font-semibold text-xs">
+                <p className="text-brand-300 font-semibold text-xs">
                   "Follow me while I reproduce this."
                 </p>
                 <div className="text-[11px] text-zinc-400 font-sans">
@@ -147,7 +147,7 @@ export const LiveDebuggingSection: React.FC = () => {
               </div>
 
               {/* Message 2: Bug occurs */}
-              <div className="p-2.5 rounded-lg bg-red-950/30 border border-red-900/40 text-red-300 text-[11px]">
+              <div className="p-2.5 rounded-lg bg-failure-950/30 border border-failure-900/40 text-failure-300 text-[11px]">
                 <span className="font-bold">⚡ Bug occurs:</span> Button stays stuck on "Processing..." — no confirmation ever appears.
               </div>
 
@@ -157,19 +157,19 @@ export const LiveDebuggingSection: React.FC = () => {
                   <User className="w-3 h-3 text-zinc-300" />
                   <span className="text-zinc-300 font-semibold">Developer</span>
                 </div>
-                <p className="text-cyan-300 font-semibold text-xs">
+                <p className="text-history-300 font-semibold text-xs">
                   "What happened?"
                 </p>
               </div>
 
               {/* Message 4: Agent with Sutriva */}
-              <div className="p-3.5 rounded-lg bg-emerald-950/30 border border-emerald-800/50 space-y-2">
-                <div className="flex items-center gap-1.5 text-emerald-400 text-[11px]">
-                  <Bot className="w-3 h-3 text-emerald-300" />
-                  <span className="text-emerald-300 font-semibold">Coding Agent (via Sutriva MCP)</span>
+              <div className="p-3.5 rounded-lg bg-brand-950/30 border border-brand-800/50 space-y-2">
+                <div className="flex items-center gap-1.5 text-brand-400 text-[11px]">
+                  <Bot className="w-3 h-3 text-brand-300" />
+                  <span className="text-brand-300 font-semibold">Coding Agent (via Sutriva MCP)</span>
                 </div>
                 <p className="text-zinc-200 text-xs font-sans leading-relaxed">
-                  "The checkout request returned 200, but the frontend crashed reading <code className="text-amber-300 font-mono">data.orderId</code> — the API response doesn't include that field, it returns <code className="text-amber-300 font-mono">id</code> instead. A response schema mismatch in <code className="text-amber-300 font-mono">app/checkout/page.tsx:15</code>."
+                  "The checkout request returned 200, but the frontend crashed reading <code className="text-history-300 font-mono">data.orderId</code> — the API response doesn't include that field, it returns <code className="text-history-300 font-mono">id</code> instead. A response schema mismatch in <code className="text-history-300 font-mono">app/checkout/page.tsx:15</code>."
                 </p>
               </div>
 
@@ -179,7 +179,7 @@ export const LiveDebuggingSection: React.FC = () => {
                   <User className="w-3 h-3 text-zinc-300" />
                   <span className="text-zinc-300 font-semibold">Developer</span>
                 </div>
-                <p className="text-emerald-300 font-semibold text-xs">
+                <p className="text-brand-300 font-semibold text-xs">
                   "Fix it."
                 </p>
               </div>
@@ -195,7 +195,7 @@ export const LiveDebuggingSection: React.FC = () => {
               </button>
               <button
                 onClick={() => setActiveStep((prev) => (prev + 1) % loopSteps.length)}
-                className="px-3 py-1.5 rounded bg-emerald-400 hover:bg-emerald-300 text-zinc-950 font-mono text-xs font-semibold"
+                className="px-3 py-1.5 rounded bg-brand-400 hover:bg-brand-300 text-zinc-950 font-mono text-xs font-semibold"
               >
                 Next Step →
               </button>
@@ -208,10 +208,10 @@ export const LiveDebuggingSection: React.FC = () => {
               <div>
                 <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider block">Phase Details</span>
                 <h3 className="font-mono text-base font-bold text-white">
-                  {loopSteps[activeStep].name} — <span className="text-emerald-400">{loopSteps[activeStep].actor}</span>
+                  {loopSteps[activeStep].name} — <span className="text-brand-400">{loopSteps[activeStep].actor}</span>
                 </h3>
               </div>
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+              <span className="w-2.5 h-2.5 rounded-full bg-brand-400" />
             </div>
 
             <p className="text-xs text-zinc-300 font-sans leading-relaxed">
@@ -220,7 +220,7 @@ export const LiveDebuggingSection: React.FC = () => {
 
             <div className="p-4 rounded-xl bg-zinc-900/90 border border-zinc-800 font-mono text-xs space-y-2">
               <div className="text-zinc-500 text-[11px]">// Telemetry Action</div>
-              <div className="text-emerald-300 font-medium">
+              <div className="text-brand-300 font-medium">
                 {loopSteps[activeStep].prompt}
               </div>
               <div className="pt-2 border-t border-zinc-800 text-zinc-400 text-[11px] space-y-1">
@@ -231,7 +231,7 @@ export const LiveDebuggingSection: React.FC = () => {
             </div>
 
             <div className="p-3.5 rounded-xl bg-zinc-900/40 border border-zinc-800/80 text-xs text-zinc-400 font-mono">
-              <span className="text-emerald-400 font-bold">Closed-Loop Flow:</span> observe → retrieve → diagnose → patch → test → reproduce → verify.
+              <span className="text-brand-400 font-bold">Closed-Loop Flow:</span> observe → retrieve → diagnose → patch → test → reproduce → verify.
             </div>
           </div>
 

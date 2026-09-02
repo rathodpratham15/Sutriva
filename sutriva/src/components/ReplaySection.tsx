@@ -30,7 +30,7 @@ export const ReplaySection: React.FC = () => {
         
         {/* Section Header */}
         <div className="max-w-3xl mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-cyan-400 mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-brand-400 mb-4">
             <Video className="w-3.5 h-3.5" />
             <span>Post-Mortem & Video Ingestion</span>
           </div>
@@ -45,10 +45,10 @@ export const ReplaySection: React.FC = () => {
         {/* CLI Command Bar */}
         <div className="mb-12 p-4 rounded-xl bg-zinc-950 border border-zinc-800 font-mono text-xs sm:text-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <span className="text-emerald-400 select-none">$</span>
+            <span className="text-brand-400 select-none">$</span>
             <span className="text-zinc-200">sutriva inspect bug.mp4</span>
           </div>
-          <span className="text-xs px-2.5 py-1 rounded bg-zinc-900 text-cyan-400 border border-zinc-800 font-mono">
+          <span className="text-xs px-2.5 py-1 rounded bg-zinc-900 text-history-400 border border-zinc-800 font-mono">
             &gt; "Run it back to the failure."
           </span>
         </div>
@@ -79,14 +79,14 @@ export const ReplaySection: React.FC = () => {
               <span className="text-xs font-mono text-zinc-400 uppercase tracking-wider block">Video Replay Explorer</span>
               <h3 className="text-xl font-mono font-bold text-white flex items-center gap-2">
                 <span>checkout-bug.mp4</span>
-                <span className="text-xs font-normal text-emerald-400 font-mono bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/60">
+                <span className="text-xs font-normal text-brand-400 font-mono bg-brand-950/60 px-2 py-0.5 rounded border border-brand-800/60">
                   Indexed (24 sampled frames)
                 </span>
               </h3>
             </div>
 
             <div className="flex items-center gap-3 font-mono text-xs text-zinc-300">
-              <span>Timestamp: <strong className="text-emerald-400 font-bold">{scrubberSec.toFixed(2)}s</strong> / 24.50s</span>
+              <span>Timestamp: <strong className="text-brand-400 font-bold">{scrubberSec.toFixed(2)}s</strong> / 24.50s</span>
             </div>
           </div>
 
@@ -99,7 +99,7 @@ export const ReplaySection: React.FC = () => {
               step="0.1"
               value={scrubberSec}
               onChange={(e) => setScrubberSec(parseFloat(e.target.value))}
-              className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-emerald-400"
+              className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-brand-400"
             />
 
             {/* Timeline Tick Markers */}
@@ -108,8 +108,8 @@ export const ReplaySection: React.FC = () => {
                 <button
                   key={i}
                   onClick={() => setScrubberSec(pt.sec)}
-                  className={`hover:text-emerald-400 transition-colors ${
-                    pt.type === 'error' ? 'text-red-400 font-bold' : ''
+                  className={`hover:text-brand-400 transition-colors ${
+                    pt.type === 'error' ? 'text-failure-400 font-bold' : ''
                   }`}
                 >
                   {pt.label}
@@ -125,7 +125,7 @@ export const ReplaySection: React.FC = () => {
             <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-3">
               <div className="flex items-center justify-between text-zinc-400 border-b border-zinc-800/80 pb-2">
                 <span className="flex items-center gap-1.5 text-zinc-300">
-                  <ImageIcon className="w-3.5 h-3.5 text-cyan-400" />
+                  <ImageIcon className="w-3.5 h-3.5 text-info-400" />
                   Keyframe @ {scrubberSec.toFixed(2)}s
                 </span>
                 <span className="text-[10px]">1080p WebM</span>
@@ -134,7 +134,7 @@ export const ReplaySection: React.FC = () => {
               {/* Visual Mock Frame */}
               <div className="h-32 rounded-lg bg-zinc-900 border border-zinc-800 flex flex-col items-center justify-center p-3 text-center relative overflow-hidden">
                 {scrubberSec >= 14.5 && scrubberSec <= 16.0 ? (
-                  <div className="text-red-400 space-y-1">
+                  <div className="text-failure-400 space-y-1">
                     <div className="text-xs font-bold font-mono">⚡ Stuck on "Processing..."</div>
                     <div className="text-[10px] text-zinc-400 font-sans">Confirmation text never appears.</div>
                   </div>
@@ -159,7 +159,7 @@ export const ReplaySection: React.FC = () => {
             <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-3">
               <div className="flex items-center justify-between text-zinc-400 border-b border-zinc-800/80 pb-2">
                 <span className="flex items-center gap-1.5 text-zinc-300">
-                  <Mic className="w-3.5 h-3.5 text-amber-400" />
+                  <Mic className="w-3.5 h-3.5 text-history-400" />
                   Audio Transcript
                 </span>
                 <span className="text-[10px]">ElevenLabs Scribe</span>
@@ -167,8 +167,8 @@ export const ReplaySection: React.FC = () => {
 
               <div className="h-32 rounded-lg bg-zinc-900/60 p-3 overflow-y-auto font-sans text-xs text-zinc-300 leading-relaxed border border-zinc-800">
                 {scrubberSec >= 13.0 && scrubberSec <= 17.0 ? (
-                  <p className="text-amber-200">
-                    <strong className="font-mono text-[10px] text-amber-400">[14.10s]</strong> "Alright, notice what happens when I click Place order... see that? It just stays on Processing."
+                  <p className="text-history-200">
+                    <strong className="font-mono text-[10px] text-history-400">[14.10s]</strong> "Alright, notice what happens when I click Place order... see that? It just stays on Processing."
                   </p>
                 ) : scrubberSec < 13.0 ? (
                   <p className="text-zinc-400">
@@ -189,7 +189,7 @@ export const ReplaySection: React.FC = () => {
             <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-3">
               <div className="flex items-center justify-between text-zinc-400 border-b border-zinc-800/80 pb-2">
                 <span className="flex items-center gap-1.5 text-zinc-300">
-                  <GitBranch className="w-3.5 h-3.5 text-emerald-400" />
+                  <GitBranch className="w-3.5 h-3.5 text-brand-400" />
                   Git Context
                 </span>
                 <span className="text-[10px]">inspect_environment</span>
@@ -197,12 +197,12 @@ export const ReplaySection: React.FC = () => {
 
               <div className="h-32 rounded-lg bg-zinc-900/60 p-3 font-mono text-[11px] text-zinc-300 border border-zinc-800 flex flex-col justify-between">
                 <div className="text-zinc-400">
-                  File: <span className="text-amber-300">app/checkout/page.tsx:15</span>
+                  File: <span className="text-history-300">app/checkout/page.tsx:15</span>
                 </div>
                 <div className="p-1.5 rounded bg-black/60 text-zinc-400 text-[10px]">
                   <code>branch: main, working tree: clean</code>
                 </div>
-                <div className="text-emerald-400 text-[11px]">
+                <div className="text-brand-400 text-[11px]">
                   ✓ Correlated with current Git state
                 </div>
               </div>

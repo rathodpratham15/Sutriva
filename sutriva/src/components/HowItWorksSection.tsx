@@ -116,8 +116,8 @@ export const HowItWorksSection: React.FC = () => {
         
         {/* Section Header */}
         <div className="max-w-3xl mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-emerald-400 mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-brand-400 mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-400" />
             <span>Architecture & Pipeline</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-mono font-bold tracking-tight text-white mb-6">
@@ -126,6 +126,19 @@ export const HowItWorksSection: React.FC = () => {
           <p className="text-base sm:text-lg text-zinc-400 leading-relaxed">
             From raw video captures and live browser telemetry to normalized, queryable evidence delivered directly into your coding agent’s context window.
           </p>
+        </div>
+
+        {/* At-a-glance pipeline: the 5-word version of the 6 detailed steps
+            below, so the shape of the system reads before the detail does. */}
+        <div className="mb-10 flex flex-wrap items-center gap-2 font-mono text-xs text-zinc-400">
+          {['Capture', 'Index', 'Correlate', 'Query', 'Verify'].map((step, idx, arr) => (
+            <React.Fragment key={step}>
+              <span className="px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-300">
+                {step}
+              </span>
+              {idx < arr.length - 1 && <span className="text-zinc-700">→</span>}
+            </React.Fragment>
+          ))}
         </div>
 
         {/* Inputs & Outputs Top Bar */}
@@ -145,7 +158,7 @@ export const HowItWorksSection: React.FC = () => {
                       key={idx} 
                       className="p-2.5 rounded-lg bg-zinc-950/80 border border-zinc-800/80 flex items-center gap-2 text-xs font-mono text-zinc-300"
                     >
-                      <Icon className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                      <Icon className="w-3.5 h-3.5 text-brand-400 flex-shrink-0" />
                       <span className="truncate">{inp.name}</span>
                     </div>
                   );
@@ -154,14 +167,14 @@ export const HowItWorksSection: React.FC = () => {
             </div>
 
             {/* Output Box */}
-            <div className="lg:col-span-4 p-4 rounded-xl bg-emerald-950/20 border border-emerald-500/40 font-mono text-xs">
-              <span className="text-emerald-400 font-bold uppercase tracking-wider block mb-1">
+            <div className="lg:col-span-4 p-4 rounded-xl bg-brand-950/20 border border-brand-500/40 font-mono text-xs">
+              <span className="text-brand-400 font-bold uppercase tracking-wider block mb-1">
                 Deterministic Output
               </span>
               <p className="text-zinc-300 font-sans text-xs mb-3">
                 Timestamped, queryable evidence structured for minimal token consumption.
               </p>
-              <div className="p-2 rounded bg-zinc-950 border border-emerald-900/60 text-emerald-300 text-[11px]">
+              <div className="p-2 rounded bg-zinc-950 border border-brand-900/60 text-brand-300 text-[11px]">
                 <code>&gt; evidence_model.query(slice_window)</code>
               </div>
             </div>
@@ -181,7 +194,7 @@ export const HowItWorksSection: React.FC = () => {
                 onClick={() => setActiveStep(index)}
                 className={`p-6 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
                   isActive 
-                    ? 'bg-zinc-900 border-emerald-500/80 shadow-lg shadow-emerald-500/5' 
+                    ? 'bg-zinc-900 border-brand-500/80 shadow-lg shadow-brand-500/5' 
                     : 'bg-zinc-900/40 border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/70'
                 }`}
               >
@@ -189,7 +202,7 @@ export const HowItWorksSection: React.FC = () => {
                   <div className="flex items-center justify-between mb-4">
                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center border ${
                       isActive 
-                        ? 'bg-emerald-950 text-emerald-400 border-emerald-700' 
+                        ? 'bg-brand-950 text-brand-400 border-brand-700' 
                         : 'bg-zinc-800 text-zinc-400 border-zinc-700'
                     }`}>
                       <Icon className="w-5 h-5" />
@@ -202,7 +215,7 @@ export const HowItWorksSection: React.FC = () => {
                   <h3 className="font-mono text-base font-bold text-white mb-1">
                     {step.title}
                   </h3>
-                  <div className="font-mono text-xs text-emerald-400 mb-3">
+                  <div className="font-mono text-xs text-brand-400 mb-3">
                     {step.subtitle}
                   </div>
                   <p className="text-xs text-zinc-400 leading-relaxed mb-4">
@@ -213,7 +226,7 @@ export const HowItWorksSection: React.FC = () => {
                 <div className="pt-3 border-t border-zinc-800/80 space-y-1.5 font-mono text-[11px] text-zinc-400">
                   {step.details.slice(0, 2).map((d, dIdx) => (
                     <div key={dIdx} className="flex items-center gap-1.5">
-                      <span className="text-emerald-400">›</span>
+                      <span className="text-brand-400">›</span>
                       <span className="truncate">{d}</span>
                     </div>
                   ))}
@@ -229,7 +242,7 @@ export const HowItWorksSection: React.FC = () => {
             <div>
               <span className="text-xs font-mono text-zinc-400">Deep Dive Inspector:</span>
               <h4 className="text-lg font-mono font-bold text-white">
-                {pipelineSteps[activeStep].title} — <span className="text-emerald-400">{pipelineSteps[activeStep].subtitle}</span>
+                {pipelineSteps[activeStep].title} — <span className="text-brand-400">{pipelineSteps[activeStep].subtitle}</span>
               </h4>
             </div>
             <div className="flex items-center gap-2">
@@ -243,7 +256,7 @@ export const HowItWorksSection: React.FC = () => {
               <ul className="space-y-2">
                 {pipelineSteps[activeStep].details.map((item, idx) => (
                   <li key={idx} className="flex items-start gap-2 text-zinc-300">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-brand-400 mt-0.5 flex-shrink-0" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -253,7 +266,7 @@ export const HowItWorksSection: React.FC = () => {
             <div className="p-4 rounded-xl bg-zinc-900/90 border border-zinc-800 text-zinc-300 font-mono text-[11px] leading-relaxed">
               <div className="text-zinc-500 mb-2">// In-memory schema representation</div>
               {activeStep === 2 ? (
-                <pre className="text-emerald-300">
+                <pre className="text-brand-300">
 {`interface TemporalEvent {
   id: string;
   sessionId: string;
@@ -265,7 +278,7 @@ export const HowItWorksSection: React.FC = () => {
 }`}
                 </pre>
               ) : activeStep === 3 ? (
-                <pre className="text-cyan-300">
+                <pre className="text-info-300">
 {`-- packages/storage (better-sqlite3)
 SELECT * FROM temporal_events
 WHERE session_id = ? AND description LIKE ?

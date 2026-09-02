@@ -1,5 +1,77 @@
 @import "tailwindcss";
 
+/*
+ * Semantic design tokens. Four meanings, four colors -- nothing else gets a
+ * color assigned to it. Neutral (zinc, Tailwind's built-in scale) stays the
+ * ~85% baseline and is used directly; these four exist so "what does this
+ * color mean" has exactly one answer everywhere in the site.
+ *
+ *   brand   (teal/emerald) -- Sutriva itself / now / verified / success
+ *   history (amber)        -- historical evidence / investigation / replay position
+ *   failure (red)          -- failure / error / broken
+ *   info    (cyan)         -- informational technical metadata only
+ */
+@theme {
+  /* brand (teal/emerald) -- full scale aliased 1:1 to Tailwind's own
+     emerald palette, so every shade already used across the site (300
+     through 950) keeps resolving -- only the semantic name changes. */
+  --color-brand-50: #ecfdf5;
+  --color-brand-100: #d1fae5;
+  --color-brand-200: #a7f3d0;
+  --color-brand-300: #6ee7b7;
+  --color-brand-400: #34d399;
+  --color-brand-500: #10b981;
+  --color-brand-600: #059669;
+  --color-brand-700: #047857;
+  --color-brand-800: #065f46;
+  --color-brand-900: #064e3b;
+  --color-brand-950: #022c22;
+
+  /* history (amber) -- aliased to Tailwind's amber palette. */
+  --color-history-50: #fffbeb;
+  --color-history-100: #fef3c7;
+  --color-history-200: #fde68a;
+  --color-history-300: #fcd34d;
+  --color-history-400: #fbbf24;
+  --color-history-500: #f59e0b;
+  --color-history-600: #d97706;
+  --color-history-700: #b45309;
+  --color-history-800: #92400e;
+  --color-history-900: #78350f;
+  --color-history-950: #451a03;
+
+  /* failure (red) -- aliased to Tailwind's red palette. */
+  --color-failure-50: #fef2f2;
+  --color-failure-100: #fee2e2;
+  --color-failure-200: #fecaca;
+  --color-failure-300: #fca5a5;
+  --color-failure-400: #f87171;
+  --color-failure-500: #ef4444;
+  --color-failure-600: #dc2626;
+  --color-failure-700: #b91c1c;
+  --color-failure-800: #991b1b;
+  --color-failure-900: #7f1d1d;
+  --color-failure-950: #450a0a;
+
+  /* info (cyan) -- aliased to Tailwind's cyan palette. Technical metadata
+     only -- never used to mean "now"/"verified" (that's brand). */
+  --color-info-50: #ecfeff;
+  --color-info-100: #cffafe;
+  --color-info-200: #a5f3fc;
+  --color-info-300: #67e8f9;
+  --color-info-400: #22d3ee;
+  --color-info-500: #06b6d4;
+  --color-info-600: #0891b2;
+  --color-info-700: #0e7490;
+  --color-info-800: #155e75;
+  --color-info-900: #164e63;
+  --color-info-950: #083344;
+
+  /* Neutral surfaces -- one extra step (surface-hover) that didn't exist
+     before (see the zinc-850 fix below), everything else is plain zinc. */
+  --color-surface-hover: #17181f;
+}
+
 @layer base {
   :root {
     --font-mono: 'JetBrains Mono', monospace;
@@ -15,6 +87,11 @@
   code, pre, kbd, samp {
     font-family: var(--font-mono);
   }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand-400);
+    outline-offset: 2px;
+  }
 }
 
 .font-mono {
@@ -25,20 +102,33 @@
   font-family: var(--font-sans);
 }
 
-/* Developer grid and dot background patterns */
+/* Developer grid and dot background patterns -- kept intentionally low
+   contrast (rgba alpha, not a visible line color) so they read as a
+   technical coordinate system, not a decorative pattern. */
 .bg-grid-pattern {
   background-size: 32px 32px;
-  background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
 }
 
 .bg-dot-pattern {
   background-size: 24px 24px;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
 }
 
-/* Subtle glow gradients */
+/* A thinner, quieter grid strip specifically for the band directly under
+   the navbar -- fades out top/bottom so it never competes with content. */
+.bg-grid-strip {
+  background-size: 40px 40px;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  mask-image: linear-gradient(to bottom, transparent, black 40%, black 60%, transparent);
+}
+
+/* Subtle glow gradients -- radial, low-opacity, used sparingly (one per
+   section at most) as ambience, never as a card-filling effect. */
 .glow-emerald {
   background: radial-gradient(circle at center, rgba(16, 185, 129, 0.12) 0%, rgba(16, 185, 129, 0) 70%);
 }
@@ -49,6 +139,18 @@
 
 .glow-amber {
   background: radial-gradient(circle at center, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0) 70%);
+}
+
+/* Fade-in for content that appears after user interaction (a selected
+   timeline event, a revealed panel) -- was referenced as animate-fadeIn in
+   several components but never actually defined, so it did nothing. */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.25s ease-out;
 }
 
 /* Custom subtle scrollbar */

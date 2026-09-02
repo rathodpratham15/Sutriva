@@ -15,7 +15,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           {/* Brand Col */}
           <div className="md:col-span-2 space-y-4">
             <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center text-emerald-400">
+              <div className="w-7 h-7 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center text-brand-400">
                 <Clock className="w-4 h-4" />
               </div>
               <span className="font-bold text-white text-base tracking-tight">SUTRIVA</span>
@@ -37,7 +37,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <li>
                 <button 
                   onClick={() => onNavigate('/docs')} 
-                  className="text-zinc-400 hover:text-emerald-400 transition-colors"
+                  className="text-zinc-400 hover:text-brand-400 transition-colors"
                 >
                   Overview
                 </button>
@@ -45,7 +45,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <li>
                 <button 
                   onClick={() => onNavigate('/docs/quickstart')} 
-                  className="text-zinc-400 hover:text-emerald-400 transition-colors"
+                  className="text-zinc-400 hover:text-brand-400 transition-colors"
                 >
                   Quickstart
                 </button>
@@ -53,7 +53,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <li>
                 <button 
                   onClick={() => onNavigate('/docs/claude-code')} 
-                  className="text-zinc-400 hover:text-emerald-400 transition-colors"
+                  className="text-zinc-400 hover:text-brand-400 transition-colors"
                 >
                   Claude Code Setup
                 </button>
@@ -61,7 +61,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <li>
                 <button 
                   onClick={() => onNavigate('/docs/mcp')} 
-                  className="text-zinc-400 hover:text-emerald-400 transition-colors"
+                  className="text-zinc-400 hover:text-brand-400 transition-colors"
                 >
                   MCP Tool Schemas
                 </button>
@@ -69,7 +69,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <li>
                 <button 
                   onClick={() => onNavigate('/docs/architecture')} 
-                  className="text-zinc-400 hover:text-emerald-400 transition-colors"
+                  className="text-zinc-400 hover:text-brand-400 transition-colors"
                 >
                   Architecture & Pipeline
                 </button>
@@ -77,7 +77,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <li>
                 <button 
                   onClick={() => onNavigate('/docs/evaluation')} 
-                  className="text-zinc-400 hover:text-emerald-400 transition-colors"
+                  className="text-zinc-400 hover:text-brand-400 transition-colors"
                 >
                   Evaluation & 3/3 Tests
                 </button>
@@ -96,7 +96,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   href="https://github.com/rathodpratham15/Sutriva" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-zinc-400 hover:text-emerald-400 transition-colors flex items-center gap-1.5"
+                  className="text-zinc-400 hover:text-brand-400 transition-colors flex items-center gap-1.5"
                 >
                   <Github className="w-3.5 h-3.5" />
                   <span>GitHub Repository</span>
@@ -108,7 +108,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   href="https://sutriva.pratham.click" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-zinc-400 hover:text-emerald-400 transition-colors flex items-center gap-1.5"
+                  className="text-zinc-400 hover:text-brand-400 transition-colors flex items-center gap-1.5"
                 >
                   <span>Official Website</span>
                   <ExternalLink className="w-2.5 h-2.5 text-zinc-400" />
@@ -117,18 +117,18 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <li>
                 <button 
                   onClick={() => onNavigate('/docs/privacy')} 
-                  className="text-zinc-400 hover:text-emerald-400 transition-colors flex items-center gap-1.5"
+                  className="text-zinc-400 hover:text-brand-400 transition-colors flex items-center gap-1.5"
                 >
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                  <ShieldCheck className="w-3.5 h-3.5 text-brand-400" />
                   <span>Privacy & Local-First</span>
                 </button>
               </li>
               <li>
                 <button 
                   onClick={() => onNavigate('/docs/limitations')} 
-                  className="text-zinc-400 hover:text-amber-400 transition-colors flex items-center gap-1.5"
+                  className="text-zinc-400 hover:text-history-400 transition-colors flex items-center gap-1.5"
                 >
-                  <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                  <AlertTriangle className="w-3.5 h-3.5 text-history-400" />
                   <span>Limitations</span>
                 </button>
               </li>

@@ -52,7 +52,7 @@ export const McpSection: React.FC<McpSectionProps> = ({ onNavigate }) => {
         
         {/* Section Header */}
         <div className="max-w-3xl mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-cyan-400 mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-info-400 mb-4">
             <Network className="w-3.5 h-3.5" />
             <span>Open Protocol Standard</span>
           </div>
@@ -67,7 +67,7 @@ export const McpSection: React.FC<McpSectionProps> = ({ onNavigate }) => {
         {/* Package Installation Command Card */}
         <div className="mb-12 p-4 rounded-xl bg-zinc-950 border border-zinc-800 font-mono text-xs sm:text-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl">
           <div className="flex items-center gap-3">
-            <span className="text-emerald-400 select-none">$</span>
+            <span className="text-brand-400 select-none">$</span>
             <span className="text-zinc-200">{mcpInstallCmd}</span>
           </div>
           <div className="flex items-center gap-3">
@@ -76,13 +76,13 @@ export const McpSection: React.FC<McpSectionProps> = ({ onNavigate }) => {
               onClick={copyMcpInstall}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white transition-colors text-xs"
             >
-              {copiedInstall ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+              {copiedInstall ? <Check className="w-3.5 h-3.5 text-brand-400" /> : <Copy className="w-3.5 h-3.5" />}
               <span>{copiedInstall ? 'Copied' : 'Copy'}</span>
             </button>
             <button
               id="btn-view-mcp-setup"
               onClick={() => onNavigate('/docs/mcp')}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-400 hover:bg-emerald-300 text-zinc-950 font-semibold transition-colors text-xs"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-400 hover:bg-brand-300 text-zinc-950 font-semibold transition-colors text-xs"
             >
               <span>View MCP setup</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -101,7 +101,7 @@ export const McpSection: React.FC<McpSectionProps> = ({ onNavigate }) => {
                 key={idx}
                 className="px-3 py-1.5 rounded-lg bg-zinc-900/80 border border-zinc-800 text-xs font-mono text-zinc-300 flex items-center gap-2"
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                <span className="w-1.5 h-1.5 rounded-full bg-brand-400" />
                 <span>{cap}</span>
               </span>
             ))}
@@ -124,12 +124,12 @@ export const McpSection: React.FC<McpSectionProps> = ({ onNavigate }) => {
                   onClick={() => setSelectedToolIndex(idx)}
                   className={`w-full text-left px-3 py-2.5 rounded-lg transition-all flex items-center justify-between ${
                     isSelected
-                      ? 'bg-zinc-800 text-emerald-300 border border-emerald-500/40 font-semibold'
+                      ? 'bg-zinc-800 text-brand-300 border border-brand-500/40 font-semibold'
                       : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'
                   }`}
                 >
                   <span className="truncate">{tool.name}</span>
-                  {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
+                  {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-brand-400" />}
                 </button>
               );
             })}
@@ -171,11 +171,11 @@ export const McpSection: React.FC<McpSectionProps> = ({ onNavigate }) => {
                   <tbody className="divide-y divide-zinc-800/60 text-zinc-300">
                     {selectedTool.parameters.map((p, pIdx) => (
                       <tr key={pIdx}>
-                        <td className="p-2.5 text-emerald-400 font-semibold">{p.name}</td>
-                        <td className="p-2.5 text-cyan-300">{p.type}</td>
+                        <td className="p-2.5 text-brand-400 font-semibold">{p.name}</td>
+                        <td className="p-2.5 text-info-300">{p.type}</td>
                         <td className="p-2.5">
                           {p.required ? (
-                            <span className="text-amber-400 font-bold">yes</span>
+                            <span className="text-history-400 font-bold">yes</span>
                           ) : (
                             <span className="text-zinc-500">no</span>
                           )}
@@ -192,7 +192,7 @@ export const McpSection: React.FC<McpSectionProps> = ({ onNavigate }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
               <div>
                 <span className="text-zinc-500 text-[10px] block mb-1">Example Tool Call:</span>
-                <div className="p-2.5 rounded bg-zinc-900 border border-zinc-800 text-emerald-300 text-[11px] overflow-x-auto">
+                <div className="p-2.5 rounded bg-zinc-900 border border-zinc-800 text-brand-300 text-[11px] overflow-x-auto">
                   <code>{selectedTool.exampleCall}</code>
                 </div>
               </div>

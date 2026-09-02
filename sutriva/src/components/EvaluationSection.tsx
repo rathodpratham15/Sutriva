@@ -45,7 +45,7 @@ export const EvaluationSection: React.FC = () => {
         
         {/* Section Header */}
         <div className="max-w-3xl mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-emerald-400 mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-brand-400 mb-4">
             <FlaskConical className="w-3.5 h-3.5" />
             <span>Verification & Testing</span>
           </div>
@@ -61,7 +61,7 @@ export const EvaluationSection: React.FC = () => {
         <div className="mb-14 grid grid-cols-1 md:grid-cols-2 gap-6">
           
           <div className="p-6 rounded-2xl bg-zinc-900/40 border border-zinc-800 flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-emerald-950/80 border border-emerald-700/60 flex items-center justify-center text-emerald-400 flex-shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-brand-950/80 border border-brand-700/60 flex items-center justify-center text-brand-400 flex-shrink-0">
               <CheckCircle2 className="w-6 h-6" />
             </div>
             <div>
@@ -74,7 +74,7 @@ export const EvaluationSection: React.FC = () => {
           </div>
 
           <div className="p-6 rounded-2xl bg-zinc-900/40 border border-zinc-800 flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-cyan-950/80 border border-cyan-700/60 flex items-center justify-center text-cyan-400 flex-shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-brand-950/80 border border-brand-700/60 flex items-center justify-center text-brand-400 flex-shrink-0">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
@@ -104,7 +104,7 @@ export const EvaluationSection: React.FC = () => {
               const Icon = sub.icon;
               return (
                 <div key={i} className="p-3 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center gap-2 text-zinc-300">
-                  <Icon className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                  <Icon className="w-4 h-4 text-brand-400 flex-shrink-0" />
                   <span className="truncate">{sub.name}</span>
                 </div>
               );
@@ -128,8 +128,8 @@ export const EvaluationSection: React.FC = () => {
                   <h4 className="font-bold text-sm text-white">
                     {demo.title}
                   </h4>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 font-mono text-[11px] self-start sm:self-auto">
-                    <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-brand-950 text-brand-300 border border-brand-800 font-mono text-[11px] self-start sm:self-auto">
+                    <CheckCircle2 className="w-3 h-3 text-brand-400" />
                     {demo.status}
                   </span>
                 </div>
@@ -144,7 +144,7 @@ export const EvaluationSection: React.FC = () => {
                     <p className="text-zinc-300 leading-relaxed">{demo.rootCause}</p>
                   </div>
                   <div>
-                    <span className="font-mono text-[11px] text-emerald-400 uppercase block mb-1">Agent Outcome</span>
+                    <span className="font-mono text-[11px] text-brand-400 uppercase block mb-1">Agent Outcome</span>
                     <p className="text-zinc-300 leading-relaxed">{demo.outcome}</p>
                   </div>
                 </div>
@@ -155,7 +155,7 @@ export const EvaluationSection: React.FC = () => {
 
         {/* Grounding Explanation / Honesty Callout */}
         <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800/80 flex items-start gap-3 max-w-3xl mx-auto text-xs text-zinc-400 font-sans leading-relaxed">
-          <Info className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" />
+          <Info className="w-4 h-4 text-info-400 flex-shrink-0 mt-0.5" />
           <div>
             <strong className="text-zinc-300 font-mono">Evaluation Context:</strong> The "3/3 real demo bugs" metric is a live-verified engineering test suite against three deterministic bugs in one small Next.js demo app (`demo/buggy-app`) — a response schema mismatch, an async race condition, and a pure-CSS visual regression, exercising different evidence types (console, network, and screenshot). It is a qualitative validation of the pipeline, not a claim of statistical significance or benchmark superiority over other tools.
           </div>

@@ -55,7 +55,7 @@ export const DocsLayout: React.FC<DocsLayoutProps> = ({ currentPath, onNavigate 
         <div className="lg:hidden fixed bottom-6 right-6 z-40">
           <button
             onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-            className="flex items-center gap-2 px-4 py-3 rounded-full bg-emerald-400 text-zinc-950 font-mono text-xs font-bold shadow-xl shadow-emerald-500/20"
+            className="flex items-center gap-2 px-4 py-3 rounded-full bg-brand-400 text-zinc-950 font-mono text-xs font-bold shadow-xl shadow-brand-500/20"
           >
             {mobileSidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             <span>{mobileSidebarOpen ? 'Close Menu' : 'Docs Navigation'}</span>
@@ -71,7 +71,7 @@ export const DocsLayout: React.FC<DocsLayoutProps> = ({ currentPath, onNavigate 
           <div className="flex items-center justify-between pb-4 mb-6 border-b border-zinc-800">
             <button
               onClick={() => onNavigate('/')}
-              className="flex items-center gap-2 text-xs font-mono text-zinc-400 hover:text-emerald-400 transition-colors"
+              className="flex items-center gap-2 text-xs font-mono text-zinc-400 hover:text-brand-400 transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back to Overview</span>
@@ -100,12 +100,12 @@ export const DocsLayout: React.FC<DocsLayoutProps> = ({ currentPath, onNavigate 
                             }}
                             className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between ${
                               isActive
-                                ? 'bg-emerald-500/15 text-emerald-300 font-semibold border border-emerald-500/30'
-                                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-850'
+                                ? 'bg-brand-500/15 text-brand-300 font-semibold border border-brand-500/30'
+                                : 'text-zinc-400 hover:text-zinc-200 hover:bg-surface-hover'
                             }`}
                           >
                             <span className="truncate">{doc.title}</span>
-                            {isActive && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />}
+                            {isActive && <span className="w-1.5 h-1.5 rounded-full bg-brand-400 flex-shrink-0" />}
                           </button>
                         </li>
                       );
@@ -134,7 +134,7 @@ export const DocsLayout: React.FC<DocsLayoutProps> = ({ currentPath, onNavigate 
 
           {/* Doc Header */}
           <div className="pb-8 mb-10 border-b border-zinc-800">
-            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-[11px] font-mono text-emerald-400 mb-3">
+            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-[11px] font-mono text-brand-400 mb-3">
               <span>{activeDoc.content.lastUpdated}</span>
             </div>
             <h1 className="text-3xl sm:text-4xl font-mono font-bold tracking-tight text-white mb-4">
@@ -150,7 +150,7 @@ export const DocsLayout: React.FC<DocsLayoutProps> = ({ currentPath, onNavigate 
             {activeDoc.content.sections.map((section) => (
               <div key={section.id} id={section.id} className="space-y-4">
                 <h2 className="text-xl font-mono font-bold text-white flex items-center gap-2">
-                  <span className="text-emerald-400 font-normal">#</span>
+                  <span className="text-brand-400 font-normal">#</span>
                   <span>{section.title}</span>
                 </h2>
 
@@ -164,15 +164,15 @@ export const DocsLayout: React.FC<DocsLayoutProps> = ({ currentPath, onNavigate 
                 {section.callout && (
                   <div className={`p-4 rounded-xl border text-xs font-sans leading-relaxed flex items-start gap-3 my-4 ${
                     section.callout.type === 'warning'
-                      ? 'bg-amber-950/30 border-amber-800/60 text-amber-200'
+                      ? 'bg-history-950/30 border-history-800/60 text-history-200'
                       : section.callout.type === 'tip'
-                        ? 'bg-emerald-950/30 border-emerald-800/60 text-emerald-200'
+                        ? 'bg-brand-950/30 border-brand-800/60 text-brand-200'
                         : 'bg-zinc-900/60 border-zinc-700 text-zinc-300'
                   }`}>
                     {section.callout.type === 'warning' ? (
-                      <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                      <AlertTriangle className="w-4 h-4 text-history-400 flex-shrink-0 mt-0.5" />
                     ) : (
-                      <Info className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                      <Info className="w-4 h-4 text-brand-400 flex-shrink-0 mt-0.5" />
                     )}
                     <div>
                       {section.callout.text}
@@ -190,14 +190,14 @@ export const DocsLayout: React.FC<DocsLayoutProps> = ({ currentPath, onNavigate 
                         className="flex items-center gap-1.5 hover:text-white transition-colors"
                       >
                         {copiedBlockId === section.id ? (
-                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          <Check className="w-3.5 h-3.5 text-brand-400" />
                         ) : (
                           <Copy className="w-3.5 h-3.5" />
                         )}
                         <span>{copiedBlockId === section.id ? 'Copied' : 'Copy'}</span>
                       </button>
                     </div>
-                    <pre className="p-4 font-mono text-xs text-emerald-300/90 overflow-x-auto leading-relaxed">
+                    <pre className="p-4 font-mono text-xs text-brand-300/90 overflow-x-auto leading-relaxed">
                       {section.codeBlock.code}
                     </pre>
                   </div>
@@ -219,7 +219,7 @@ export const DocsLayout: React.FC<DocsLayoutProps> = ({ currentPath, onNavigate 
                     onClick={() => onNavigate(rel.path)}
                     className="p-4 rounded-xl bg-zinc-900/40 hover:bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-left transition-colors font-mono"
                   >
-                    <div className="text-xs font-bold text-emerald-400 mb-1 flex items-center justify-between">
+                    <div className="text-xs font-bold text-brand-400 mb-1 flex items-center justify-between">
                       <span>{rel.title}</span>
                       <span>→</span>
                     </div>
@@ -237,9 +237,9 @@ export const DocsLayout: React.FC<DocsLayoutProps> = ({ currentPath, onNavigate 
             {prevDoc ? (
               <button
                 onClick={() => onNavigate(prevDoc.path)}
-                className="flex items-center gap-2 p-3 rounded-lg bg-zinc-900 hover:bg-zinc-850 text-zinc-300 hover:text-white transition-colors"
+                className="flex items-center gap-2 p-3 rounded-lg bg-zinc-900 hover:bg-surface-hover text-zinc-300 hover:text-white transition-colors"
               >
-                <ArrowLeft className="w-3.5 h-3.5 text-emerald-400" />
+                <ArrowLeft className="w-3.5 h-3.5 text-brand-400" />
                 <div className="text-left">
                   <div className="text-[10px] text-zinc-500 uppercase">Previous</div>
                   <div className="font-bold">{prevDoc.title}</div>
@@ -250,13 +250,13 @@ export const DocsLayout: React.FC<DocsLayoutProps> = ({ currentPath, onNavigate 
             {nextDoc && (
               <button
                 onClick={() => onNavigate(nextDoc.path)}
-                className="flex items-center gap-2 p-3 rounded-lg bg-zinc-900 hover:bg-zinc-850 text-zinc-300 hover:text-white transition-colors"
+                className="flex items-center gap-2 p-3 rounded-lg bg-zinc-900 hover:bg-surface-hover text-zinc-300 hover:text-white transition-colors"
               >
                 <div className="text-right">
                   <div className="text-[10px] text-zinc-500 uppercase">Next</div>
                   <div className="font-bold">{nextDoc.title}</div>
                 </div>
-                <ArrowRight className="w-3.5 h-3.5 text-emerald-400" />
+                <ArrowRight className="w-3.5 h-3.5 text-brand-400" />
               </button>
             )}
           </div>
@@ -273,7 +273,7 @@ export const DocsLayout: React.FC<DocsLayoutProps> = ({ currentPath, onNavigate 
               <li key={s.id}>
                 <a
                   href={`#${s.id}`}
-                  className="hover:text-emerald-400 transition-colors block truncate"
+                  className="hover:text-brand-400 transition-colors block truncate"
                 >
                   {s.title}
                 </a>
