@@ -25,7 +25,7 @@ The MCP Registry only hosts **metadata** (a `server.json` describing the server,
    {
      "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
      "name": "io.github.rathodpratham15/sutriva",
-     "description": "Sutriva gives coding agents temporal memory: ...",
+     "description": "Temporal memory for coding agents: a persistent, queryable record of a debugging session.",
      "title": "Sutriva",
      "websiteUrl": "https://sutriva.pratham.click",
      "repository": { "url": "https://github.com/rathodpratham15/Sutriva", "source": "github" },
@@ -38,11 +38,13 @@ The MCP Registry only hosts **metadata** (a `server.json` describing the server,
      }]
    }
    ```
-   `title` and `websiteUrl` are both optional per the schema (`ServerDetail`) and included for display purposes once a client/subregistry chooses to show them. **`websiteUrl` points to a domain that does not exist yet** (`sutriva.pratham.click` -- planned for a future documentation site, see `docs/website-checklist.md`; the domain has not been purchased). This is safe while the entry is only prepared and not submitted, but **must resolve to a real page before `mcp-publisher publish` is actually run** -- either the real site, or this field should be removed/pointed at the GitHub README instead if the site isn't live yet at registration time.
+   `title` and `websiteUrl` are both optional per the schema (`ServerDetail`) and included for display purposes once a client/subregistry chooses to show them. `websiteUrl` points at the site's real, deployed Vercel URL (`sutriva.pratham.click`) -- deployed and DNS-correct, though it may currently be blocked by some networks' DNS content filters (new/uncommon TLDs like `.click` are frequently auto-flagged), which is not a registration blocker.
+   
+   **Real constraint found via actual `mcp-publisher validate`, not guessed:** the registry enforces `description` <= 100 characters. The original, longer thesis-quote description (~250 chars) failed validation with a 422; the shortened version above passes.
 
-## Status: the npm-side blocker is resolved
+## Status: the npm-side blocker is resolved, server.json is validated
 
-`@sutriva/mcp-server@0.1.1` -- published to npm with `mcpName` included -- is now live. The registry validates the *live npm package*, and `0.1.1` satisfies that check; registering would no longer fail on this ground. **Nothing has been registered yet** -- the remaining steps are still a deliberate, separate action (see the `websiteUrl` caveat below).
+`@sutriva/mcp-server@0.1.1` -- published to npm with `mcpName` included -- is now live. The registry validates the *live npm package*, and `0.1.1` satisfies that check. `mcp-publisher validate` (run against the real registry, `apps/mcp-server/server.json`) confirms `✅ server.json is valid`. **Nothing has been registered yet** -- publishing the entry is still a deliberate, separate action requiring interactive GitHub device-flow login (see below), which only you can complete.
 
 ## Exact commands to actually register (once ready)
 
