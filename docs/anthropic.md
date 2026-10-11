@@ -63,5 +63,6 @@ Full methodology, including what's deliberately *not* automated and why, in `doc
 - Registering with the official MCP Registry (mechanically ready, see `docs/mcp-registry.md`).
 - A causal (not just proximity-based) correlation model, if evidence from real usage justified the added complexity.
 - Whether the "compare two sessions" model generalizes usefully beyond debugging -- e.g. onboarding ("what changed since I was last in this code"), or code review context.
+- A memory-off control: the same agent, same 3 bugs, with Sutriva's tools unavailable, to measure what temporal memory actually changes about the fix rate rather than just the one condition currently measured.
 
 This project is a working exploration of one specific idea, built and verified end to end, not a proposal for what any other system should do.

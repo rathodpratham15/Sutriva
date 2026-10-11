@@ -215,6 +215,18 @@ sutriva debug --live --url http://localhost:4173/checkout
 
 ## Evaluation
 
+**Findings first:** across the 3 seeded bugs in `demo/buggy-app` (a response schema mismatch, an
+async race condition, a pure-CSS visual regression), the agentic harness live-verified a correct
+patch, 100% code-localization, and a correct root-cause hypothesis for all 3/3 -- see the results
+table under [Flagship demo](#flagship-demo-the-closed-loop) for the exact per-bug outcome, and
+`docs/evaluation.md` for the full report. Separately, the deterministic (non-agentic) harness
+measures context efficiency: Sutriva samples 92-96% fewer frames than native fps would require,
+and a single targeted frame retrieval is 96-98.6% smaller than an estimated "send every frame"
+baseline. One thing this evaluation does *not* measure: a memory-off control (the same agent
+solving these bugs without Sutriva's tools, to compare fix rates) -- that comparison doesn't
+currently exist; see `docs/anthropic.md`'s "what I would explore next" section, which lists this
+as a real gap, not a hidden one.
+
 ```bash
 pnpm fixtures:eval:generate   # records a real Playwright repro of each demo bug as an MP4
 pnpm eval                     # or: sutriva eval
