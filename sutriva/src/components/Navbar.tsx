@@ -93,7 +93,11 @@ export const Navbar: React.FC<NavbarProps> = ({
   const renderDropdown = (key: DropdownKey, label: string, links: NavLink[]) => {
     const isOpen = openDropdown === key;
     return (
-      <div className="relative">
+      <div
+        className="relative"
+        onMouseEnter={() => setOpenDropdown(key)}
+        onMouseLeave={() => setOpenDropdown((cur) => (cur === key ? null : cur))}
+      >
         <button
           id={`nav-dropdown-${key}-btn`}
           onClick={() => setOpenDropdown(isOpen ? null : key)}
@@ -109,17 +113,22 @@ export const Navbar: React.FC<NavbarProps> = ({
         </button>
 
         {isOpen && (
-          <div className="absolute left-0 top-full mt-2 w-56 rounded-lg bg-white border border-zinc-200 shadow-xl py-1.5 text-sm">
-            {links.map((link) => (
-              <button
-                key={link.id}
-                id={link.id}
-                onClick={() => scrollToSection(link.section)}
-                className="w-full text-left px-3.5 py-2 text-zinc-700 hover:bg-zinc-50 rounded-md"
-              >
-                {link.label}
-              </button>
-            ))}
+          // pt-2 (not mt-2 on this element) keeps the visual gap inside this
+          // div's own hit-box, so the mouse never crosses an empty pixel row
+          // between the button and the panel and triggers a stray mouseleave.
+          <div className="absolute left-0 top-full w-56 pt-2">
+            <div className="rounded-lg bg-white border border-zinc-200 shadow-xl py-1.5 text-sm">
+              {links.map((link) => (
+                <button
+                  key={link.id}
+                  id={link.id}
+                  onClick={() => scrollToSection(link.section)}
+                  className="w-full text-left px-3.5 py-2 text-zinc-700 hover:bg-zinc-50 rounded-md"
+                >
+                  {link.label}
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </div>
