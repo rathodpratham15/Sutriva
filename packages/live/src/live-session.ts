@@ -92,6 +92,14 @@ export async function startLiveSession(options: StartLiveSessionOptions = {}): P
   let latestScreenshotArtifactId: string | undefined;
 
   async function takeScreenshot(atSeconds: number): Promise<void> {
+    if (page.isClosed()) {
+      // The page/browser closed outside of stop() (e.g. the user closed the
+      // window, or it crashed) -- the interval below stops itself via the
+      // page's "close" event, but a tick can still race in before that
+      // handler runs. Skip silently rather than logging the same failure
+      // every interval until stop() is eventually called.
+      return;
+    }
     try {
       const buffer = await captureScreenshot(page);
       const screenshotPath = path.join(sessionArtifactsDir, `screenshot-${atSeconds.toFixed(3)}.png`);
@@ -166,6 +174,12 @@ export async function startLiveSession(options: StartLiveSessionOptions = {}): P
     () => void takeScreenshot((Date.now() - sessionStartMs) / 1000),
     (options.screenshotIntervalSeconds ?? DEFAULT_SCREENSHOT_INTERVAL_SECONDS) * 1000,
   );
+  // Stop retrying screenshots the moment the page actually closes, instead of
+  // waiting for stop() (which may not be called for a while, or ever, if the
+  // browser was closed manually rather than via Ctrl+C) -- this is what was
+  // producing a repeated "screenshot capture failed" stack trace every
+  // interval until the session was explicitly stopped.
+  page.once("close", () => clearInterval(screenshotInterval));
 
   if (options.url) {
     await page.goto(options.url).catch((err) => {
