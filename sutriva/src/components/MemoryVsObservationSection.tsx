@@ -22,23 +22,19 @@ export const MemoryVsObservationSection: React.FC = () => {
   const currentEvent = events[selectedEventIndex];
 
   return (
-    <section id="memory-vs-observation" className="py-24 bg-[#090a0f] border-b border-zinc-800 relative overflow-hidden">
-      {/* Background Ambience */}
-      <div className="absolute top-1/2 left-1/4 w-96 h-96 glow-emerald opacity-10 pointer-events-none -translate-y-1/2" />
-      <div className="absolute top-1/2 right-1/4 w-96 h-96 glow-emerald opacity-15 pointer-events-none -translate-y-1/2" />
-
+    <section id="memory-vs-observation" className="py-24 bg-white border-b border-zinc-200 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-brand-400 mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-mono text-brand-600 mb-4">
             <BrainCircuit className="w-3.5 h-3.5" />
             <span>Paradigm Shift</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-mono font-bold tracking-tight text-white mb-4">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-sans font-normal tracking-tight text-zinc-950 mb-4">
             Not Observation. Memory.
           </h2>
-          <p className="text-base sm:text-lg text-zinc-400 leading-relaxed">
+          <p className="text-base sm:text-lg text-zinc-600 leading-relaxed">
             Coding agents can observe and interact with live browsers. Sutriva supplies the persistent historical timeline so they understand how the system reached that state.
           </p>
         </div>
@@ -47,19 +43,19 @@ export const MemoryVsObservationSection: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
           {/* Left Pane: Coding Agent (What's happening now?) */}
-          <div className="lg:col-span-5 rounded-xl bg-[#0d0f17] border border-zinc-800 p-6 flex flex-col justify-between shadow-xl">
+          <div className="lg:col-span-5 rounded-xl bg-white border border-zinc-200 p-6 flex flex-col justify-between shadow-xl">
             <div>
-              <div className="flex items-center justify-between pb-4 border-b border-zinc-800 mb-5">
+              <div className="flex items-center justify-between pb-4 border-b border-zinc-200 mb-5">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-300">
+                  <div className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center text-zinc-600">
                     <Eye className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="font-mono text-sm font-bold text-white">Coding Agent</h3>
-                    <p className="text-[11px] text-zinc-400">Live Observation Viewport</p>
+                    <h3 className="font-mono text-sm font-bold text-zinc-950">Coding Agent</h3>
+                    <p className="text-[11px] text-zinc-600">Live Observation Viewport</p>
                   </div>
                 </div>
-                <span className="font-mono text-xs px-2.5 py-1 rounded bg-zinc-800/80 text-zinc-300 border border-zinc-700">
+                <span className="font-mono text-xs px-2.5 py-1 rounded bg-zinc-100 text-zinc-600 border border-zinc-200">
                   t = 19.41s
                 </span>
               </div>
@@ -95,7 +91,7 @@ export const MemoryVsObservationSection: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="p-3.5 rounded-lg bg-history-950/20 border border-history-800/40 text-history-300/90 text-xs">
+                <div className="p-3.5 rounded-lg bg-history-50 border border-history-200 text-history-700 text-xs">
                   <p className="font-sans leading-relaxed">
                     <strong>Blind spot:</strong> The agent sees a resting UI, but not the console error that fired moments ago and already scrolled out of the current buffer.
                   </p>
@@ -103,30 +99,28 @@ export const MemoryVsObservationSection: React.FC = () => {
               </div>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-zinc-800/80 text-[11px] text-zinc-400 font-mono flex items-center justify-between">
+            <div className="mt-6 pt-4 border-t border-zinc-200 text-[11px] text-zinc-600 font-mono flex items-center justify-between">
               <span>Scope: Present State</span>
-              <span className="text-zinc-400">Context: Incomplete</span>
+              <span className="text-zinc-600">Context: Incomplete</span>
             </div>
           </div>
 
           {/* Right Pane: Sutriva (What happened before?) */}
-          <div className="lg:col-span-7 rounded-xl bg-[#0c0f18] border border-brand-500/40 p-6 flex flex-col justify-between shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-80 h-80 glow-emerald opacity-20 pointer-events-none" />
-
+          <div className="lg:col-span-7 rounded-xl bg-white border border-brand-200 p-6 flex flex-col justify-between shadow-2xl relative overflow-hidden">
             <div>
-              <div className="flex items-center justify-between pb-4 border-b border-zinc-800 mb-5">
+              <div className="flex items-center justify-between pb-4 border-b border-zinc-200 mb-5">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-brand-950/80 border border-brand-700/60 flex items-center justify-center text-brand-400">
+                  <div className="w-8 h-8 rounded-lg bg-brand-50 border border-brand-200 flex items-center justify-center text-brand-700">
                     <Clock className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="font-mono text-sm font-bold text-white flex items-center gap-2">
+                    <h3 className="font-mono text-sm font-bold text-zinc-950 flex items-center gap-2">
                       <span>Sutriva</span>
-                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-brand-500/20 text-brand-300 border border-brand-500/30">
+                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-brand-50 text-brand-700 border border-brand-200">
                         TEMPORAL RECORD
                       </span>
                     </h3>
-                    <p className="text-[11px] text-zinc-400">Queryable Temporal Event Record</p>
+                    <p className="text-[11px] text-zinc-600">Queryable Temporal Event Record</p>
                   </div>
                 </div>
 
@@ -151,9 +145,9 @@ export const MemoryVsObservationSection: React.FC = () => {
 
               {/* Timeline Extending Backward */}
               <div className="space-y-2 font-mono text-xs">
-                <div className="flex items-center justify-between text-zinc-400 text-[11px] px-2">
+                <div className="flex items-center justify-between text-zinc-600 text-[11px] px-2">
                   <span className="flex items-center gap-1">
-                    <ArrowLeft className="w-3 h-3 text-brand-400" />
+                    <ArrowLeft className="w-3 h-3 text-brand-600" />
                     Timeline extending backward from t=19.41s
                   </span>
                   <span>Click event to inspect</span>
@@ -174,19 +168,23 @@ export const MemoryVsObservationSection: React.FC = () => {
                             ? isError 
                               ? 'bg-failure-950/40 border-failure-500/80 shadow-md shadow-failure-950/30' 
                               : 'bg-zinc-800/90 border-brand-500/80 shadow-md'
-                            : isError 
-                              ? 'bg-failure-950/20 border-failure-900/50 hover:border-failure-700' 
-                              : 'bg-zinc-900/50 border-zinc-800 hover:bg-zinc-800/50'
+                            : isError
+                              ? 'bg-failure-50 border-failure-200 hover:border-failure-300'
+                              : 'bg-zinc-50 border-zinc-200 hover:bg-zinc-100'
                         }`}
                       >
                         <div className="flex items-center gap-3">
                           <span className={`font-mono text-xs font-bold ${
-                            isError ? 'text-failure-400' : 'text-zinc-400'
+                            isSelected
+                              ? (isError ? 'text-failure-400' : 'text-zinc-400')
+                              : (isError ? 'text-failure-600' : 'text-zinc-500')
                           }`}>
                             {ev.timeSec.toFixed(2)}s
                           </span>
                           <span className={`text-xs ${
-                            isError ? 'text-failure-200 font-semibold' : 'text-zinc-300'
+                            isSelected
+                              ? (isError ? 'text-failure-200 font-semibold' : 'text-zinc-300')
+                              : (isError ? 'text-failure-700 font-semibold' : 'text-zinc-700')
                           }`}>
                             {ev.title}
                           </span>
@@ -195,9 +193,9 @@ export const MemoryVsObservationSection: React.FC = () => {
                         <div className="flex items-center gap-2">
                           {ev.status && (
                             <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono ${
-                              ev.status === 500 
+                              ev.status === 500
                                 ? 'bg-failure-900/80 text-failure-300 border border-failure-700'
-                                : 'bg-zinc-800 text-zinc-400'
+                                : 'bg-zinc-800 text-zinc-300'
                             }`}>
                               {ev.status}
                             </span>
@@ -249,9 +247,9 @@ export const MemoryVsObservationSection: React.FC = () => {
               )}
             </div>
 
-            <div className="mt-6 pt-4 border-t border-zinc-800/80 text-[11px] text-zinc-400 font-mono flex items-center justify-between">
+            <div className="mt-6 pt-4 border-t border-zinc-200 text-[11px] text-zinc-600 font-mono flex items-center justify-between">
               <span>Scope: Full Historical Record</span>
-              <span className="text-brand-400 font-semibold">Evidence Correlated</span>
+              <span className="text-brand-600 font-semibold">Evidence Correlated</span>
             </div>
           </div>
 
@@ -259,9 +257,9 @@ export const MemoryVsObservationSection: React.FC = () => {
 
         {/* Bottom Banner */}
         <div className="mt-12 text-center">
-          <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 font-mono text-xs sm:text-sm text-zinc-300">
-            <span className="text-zinc-400">Key takeaway:</span>
-            <span className="text-brand-400 font-bold">HISTORICAL CONTEXT ≠ CURRENT STATE</span>
+          <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-xl bg-zinc-100 border border-zinc-200 font-mono text-xs sm:text-sm text-zinc-700">
+            <span className="text-zinc-600">Key takeaway:</span>
+            <span className="text-brand-600 font-bold">HISTORICAL CONTEXT ≠ CURRENT STATE</span>
           </div>
         </div>
 

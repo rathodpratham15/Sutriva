@@ -111,54 +111,54 @@ export const HowItWorksSection: React.FC = () => {
   ];
 
   return (
-    <section id="how-it-works" className="py-24 bg-[#08090d] border-b border-zinc-800 relative">
+    <section id="how-it-works" className="py-24 bg-[#f8f9fb] border-b border-zinc-200 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Section Header */}
         <div className="max-w-3xl mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-brand-400 mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand-400" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-mono text-brand-600 mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-600" />
             <span>Architecture & Pipeline</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-mono font-bold tracking-tight text-white mb-6">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-sans font-normal tracking-tight text-zinc-950 mb-6">
             How Sutriva works.
           </h2>
-          <p className="text-base sm:text-lg text-zinc-400 leading-relaxed">
+          <p className="text-base sm:text-lg text-zinc-600 leading-relaxed">
             From raw video captures and live browser telemetry to normalized, queryable evidence delivered directly into your coding agent’s context window.
           </p>
         </div>
 
         {/* At-a-glance pipeline: the 5-word version of the 6 detailed steps
             below, so the shape of the system reads before the detail does. */}
-        <div className="mb-10 flex flex-wrap items-center gap-2 font-mono text-xs text-zinc-400">
+        <div className="mb-10 flex flex-wrap items-center gap-2 font-mono text-xs text-zinc-600">
           {['Capture', 'Index', 'Correlate', 'Query', 'Verify'].map((step, idx, arr) => (
             <React.Fragment key={step}>
-              <span className="px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-300">
+              <span className="px-2.5 py-1 rounded-md bg-zinc-100 border border-zinc-200 text-zinc-700">
                 {step}
               </span>
-              {idx < arr.length - 1 && <span className="text-zinc-700">→</span>}
+              {idx < arr.length - 1 && <span className="text-zinc-400">→</span>}
             </React.Fragment>
           ))}
         </div>
 
         {/* Inputs & Outputs Top Bar */}
-        <div className="mb-14 p-6 rounded-2xl bg-zinc-900/40 border border-zinc-800/80">
+        <div className="mb-14 p-6 rounded-2xl bg-white border border-zinc-200">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            
+
             {/* Inputs Box */}
             <div className="lg:col-span-8">
-              <span className="font-mono text-xs text-zinc-400 font-semibold uppercase tracking-wider block mb-3">
+              <span className="font-mono text-xs text-zinc-600 font-semibold uppercase tracking-wider block mb-3">
                 Supported Inputs & Telemetry Streams
               </span>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                 {inputsList.map((inp, idx) => {
                   const Icon = inp.icon;
                   return (
-                    <div 
-                      key={idx} 
-                      className="p-2.5 rounded-lg bg-zinc-950/80 border border-zinc-800/80 flex items-center gap-2 text-xs font-mono text-zinc-300"
+                    <div
+                      key={idx}
+                      className="p-2.5 rounded-lg bg-white border border-zinc-200 flex items-center gap-2 text-xs font-mono text-zinc-700"
                     >
-                      <Icon className="w-3.5 h-3.5 text-brand-400 flex-shrink-0" />
+                      <Icon className="w-3.5 h-3.5 text-brand-600 flex-shrink-0" />
                       <span className="truncate">{inp.name}</span>
                     </div>
                   );
@@ -167,11 +167,11 @@ export const HowItWorksSection: React.FC = () => {
             </div>
 
             {/* Output Box */}
-            <div className="lg:col-span-4 p-4 rounded-xl bg-brand-950/20 border border-brand-500/40 font-mono text-xs">
-              <span className="text-brand-400 font-bold uppercase tracking-wider block mb-1">
+            <div className="lg:col-span-4 p-4 rounded-xl bg-brand-50 border border-brand-200 font-mono text-xs">
+              <span className="text-brand-600 font-bold uppercase tracking-wider block mb-1">
                 Deterministic Output
               </span>
-              <p className="text-zinc-300 font-sans text-xs mb-3">
+              <p className="text-zinc-700 font-sans text-xs mb-3">
                 Timestamped, queryable evidence structured for minimal token consumption.
               </p>
               <div className="p-2 rounded bg-zinc-950 border border-brand-900/60 text-brand-300 text-[11px]">
@@ -193,40 +193,40 @@ export const HowItWorksSection: React.FC = () => {
                 key={step.id}
                 onClick={() => setActiveStep(index)}
                 className={`p-6 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
-                  isActive 
-                    ? 'bg-zinc-900 border-brand-500/80 shadow-lg shadow-brand-500/5' 
-                    : 'bg-zinc-900/40 border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/70'
+                  isActive
+                    ? 'bg-white border-brand-400 shadow-lg shadow-brand-500/5'
+                    : 'bg-white border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50'
                 }`}
               >
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center border ${
-                      isActive 
-                        ? 'bg-brand-950 text-brand-400 border-brand-700' 
-                        : 'bg-zinc-800 text-zinc-400 border-zinc-700'
+                      isActive
+                        ? 'bg-brand-50 text-brand-700 border-brand-200'
+                        : 'bg-zinc-100 text-zinc-600 border-zinc-200'
                     }`}>
                       <Icon className="w-5 h-5" />
                     </div>
-                    <span className="font-mono text-xs text-zinc-400">
+                    <span className="font-mono text-xs text-zinc-600">
                       Step 0{index + 1}
                     </span>
                   </div>
 
-                  <h3 className="font-mono text-base font-bold text-white mb-1">
+                  <h3 className="font-mono text-base font-bold text-zinc-950 mb-1">
                     {step.title}
                   </h3>
-                  <div className="font-mono text-xs text-brand-400 mb-3">
+                  <div className="font-mono text-xs text-brand-600 mb-3">
                     {step.subtitle}
                   </div>
-                  <p className="text-xs text-zinc-400 leading-relaxed mb-4">
+                  <p className="text-xs text-zinc-600 leading-relaxed mb-4">
                     {step.description}
                   </p>
                 </div>
 
-                <div className="pt-3 border-t border-zinc-800/80 space-y-1.5 font-mono text-[11px] text-zinc-400">
+                <div className="pt-3 border-t border-zinc-200 space-y-1.5 font-mono text-[11px] text-zinc-600">
                   {step.details.slice(0, 2).map((d, dIdx) => (
                     <div key={dIdx} className="flex items-center gap-1.5">
-                      <span className="text-brand-400">›</span>
+                      <span className="text-brand-600">›</span>
                       <span className="truncate">{d}</span>
                     </div>
                   ))}
@@ -237,26 +237,26 @@ export const HowItWorksSection: React.FC = () => {
         </div>
 
         {/* Selected Step Deep Dive Inspector */}
-        <div className="p-6 rounded-2xl bg-zinc-950 border border-zinc-800 shadow-2xl">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-zinc-800 mb-4">
+        <div className="p-6 rounded-2xl bg-white border border-zinc-200 shadow-2xl">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-zinc-200 mb-4">
             <div>
-              <span className="text-xs font-mono text-zinc-400">Deep Dive Inspector:</span>
-              <h4 className="text-lg font-mono font-bold text-white">
-                {pipelineSteps[activeStep].title} — <span className="text-brand-400">{pipelineSteps[activeStep].subtitle}</span>
+              <span className="text-xs font-mono text-zinc-600">Deep Dive Inspector:</span>
+              <h4 className="text-lg font-mono font-bold text-zinc-950">
+                {pipelineSteps[activeStep].title} — <span className="text-brand-600">{pipelineSteps[activeStep].subtitle}</span>
               </h4>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-mono text-zinc-400">Select another node above to inspect</span>
+              <span className="text-xs font-mono text-zinc-600">Select another node above to inspect</span>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 font-mono text-xs">
             <div>
-              <span className="text-zinc-400 text-[11px] uppercase tracking-wider block mb-2">Technical Implementation</span>
+              <span className="text-zinc-600 text-[11px] uppercase tracking-wider block mb-2">Technical Implementation</span>
               <ul className="space-y-2">
                 {pipelineSteps[activeStep].details.map((item, idx) => (
-                  <li key={idx} className="flex items-start gap-2 text-zinc-300">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-brand-400 mt-0.5 flex-shrink-0" />
+                  <li key={idx} className="flex items-start gap-2 text-zinc-700">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-brand-600 mt-0.5 flex-shrink-0" />
                     <span>{item}</span>
                   </li>
                 ))}

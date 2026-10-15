@@ -80,8 +80,8 @@
 
   body {
     font-family: var(--font-sans);
-    background-color: #08090d;
-    color: #e4e4e7;
+    background-color: #ffffff;
+    color: #18181b;
   }
 
   code, pre, kbd, samp {
@@ -160,14 +160,14 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #090a0f;
+  background: #f4f4f5;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #27272a;
+  background: #d4d4d8;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3f3f46;
+  background: #a1a1aa;
 }

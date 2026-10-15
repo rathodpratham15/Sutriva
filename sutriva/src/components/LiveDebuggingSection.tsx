@@ -63,19 +63,19 @@ export const LiveDebuggingSection: React.FC = () => {
   ];
 
   return (
-    <section id="live-debugging" className="py-24 bg-[#090a0f] border-b border-zinc-800 relative">
+    <section id="live-debugging" className="py-24 bg-white border-b border-zinc-200 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Section Header */}
         <div className="max-w-3xl mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-brand-400 mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand-400" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-mono text-brand-600 mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-600" />
             <span>Interactive Workflow</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-mono font-bold tracking-tight text-white mb-6">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-sans font-normal tracking-tight text-zinc-950 mb-6">
             Debug with your agent in the loop.
           </h2>
-          <p className="text-base sm:text-lg text-zinc-400 leading-relaxed">
+          <p className="text-base sm:text-lg text-zinc-600 leading-relaxed">
             Eliminate back-and-forth prompt guessing. Reproduce the bug naturally in your browser while Sutriva captures the evidence and your coding agent closes the loop.
           </p>
         </div>
@@ -84,7 +84,7 @@ export const LiveDebuggingSection: React.FC = () => {
         <div className="mb-12 overflow-x-auto pb-4">
           <div className="flex items-center min-w-[750px] justify-between relative">
             {/* Connecting line */}
-            <div className="absolute top-1/2 left-4 right-4 h-0.5 bg-zinc-800 -translate-y-1/2 -z-0" />
+            <div className="absolute top-1/2 left-4 right-4 h-0.5 bg-zinc-200 -translate-y-1/2 -z-0" />
             
             {loopSteps.map((step, idx) => {
               const isActive = activeStep === idx;
@@ -97,16 +97,16 @@ export const LiveDebuggingSection: React.FC = () => {
                   className="relative z-10 flex flex-col items-center group focus:outline-none"
                 >
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center font-mono text-xs font-bold transition-all ${
-                    isActive 
-                      ? 'bg-brand-400 text-zinc-950 ring-4 ring-brand-500/20 scale-110' 
-                      : isPast 
-                        ? 'bg-brand-950 text-brand-400 border border-brand-700' 
-                        : 'bg-zinc-900 text-zinc-400 border border-zinc-700 group-hover:border-zinc-500'
+                    isActive
+                      ? 'bg-brand-400 text-zinc-950 ring-4 ring-brand-500/20 scale-110'
+                      : isPast
+                        ? 'bg-brand-50 text-brand-700 border border-brand-200'
+                        : 'bg-zinc-100 text-zinc-600 border border-zinc-300 group-hover:border-zinc-400'
                   }`}>
                     {isPast ? <Check className="w-3.5 h-3.5" /> : idx + 1}
                   </div>
                   <span className={`mt-2 font-mono text-xs font-medium ${
-                    isActive ? 'text-brand-400' : 'text-zinc-400 group-hover:text-zinc-300'
+                    isActive ? 'text-brand-400' : 'text-zinc-600 group-hover:text-zinc-700'
                   }`}>
                     {step.name}
                   </span>
@@ -120,66 +120,66 @@ export const LiveDebuggingSection: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
           {/* Left Column: Conversational Loop */}
-          <div className="lg:col-span-6 rounded-2xl bg-[#0c0e14] border border-zinc-800 p-6 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
-              <span className="font-mono text-xs text-zinc-400 font-semibold uppercase tracking-wider flex items-center gap-2">
-                <MessageSquare className="w-3.5 h-3.5 text-brand-400" />
+          <div className="lg:col-span-6 rounded-2xl bg-white border border-zinc-200 p-6 space-y-4 shadow-xl">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-200">
+              <span className="font-mono text-xs text-zinc-600 font-semibold uppercase tracking-wider flex items-center gap-2">
+                <MessageSquare className="w-3.5 h-3.5 text-brand-600" />
                 Live Agent Interaction
               </span>
-              <span className="text-[11px] font-mono text-zinc-400">Step {activeStep + 1} of 7</span>
+              <span className="text-[11px] font-mono text-zinc-600">Step {activeStep + 1} of 7</span>
             </div>
 
             {/* Conversation Messages */}
             <div className="space-y-3 font-mono text-xs">
-              
+
               {/* Message 1: Developer Follow Me */}
-              <div className="p-3 rounded-lg bg-zinc-900/80 border border-zinc-800 space-y-1">
-                <div className="flex items-center gap-1.5 text-zinc-400 text-[11px]">
-                  <User className="w-3 h-3 text-zinc-300" />
-                  <span className="text-zinc-300 font-semibold">Developer</span>
+              <div className="p-3 rounded-lg bg-zinc-50 border border-zinc-200 space-y-1">
+                <div className="flex items-center gap-1.5 text-zinc-600 text-[11px]">
+                  <User className="w-3 h-3 text-zinc-600" />
+                  <span className="text-zinc-700 font-semibold">Developer</span>
                 </div>
-                <p className="text-brand-300 font-semibold text-xs">
+                <p className="text-brand-700 font-semibold text-xs">
                   "Follow me while I reproduce this."
                 </p>
-                <div className="text-[11px] text-zinc-400 font-sans">
+                <div className="text-[11px] text-zinc-600 font-sans">
                   Developer clicks "Place order" on the checkout page.
                 </div>
               </div>
 
               {/* Message 2: Bug occurs */}
-              <div className="p-2.5 rounded-lg bg-failure-950/30 border border-failure-900/40 text-failure-300 text-[11px]">
+              <div className="p-2.5 rounded-lg bg-failure-50 border border-failure-200 text-failure-700 text-[11px]">
                 <span className="font-bold">⚡ Bug occurs:</span> Button stays stuck on "Processing..." — no confirmation ever appears.
               </div>
 
               {/* Message 3: Developer asks What Happened */}
-              <div className="p-3 rounded-lg bg-zinc-900/80 border border-zinc-800 space-y-1">
-                <div className="flex items-center gap-1.5 text-zinc-400 text-[11px]">
-                  <User className="w-3 h-3 text-zinc-300" />
-                  <span className="text-zinc-300 font-semibold">Developer</span>
+              <div className="p-3 rounded-lg bg-zinc-50 border border-zinc-200 space-y-1">
+                <div className="flex items-center gap-1.5 text-zinc-600 text-[11px]">
+                  <User className="w-3 h-3 text-zinc-600" />
+                  <span className="text-zinc-700 font-semibold">Developer</span>
                 </div>
-                <p className="text-history-300 font-semibold text-xs">
+                <p className="text-history-700 font-semibold text-xs">
                   "What happened?"
                 </p>
               </div>
 
               {/* Message 4: Agent with Sutriva */}
-              <div className="p-3.5 rounded-lg bg-brand-950/30 border border-brand-800/50 space-y-2">
-                <div className="flex items-center gap-1.5 text-brand-400 text-[11px]">
-                  <Bot className="w-3 h-3 text-brand-300" />
-                  <span className="text-brand-300 font-semibold">Coding Agent (via Sutriva MCP)</span>
+              <div className="p-3.5 rounded-lg bg-brand-50 border border-brand-200 space-y-2">
+                <div className="flex items-center gap-1.5 text-brand-700 text-[11px]">
+                  <Bot className="w-3 h-3 text-brand-700" />
+                  <span className="text-brand-700 font-semibold">Coding Agent (via Sutriva MCP)</span>
                 </div>
-                <p className="text-zinc-200 text-xs font-sans leading-relaxed">
-                  "The checkout request returned 200, but the frontend crashed reading <code className="text-history-300 font-mono">data.orderId</code> — the API response doesn't include that field, it returns <code className="text-history-300 font-mono">id</code> instead. A response schema mismatch in <code className="text-history-300 font-mono">app/checkout/page.tsx:15</code>."
+                <p className="text-zinc-900 text-xs font-sans leading-relaxed">
+                  "The checkout request returned 200, but the frontend crashed reading <code className="text-history-700 font-mono">data.orderId</code> — the API response doesn't include that field, it returns <code className="text-history-700 font-mono">id</code> instead. A response schema mismatch in <code className="text-history-700 font-mono">app/checkout/page.tsx:15</code>."
                 </p>
               </div>
 
               {/* Message 5: Fix it command */}
-              <div className="p-3 rounded-lg bg-zinc-900/80 border border-zinc-800 space-y-1">
-                <div className="flex items-center gap-1.5 text-zinc-400 text-[11px]">
-                  <User className="w-3 h-3 text-zinc-300" />
-                  <span className="text-zinc-300 font-semibold">Developer</span>
+              <div className="p-3 rounded-lg bg-zinc-50 border border-zinc-200 space-y-1">
+                <div className="flex items-center gap-1.5 text-zinc-600 text-[11px]">
+                  <User className="w-3 h-3 text-zinc-600" />
+                  <span className="text-zinc-700 font-semibold">Developer</span>
                 </div>
-                <p className="text-brand-300 font-semibold text-xs">
+                <p className="text-brand-700 font-semibold text-xs">
                   "Fix it."
                 </p>
               </div>
@@ -189,7 +189,7 @@ export const LiveDebuggingSection: React.FC = () => {
               <button
                 onClick={() => setActiveStep((prev) => Math.max(0, prev - 1))}
                 disabled={activeStep === 0}
-                className="px-3 py-1.5 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-400 disabled:opacity-40 font-mono text-xs"
+                className="px-3 py-1.5 rounded bg-zinc-100 hover:bg-zinc-200 text-zinc-600 disabled:opacity-40 font-mono text-xs"
               >
                 ← Previous
               </button>
@@ -203,18 +203,18 @@ export const LiveDebuggingSection: React.FC = () => {
           </div>
 
           {/* Right Column: Step Telemetry Inspector */}
-          <div className="lg:col-span-6 rounded-2xl bg-zinc-950 border border-zinc-800 p-6 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+          <div className="lg:col-span-6 rounded-2xl bg-white border border-zinc-200 p-6 space-y-4 shadow-xl">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-200">
               <div>
-                <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider block">Phase Details</span>
-                <h3 className="font-mono text-base font-bold text-white">
-                  {loopSteps[activeStep].name} — <span className="text-brand-400">{loopSteps[activeStep].actor}</span>
+                <span className="text-[11px] font-mono text-zinc-600 uppercase tracking-wider block">Phase Details</span>
+                <h3 className="font-mono text-base font-bold text-zinc-950">
+                  {loopSteps[activeStep].name} — <span className="text-brand-600">{loopSteps[activeStep].actor}</span>
                 </h3>
               </div>
               <span className="w-2.5 h-2.5 rounded-full bg-brand-400" />
             </div>
 
-            <p className="text-xs text-zinc-300 font-sans leading-relaxed">
+            <p className="text-xs text-zinc-700 font-sans leading-relaxed">
               {loopSteps[activeStep].desc}
             </p>
 
@@ -230,8 +230,8 @@ export const LiveDebuggingSection: React.FC = () => {
               </div>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-zinc-900/40 border border-zinc-800/80 text-xs text-zinc-400 font-mono">
-              <span className="text-brand-400 font-bold">Closed-Loop Flow:</span> observe → retrieve → diagnose → patch → test → reproduce → verify.
+            <div className="p-3.5 rounded-xl bg-zinc-50 border border-zinc-200 text-xs text-zinc-600 font-mono">
+              <span className="text-brand-600 font-bold">Closed-Loop Flow:</span> observe → retrieve → diagnose → patch → test → reproduce → verify.
             </div>
           </div>
 

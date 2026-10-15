@@ -47,20 +47,20 @@ export const McpSection: React.FC<McpSectionProps> = ({ onNavigate }) => {
   ];
 
   return (
-    <section id="mcp" className="py-24 bg-[#090a0f] border-b border-zinc-800 relative">
+    <section id="mcp" className="py-24 bg-white border-b border-zinc-200 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="max-w-3xl mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-info-400 mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-mono text-info-600 mb-4">
             <Network className="w-3.5 h-3.5" />
             <span>Open Protocol Standard</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-mono font-bold tracking-tight text-white mb-6">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-sans font-normal tracking-tight text-zinc-950 mb-6">
             Built for coding agents.
           </h2>
-          <p className="text-base sm:text-lg text-zinc-400 leading-relaxed">
-            Sutriva exposes temporal debugging evidence through the open <strong className="text-zinc-200">Model Context Protocol (MCP)</strong>, over stdio. Usable by any MCP-compatible coding agent — tested against Claude Code.
+          <p className="text-base sm:text-lg text-zinc-600 leading-relaxed">
+            Sutriva exposes temporal debugging evidence through the open <strong className="text-zinc-900">Model Context Protocol (MCP)</strong>, over stdio. Usable by any MCP-compatible coding agent — tested against Claude Code.
           </p>
         </div>
 
@@ -92,14 +92,14 @@ export const McpSection: React.FC<McpSectionProps> = ({ onNavigate }) => {
 
         {/* Compact Capabilities Pill Grid */}
         <div className="mb-12">
-          <span className="font-mono text-xs text-zinc-400 uppercase tracking-wider block mb-3">
+          <span className="font-mono text-xs text-zinc-600 uppercase tracking-wider block mb-3">
             Exposed MCP Capabilities
           </span>
           <div className="flex flex-wrap gap-2">
             {capabilities.map((cap, idx) => (
               <span
                 key={idx}
-                className="px-3 py-1.5 rounded-lg bg-zinc-900/80 border border-zinc-800 text-xs font-mono text-zinc-300 flex items-center gap-2"
+                className="px-3 py-1.5 rounded-lg bg-zinc-100 border border-zinc-200 text-xs font-mono text-zinc-700 flex items-center gap-2"
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-brand-400" />
                 <span>{cap}</span>
@@ -112,7 +112,7 @@ export const McpSection: React.FC<McpSectionProps> = ({ onNavigate }) => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
           {/* Tool Selector List (Left) */}
-          <div className="lg:col-span-4 rounded-2xl bg-zinc-900/40 border border-zinc-800 p-4 space-y-1.5 font-mono text-xs">
+          <div className="lg:col-span-4 rounded-2xl bg-white border border-zinc-200 p-4 space-y-1.5 font-mono text-xs">
             <span className="text-zinc-500 text-[11px] uppercase tracking-wider block px-2 pb-2">
               Select Tool Schema
             </span>
@@ -125,7 +125,7 @@ export const McpSection: React.FC<McpSectionProps> = ({ onNavigate }) => {
                   className={`w-full text-left px-3 py-2.5 rounded-lg transition-all flex items-center justify-between ${
                     isSelected
                       ? 'bg-zinc-800 text-brand-300 border border-brand-500/40 font-semibold'
-                      : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'
+                      : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50'
                   }`}
                 >
                   <span className="truncate">{tool.name}</span>

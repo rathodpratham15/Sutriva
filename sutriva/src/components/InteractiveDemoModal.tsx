@@ -35,19 +35,19 @@ export const InteractiveDemoModal: React.FC<InteractiveDemoModalProps> = ({ isOp
   const currentEvent = events[selectedEventIndex];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md animate-fadeIn">
-      <div className="bg-[#0c0e15] border border-zinc-700/80 rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
-        
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/50 backdrop-blur-md animate-fadeIn">
+      <div className="bg-white border border-zinc-200 rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+
         {/* Header */}
-        <div className="px-6 py-4 bg-[#090a0f] border-b border-zinc-800 flex items-center justify-between">
+        <div className="px-6 py-4 bg-white border-b border-zinc-200 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-lg bg-brand-950/80 border border-brand-700/60 flex items-center justify-center text-brand-400">
+            <div className="w-7 h-7 rounded-lg bg-brand-50 border border-brand-200 flex items-center justify-center text-brand-600">
               <Clock className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-mono text-sm font-bold text-white flex items-center gap-2">
+              <h3 className="font-mono text-sm font-bold text-zinc-950 flex items-center gap-2">
                 <span>Sutriva Interactive Temporal Sandbox</span>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-brand-400 font-mono">
+                <span className="text-[10px] px-2 py-0.5 rounded bg-brand-50 text-brand-700 font-mono">
                   Live Simulation
                 </span>
               </h3>
@@ -58,7 +58,7 @@ export const InteractiveDemoModal: React.FC<InteractiveDemoModalProps> = ({ isOp
             <button
               onClick={onClose}
               aria-label="Close interactive demo"
-              className="p-1.5 rounded-lg bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors"
+              className="p-1.5 rounded-lg bg-zinc-100 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-200 transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -66,14 +66,14 @@ export const InteractiveDemoModal: React.FC<InteractiveDemoModalProps> = ({ isOp
         </div>
 
         {/* Modal Navigation Tabs */}
-        <div className="px-6 py-2.5 bg-zinc-900/60 border-b border-zinc-800 flex items-center justify-between text-xs font-mono">
+        <div className="px-6 py-2.5 bg-zinc-50 border-b border-zinc-200 flex items-center justify-between text-xs font-mono">
           <div className="flex items-center gap-2">
             <button
               onClick={() => setActiveTab('timeline')}
               className={`px-3 py-1.5 rounded-lg transition-colors ${
                 activeTab === 'timeline'
-                  ? 'bg-zinc-800 text-brand-300 font-semibold shadow-sm'
-                  : 'text-zinc-400 hover:text-zinc-200'
+                  ? 'bg-white text-brand-700 font-semibold shadow-sm border border-zinc-200'
+                  : 'text-zinc-500 hover:text-zinc-900'
               }`}
             >
               1. Event Timeline & Slicing
@@ -82,8 +82,8 @@ export const InteractiveDemoModal: React.FC<InteractiveDemoModalProps> = ({ isOp
               onClick={() => setActiveTab('mcp_query')}
               className={`px-3 py-1.5 rounded-lg transition-colors ${
                 activeTab === 'mcp_query'
-                  ? 'bg-zinc-800 text-info-300 font-semibold shadow-sm'
-                  : 'text-zinc-400 hover:text-zinc-200'
+                  ? 'bg-white text-info-700 font-semibold shadow-sm border border-zinc-200'
+                  : 'text-zinc-500 hover:text-zinc-900'
               }`}
             >
               2. MCP Tool Execution
@@ -92,21 +92,23 @@ export const InteractiveDemoModal: React.FC<InteractiveDemoModalProps> = ({ isOp
               onClick={() => setActiveTab('verification')}
               className={`px-3 py-1.5 rounded-lg transition-colors ${
                 activeTab === 'verification'
-                  ? 'bg-zinc-800 text-brand-300 font-semibold shadow-sm'
-                  : 'text-zinc-400 hover:text-zinc-200'
+                  ? 'bg-white text-brand-700 font-semibold shadow-sm border border-zinc-200'
+                  : 'text-zinc-500 hover:text-zinc-900'
               }`}
             >
               3. Closed-Loop Verification
             </button>
           </div>
 
-          <div className="hidden sm:flex items-center gap-2 text-zinc-400 text-[11px]">
-            <span>Session: <strong className="text-zinc-200 font-mono">sess_94fa218b</strong></span>
+          <div className="hidden sm:flex items-center gap-2 text-zinc-500 text-[11px]">
+            <span>Session: <strong className="text-zinc-800 font-mono">sess_94fa218b</strong></span>
           </div>
         </div>
 
-        {/* Modal Content Body */}
-        <div className="p-6 overflow-y-auto flex-1 space-y-6">
+        {/* Modal Content Body -- deliberately kept as a dark "sandbox" pane
+            (consistent with the Hero's terminal demo) inside the now-light
+            modal chrome above/below it. */}
+        <div className="p-6 overflow-y-auto flex-1 space-y-6 bg-zinc-950">
           
           {activeTab === 'timeline' && (
             <div className="space-y-6">
@@ -297,11 +299,11 @@ export const InteractiveDemoModal: React.FC<InteractiveDemoModalProps> = ({ isOp
         </div>
 
         {/* Modal Footer */}
-        <div className="px-6 py-3 bg-[#090a0f] border-t border-zinc-800 flex items-center justify-between text-xs font-mono text-zinc-400">
+        <div className="px-6 py-3 bg-white border-t border-zinc-200 flex items-center justify-between text-xs font-mono text-zinc-500">
           <span>Engine: SQLite (.sutriva/sutriva.db) • Transport: stdio</span>
           <button
             onClick={onClose}
-            className="px-4 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 transition-colors"
+            className="px-4 py-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-700 transition-colors"
           >
             Close Sandbox
           </button>
