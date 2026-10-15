@@ -16,30 +16,30 @@ export const ClosedLoopVerificationSection: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'visual' | 'mcp_output'>('visual');
 
   return (
-    <section id="verification" className="py-24 bg-[#08090d] border-b border-zinc-800 relative">
+    <section id="verification" className="py-24 bg-[#f8f9fb] border-b border-zinc-200 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="max-w-3xl mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-brand-400 mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-mono text-brand-600 mb-4">
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>Closed-Loop Verification</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-mono font-bold tracking-tight text-white mb-6">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-sans font-normal tracking-tight text-zinc-950 mb-6">
             Don't just patch it. Verify it.
           </h2>
-          <p className="text-base sm:text-lg text-zinc-400 leading-relaxed">
-            Writing code is only half the job. Sutriva’s <code className="text-brand-400 font-mono">compare_sessions</code> capability inspects runtime network status codes, console error rates, and state transitions to verify that the bug was eradicated in the post-patch run.
+          <p className="text-base sm:text-lg text-zinc-600 leading-relaxed">
+            Writing code is only half the job. Sutriva’s <code className="text-brand-700 font-mono">compare_sessions</code> capability inspects runtime network status codes, console error rates, and state transitions to verify that the bug was eradicated in the post-patch run.
           </p>
         </div>
 
         {/* View Switcher */}
         <div className="flex justify-end mb-6">
-          <div className="inline-flex p-1 rounded-lg bg-zinc-900 border border-zinc-800 font-mono text-xs">
+          <div className="inline-flex p-1 rounded-lg bg-zinc-100 border border-zinc-200 font-mono text-xs">
             <button
               onClick={() => setActiveTab('visual')}
               className={`px-3 py-1.5 rounded-md transition-colors ${
-                activeTab === 'visual' ? 'bg-zinc-800 text-brand-300 shadow-sm' : 'text-zinc-400 hover:text-zinc-200'
+                activeTab === 'visual' ? 'bg-zinc-800 text-brand-300 shadow-sm' : 'text-zinc-500 hover:text-zinc-900'
               }`}
             >
               Visual Flow
@@ -47,7 +47,7 @@ export const ClosedLoopVerificationSection: React.FC = () => {
             <button
               onClick={() => setActiveTab('mcp_output')}
               className={`px-3 py-1.5 rounded-md transition-colors ${
-                activeTab === 'mcp_output' ? 'bg-zinc-800 text-brand-300 shadow-sm' : 'text-zinc-400 hover:text-zinc-200'
+                activeTab === 'mcp_output' ? 'bg-zinc-800 text-brand-300 shadow-sm' : 'text-zinc-500 hover:text-zinc-900'
               }`}
             >
               MCP Raw Signal Diff
@@ -60,10 +60,10 @@ export const ClosedLoopVerificationSection: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
             
             {/* 1. BEFORE Box */}
-            <div className="p-6 rounded-2xl bg-[#0e0f17] border border-failure-900/50 flex flex-col justify-between shadow-xl">
+            <div className="p-6 rounded-2xl bg-white border border-failure-200 flex flex-col justify-between shadow-xl">
               <div>
-                <div className="flex items-center justify-between pb-3 border-b border-zinc-800 mb-4">
-                  <span className="font-mono text-xs text-failure-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                <div className="flex items-center justify-between pb-3 border-b border-zinc-200 mb-4">
+                  <span className="font-mono text-xs text-failure-600 font-bold uppercase tracking-wider flex items-center gap-1.5">
                     <XCircle className="w-3.5 h-3.5" />
                     1. BEFORE (Baseline Session)
                   </span>
@@ -71,12 +71,12 @@ export const ClosedLoopVerificationSection: React.FC = () => {
                 </div>
 
                 <div className="space-y-3 font-mono text-xs">
-                  <div className="p-3 rounded-lg bg-failure-950/40 border border-failure-800/60 text-failure-300">
+                  <div className="p-3 rounded-lg bg-failure-50 border border-failure-200 text-failure-700">
                     <div className="font-bold flex justify-between">
                       <span>POST /api/checkout</span>
                       <span className="bg-zinc-900 text-white px-1.5 py-0.5 rounded text-[10px]">200 OK</span>
                     </div>
-                    <div className="text-[11px] text-failure-400/90 mt-1 font-sans">
+                    <div className="text-[11px] text-failure-700 mt-1 font-sans">
                       Console: TypeError: Cannot read properties of undefined (reading 'toString')
                     </div>
                   </div>
@@ -94,21 +94,21 @@ export const ClosedLoopVerificationSection: React.FC = () => {
                 </div>
               </div>
 
-              <div className="mt-6 pt-3 border-t border-zinc-800/80 text-[11px] text-zinc-500 font-mono">
+              <div className="mt-6 pt-3 border-t border-zinc-200 text-[11px] text-zinc-500 font-mono">
                 Outcome: Reproduction Confirmed
               </div>
             </div>
 
             {/* 2. CLAUDE PATCHES Box */}
-            <div className="p-6 rounded-2xl bg-[#0c0e14] border border-zinc-700 flex flex-col justify-between shadow-xl relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-brand-500/20 text-brand-300 border border-brand-500/40 font-mono text-[10px] uppercase font-bold tracking-wider">
+            <div className="p-6 rounded-2xl bg-white border border-zinc-200 flex flex-col justify-between shadow-xl relative">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-brand-50 text-brand-700 border border-brand-200 font-mono text-[10px] uppercase font-bold tracking-wider">
                 Autonomous Patch
               </div>
 
               <div>
-                <div className="flex items-center justify-between pb-3 border-b border-zinc-800 mb-4">
-                  <span className="font-mono text-xs text-zinc-300 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                    <FileCode className="w-3.5 h-3.5 text-brand-400" />
+                <div className="flex items-center justify-between pb-3 border-b border-zinc-200 mb-4">
+                  <span className="font-mono text-xs text-zinc-700 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                    <FileCode className="w-3.5 h-3.5 text-brand-600" />
                     2. Coding Agent Patches
                   </span>
                   <span className="text-[11px] font-mono text-zinc-500">page.tsx:15</span>
@@ -128,17 +128,17 @@ export const ClosedLoopVerificationSection: React.FC = () => {
                 </div>
               </div>
 
-              <div className="mt-6 pt-3 border-t border-zinc-800/80 text-[11px] text-brand-400 font-mono flex items-center justify-between">
+              <div className="mt-6 pt-3 border-t border-zinc-200 text-[11px] text-brand-600 font-mono flex items-center justify-between">
                 <span>Git Patch Applied</span>
-                <GitCommit className="w-3.5 h-3.5 text-brand-400" />
+                <GitCommit className="w-3.5 h-3.5 text-brand-600" />
               </div>
             </div>
 
             {/* 3. AFTER Box */}
-            <div className="p-6 rounded-2xl bg-[#0c120f] border border-brand-500/50 flex flex-col justify-between shadow-xl">
+            <div className="p-6 rounded-2xl bg-white border border-brand-200 flex flex-col justify-between shadow-xl">
               <div>
-                <div className="flex items-center justify-between pb-3 border-b border-zinc-800 mb-4">
-                  <span className="font-mono text-xs text-brand-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                <div className="flex items-center justify-between pb-3 border-b border-zinc-200 mb-4">
+                  <span className="font-mono text-xs text-brand-600 font-bold uppercase tracking-wider flex items-center gap-1.5">
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     3. AFTER (Verification Run)
                   </span>
@@ -146,12 +146,12 @@ export const ClosedLoopVerificationSection: React.FC = () => {
                 </div>
 
                 <div className="space-y-3 font-mono text-xs">
-                  <div className="p-3 rounded-lg bg-brand-950/40 border border-brand-800/60 text-brand-300">
+                  <div className="p-3 rounded-lg bg-brand-50 border border-brand-200 text-brand-700">
                     <div className="font-bold flex justify-between">
                       <span>POST /api/checkout</span>
                       <span className="bg-brand-800 text-white px-1.5 py-0.5 rounded text-[10px]">200 OK</span>
                     </div>
-                    <div className="text-[11px] text-brand-300/90 mt-1 font-sans">
+                    <div className="text-[11px] text-brand-700 mt-1 font-sans">
                       "Order ORD-1234 confirmed!" shown correctly.
                     </div>
                   </div>
@@ -169,7 +169,7 @@ export const ClosedLoopVerificationSection: React.FC = () => {
                 </div>
               </div>
 
-              <div className="mt-6 pt-3 border-t border-zinc-800/80 text-[11px] text-brand-400 font-mono font-semibold">
+              <div className="mt-6 pt-3 border-t border-zinc-200 text-[11px] text-brand-600 font-mono font-semibold">
                 Status: VERIFIED_FIX ✓
               </div>
             </div>
@@ -202,10 +202,10 @@ export const ClosedLoopVerificationSection: React.FC = () => {
         )}
 
         {/* Honest Technical Scope Disclaimer */}
-        <div className="mt-10 p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 text-xs text-zinc-400 flex items-start gap-3 max-w-3xl mx-auto">
-          <AlertCircle className="w-4 h-4 text-zinc-400 flex-shrink-0 mt-0.5" />
+        <div className="mt-10 p-4 rounded-xl bg-white border border-zinc-200 text-xs text-zinc-600 flex items-start gap-3 max-w-3xl mx-auto">
+          <AlertCircle className="w-4 h-4 text-zinc-600 flex-shrink-0 mt-0.5" />
           <p className="leading-relaxed">
-            <strong className="text-zinc-300">Technical Scope Note:</strong> Sutriva’s <code className="text-zinc-300 font-mono">compare_sessions</code> capability focuses strictly on deterministic telemetry signals (network status codes, console error rates, and state transition payloads). It does <span className="text-zinc-300 font-semibold">not</span> perform computer vision pixel diffing.
+            <strong className="text-zinc-700">Technical Scope Note:</strong> Sutriva’s <code className="text-zinc-700 font-mono">compare_sessions</code> capability focuses strictly on deterministic telemetry signals (network status codes, console error rates, and state transition payloads). It does <span className="text-zinc-700 font-semibold">not</span> perform computer vision pixel diffing.
           </p>
         </div>
 

@@ -80,8 +80,8 @@
 
   body {
     font-family: var(--font-sans);
-    background-color: #08090d;
-    color: #e4e4e7;
+    background-color: #ffffff;
+    color: #18181b;
   }
 
   code, pre, kbd, samp {
@@ -160,14 +160,29 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #090a0f;
+  background: #f4f4f5;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #27272a;
+  background: #d4d4d8;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
+  background: #a1a1aa;
+}
+
+/* The Docs pages (DocsLayout) keep the original dark surface -- their own
+   wrapper sets a dark background explicitly, so give that subtree back the
+   dark scrollbar instead of the light default above. */
+.docs-dark-scrollbar::-webkit-scrollbar-track {
+  background: #090a0f;
+}
+
+.docs-dark-scrollbar::-webkit-scrollbar-thumb {
+  background: #27272a;
+}
+
+.docs-dark-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #3f3f46;
 }

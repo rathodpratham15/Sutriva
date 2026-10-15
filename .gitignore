@@ -23,3 +23,5 @@ coverage/
 # and .claude/settings.json (if added later) are project-shared and should be committed.
 .claude/settings.local.json
 # /sutriva
+
+sutriva-ui-main

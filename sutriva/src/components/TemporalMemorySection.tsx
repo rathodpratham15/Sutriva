@@ -26,29 +26,26 @@ export const TemporalMemorySection: React.FC = () => {
   ];
 
   return (
-    <section id="temporal-memory" className="py-24 bg-[#090a0f] border-b border-zinc-800 relative overflow-hidden">
-      {/* Background Accent */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] glow-emerald opacity-10 pointer-events-none" />
-
+    <section id="temporal-memory" className="py-24 bg-white border-b border-zinc-200 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-brand-400 mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-mono text-brand-600 mb-4">
             <Clock className="w-3.5 h-3.5" />
             <span>Foundational Concept</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-mono font-bold tracking-tight text-white mb-6">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-sans font-normal tracking-tight text-zinc-950 mb-6">
             Temporal Memory
           </h2>
-          <p className="text-base sm:text-lg text-zinc-400 leading-relaxed">
+          <p className="text-base sm:text-lg text-zinc-600 leading-relaxed">
             Understanding failures requires inspecting the temporal chain of causality, not just the eventual resting state.
           </p>
         </div>
 
         {/* Central Visual: Event Chain A -> B -> Failure -> C -> D -> E */}
-        <div className="mb-14 p-6 sm:p-8 rounded-2xl bg-[#0c0e16] border border-zinc-800 shadow-2xl">
-          <div className="text-xs font-mono text-zinc-400 uppercase tracking-wider mb-6 flex items-center justify-between">
+        <div className="mb-14 p-6 sm:p-8 rounded-2xl bg-white border border-zinc-200 shadow-2xl">
+          <div className="text-xs font-mono text-zinc-600 uppercase tracking-wider mb-6 flex items-center justify-between">
             <span>Timestamped Event Sequence</span>
             <span className="text-zinc-500">t = 0.00s → 19.41s</span>
           </div>
@@ -68,31 +65,31 @@ export const TemporalMemorySection: React.FC = () => {
                   className={`p-4 rounded-xl border transition-all flex flex-col justify-between font-mono ${
                     isHighlighted
                       ? isFail
-                        ? 'bg-failure-950/40 border-failure-500/80 shadow-lg shadow-failure-950/30'
+                        ? 'bg-failure-50 border-failure-200 shadow-lg shadow-failure-950/30'
                         : isCur
-                          ? 'bg-brand-950/40 border-brand-500/80 shadow-lg shadow-brand-950/30'
-                          : 'bg-history-950/40 border-history-500/80 shadow-lg shadow-history-950/30'
-                      : 'bg-zinc-900/30 border-zinc-800/80 opacity-50'
+                          ? 'bg-brand-50 border-brand-200 shadow-lg shadow-brand-950/30'
+                          : 'bg-history-50 border-history-200 shadow-lg shadow-history-950/30'
+                      : 'bg-white border-zinc-200 opacity-50'
                   }`}
                 >
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <span className={`text-xs font-bold ${
-                        isFail ? 'text-failure-400' : isCur ? 'text-brand-400' : 'text-history-400'
+                        isFail ? 'text-failure-600' : isCur ? 'text-brand-600' : 'text-history-600'
                       }`}>
                         {ev.name}
                       </span>
-                      <span className="text-[10px] text-zinc-400">{ev.time}</span>
+                      <span className="text-[10px] text-zinc-600">{ev.time}</span>
                     </div>
-                    <p className="text-[11px] text-zinc-300 font-sans leading-snug">
+                    <p className="text-[11px] text-zinc-700 font-sans leading-snug">
                       {ev.desc}
                     </p>
                   </div>
 
-                  <div className="mt-3 pt-2 border-t border-zinc-800/60 text-[10px]">
-                    {isFail && <span className="text-failure-400 font-bold uppercase">Root Failure</span>}
-                    {isCur && <span className="text-brand-400 font-bold uppercase">Resting State</span>}
-                    {!isFail && !isCur && <span className="text-zinc-400">Recorded</span>}
+                  <div className="mt-3 pt-2 border-t border-zinc-200 text-[10px]">
+                    {isFail && <span className="text-failure-600 font-bold uppercase">Root Failure</span>}
+                    {isCur && <span className="text-brand-600 font-bold uppercase">Resting State</span>}
+                    {!isFail && !isCur && <span className="text-zinc-600">Recorded</span>}
                   </div>
                 </div>
               );
@@ -101,7 +98,7 @@ export const TemporalMemorySection: React.FC = () => {
         </div>
 
         {/* Query Switcher: What happened before vs. What's happening now */}
-        <div className="max-w-4xl mx-auto rounded-2xl bg-[#0a0c12] border border-zinc-800 p-6 sm:p-8 shadow-xl">
+        <div className="max-w-4xl mx-auto rounded-2xl bg-white border border-zinc-200 p-6 sm:p-8 shadow-xl">
           
           {/* Switcher Toggle Buttons */}
           <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
@@ -111,7 +108,7 @@ export const TemporalMemorySection: React.FC = () => {
               className={`px-5 py-2.5 rounded-xl font-mono text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
                 activeQueryMode === 'historical'
                   ? 'bg-history-400 text-zinc-950 shadow-lg shadow-history-500/20'
-                  : 'bg-zinc-900 text-zinc-400 hover:text-zinc-200 border border-zinc-800'
+                  : 'bg-zinc-100 text-zinc-600 hover:text-zinc-900 border border-zinc-200'
               }`}
             >
               <Clock className="w-4 h-4" />
@@ -124,7 +121,7 @@ export const TemporalMemorySection: React.FC = () => {
               className={`px-5 py-2.5 rounded-xl font-mono text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
                 activeQueryMode === 'current'
                   ? 'bg-brand-400 text-zinc-950 shadow-lg shadow-brand-500/20'
-                  : 'bg-zinc-900 text-zinc-400 hover:text-zinc-200 border border-zinc-800'
+                  : 'bg-zinc-100 text-zinc-600 hover:text-zinc-900 border border-zinc-200'
               }`}
             >
               <Eye className="w-4 h-4" />
@@ -135,10 +132,10 @@ export const TemporalMemorySection: React.FC = () => {
           {/* Query Response Display */}
           {activeQueryMode === 'historical' ? (
             <div className="space-y-4 font-mono text-xs animate-fadeIn">
-              <div className="p-4 rounded-xl bg-history-950/30 border border-history-500/50 space-y-3">
-                <div className="flex items-center justify-between text-history-300 font-bold">
+              <div className="p-4 rounded-xl bg-history-50 border border-history-200 space-y-3">
+                <div className="flex items-center justify-between text-history-700 font-bold">
                   <span>Sutriva Temporal Memory Result:</span>
-                  <span className="text-[11px] px-2 py-0.5 rounded bg-history-950 text-history-400 border border-history-800">
+                  <span className="text-[11px] px-2 py-0.5 rounded bg-history-100 text-history-700 border border-history-300">
                     Slices Retrieved: Event B + Failure Context
                   </span>
                 </div>
@@ -155,17 +152,17 @@ export const TemporalMemorySection: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="text-[11px] text-zinc-400 font-sans pt-1">
+                <div className="text-[11px] text-zinc-600 font-sans pt-1">
                   ✓ Coding agent receives exact cause without relying on memoryless state inspection.
                 </div>
               </div>
             </div>
           ) : (
             <div className="space-y-4 font-mono text-xs animate-fadeIn">
-              <div className="p-4 rounded-xl bg-brand-950/30 border border-brand-500/50 space-y-3">
-                <div className="flex items-center justify-between text-brand-300 font-bold">
+              <div className="p-4 rounded-xl bg-brand-50 border border-brand-200 space-y-3">
+                <div className="flex items-center justify-between text-brand-700 font-bold">
                   <span>Observation Alone Result:</span>
-                  <span className="text-[11px] px-2 py-0.5 rounded bg-brand-950 text-brand-400 border border-brand-800">
+                  <span className="text-[11px] px-2 py-0.5 rounded bg-brand-100 text-brand-700 border border-brand-300">
                     Single Snapshot: Event E
                   </span>
                 </div>
@@ -174,7 +171,7 @@ export const TemporalMemorySection: React.FC = () => {
                   <span className="text-brand-400 font-semibold">[00:19.41 - Event E]:</span> Browser resting state is still on /checkout. Button shows "Processing...". No errors in the current console buffer.
                 </div>
 
-                <div className="p-3 rounded bg-history-950/40 border border-history-900/60 text-history-200 font-sans text-xs">
+                <div className="p-3 rounded bg-history-50 border border-history-200 text-history-700 font-sans text-xs">
                   <strong>Outcome:</strong> Agent cannot determine why checkout is stuck because the console error (Event Fail) already scrolled off and the current console buffer shows nothing.
                 </div>
               </div>
@@ -185,8 +182,8 @@ export const TemporalMemorySection: React.FC = () => {
 
         {/* Big Distinction Callout */}
         <div className="mt-12 text-center">
-          <div className="inline-block p-4 sm:p-6 rounded-2xl bg-zinc-900/80 border border-zinc-800 shadow-xl max-w-xl">
-            <span className="text-xs font-mono text-zinc-400 uppercase tracking-widest block mb-1">
+          <div className="inline-block p-4 sm:p-6 rounded-2xl bg-white border border-zinc-200 shadow-xl max-w-xl">
+            <span className="text-xs font-mono text-zinc-600 uppercase tracking-widest block mb-1">
               Core Axiom
             </span>
             <div className="text-xl sm:text-2xl font-mono font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-history-400 to-brand-400">

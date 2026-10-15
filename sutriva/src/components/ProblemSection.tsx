@@ -46,20 +46,20 @@ export const ProblemSection: React.FC = () => {
   ];
 
   return (
-    <section id="problem" className="py-24 bg-[#08090d] border-b border-zinc-800/80 relative">
+    <section id="problem" className="py-24 bg-[#f8f9fb] border-b border-zinc-200 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="max-w-3xl mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-brand-400 mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand-400" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-mono text-brand-600 mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-600" />
             <span>Root Cause Analysis</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-mono font-bold tracking-tight text-white mb-6">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-sans font-normal tracking-tight text-zinc-950 mb-6">
             Debugging has a memory problem.
           </h2>
-          <p className="text-base sm:text-lg text-zinc-400 leading-relaxed">
-            A coding agent can inspect the repository and current application state. But many bugs depend on events that <strong className="text-zinc-200">already happened</strong>. By the time the agent is asked to diagnose, the fatal event has already passed.
+          <p className="text-base sm:text-lg text-zinc-600 leading-relaxed">
+            A coding agent can inspect the repository and current application state. But many bugs depend on events that <strong className="text-zinc-900">already happened</strong>. By the time the agent is asked to diagnose, the fatal event has already passed.
           </p>
         </div>
 
@@ -67,20 +67,20 @@ export const ProblemSection: React.FC = () => {
         <div className="mb-14 grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
           
           {/* Left Box: Current State Alone (Incomplete) */}
-          <div className="lg:col-span-5 rounded-xl bg-zinc-900/40 border border-zinc-800 p-6 flex flex-col justify-between">
+          <div className="lg:col-span-5 rounded-xl bg-white border border-zinc-200 p-6 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-4">
-                <span className="font-mono text-xs text-zinc-400 font-semibold uppercase tracking-wider">
+                <span className="font-mono text-xs text-zinc-600 font-semibold uppercase tracking-wider">
                   Observation Alone
                 </span>
-                <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-zinc-800/80 text-zinc-300 border border-zinc-700/60">
+                <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-zinc-100 text-zinc-600 border border-zinc-200">
                   Current State (t = 19.41s)
                 </span>
               </div>
-              <h3 className="text-xl font-bold text-white mb-3">
+              <h3 className="text-xl font-bold text-zinc-950 mb-3">
                 The Incomplete Snapshot
               </h3>
-              <p className="text-sm text-zinc-400 mb-6 leading-relaxed">
+              <p className="text-sm text-zinc-600 mb-6 leading-relaxed">
                 Inspecting DOM at resting state shows an empty cart or a generic fallback. The coding agent sees no active exception in the current render tree, prompting blind trial-and-error code edits.
               </p>
             </div>
@@ -97,23 +97,21 @@ export const ProblemSection: React.FC = () => {
           </div>
 
           {/* Right Box: Historical Sequence Preserved by Sutriva */}
-          <div className="lg:col-span-7 rounded-xl bg-zinc-900/70 border border-brand-500/30 p-6 flex flex-col justify-between relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 glow-emerald opacity-20 pointer-events-none" />
-            
+          <div className="lg:col-span-7 rounded-xl bg-white border border-brand-200 p-6 flex flex-col justify-between relative overflow-hidden">
             <div>
               <div className="flex items-center justify-between mb-4">
-                <span className="font-mono text-xs text-brand-400 font-semibold uppercase tracking-wider flex items-center gap-1.5">
+                <span className="font-mono text-xs text-brand-600 font-semibold uppercase tracking-wider flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5" />
                   Sutriva Temporal Memory
                 </span>
-                <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-brand-950/80 text-brand-300 border border-brand-800/60">
+                <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-brand-50 text-brand-700 border border-brand-200">
                   Full Sequence Preserved
                 </span>
               </div>
-              <h3 className="text-xl font-bold text-white mb-3">
+              <h3 className="text-xl font-bold text-zinc-950 mb-3">
                 Persistent, Timestamped Historical Evidence
               </h3>
-              <p className="text-sm text-zinc-300 mb-6 leading-relaxed">
+              <p className="text-sm text-zinc-700 mb-6 leading-relaxed">
                 Sutriva correlates user actions, network transactions, console exceptions, and Git state into a persistent, queryable timeline that coding agents can interrogate anytime — long after the moment has passed.
               </p>
             </div>
@@ -155,15 +153,15 @@ export const ProblemSection: React.FC = () => {
             return (
               <div
                 key={idx}
-                className="p-5 rounded-xl bg-zinc-900/30 hover:bg-zinc-900/60 border border-zinc-800/80 hover:border-zinc-700 transition-all group"
+                className="p-5 rounded-xl bg-white hover:bg-zinc-50 border border-zinc-200 hover:border-zinc-300 transition-all group"
               >
-                <div className="w-9 h-9 rounded-lg bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-brand-400 group-hover:text-brand-300 mb-4 transition-colors">
+                <div className="w-9 h-9 rounded-lg bg-zinc-100 border border-zinc-200 flex items-center justify-center text-brand-700 group-hover:text-brand-800 mb-4 transition-colors">
                   <Icon className="w-4 h-4" />
                 </div>
-                <h3 className="font-mono text-sm font-semibold text-white mb-2">
+                <h3 className="font-mono text-sm font-semibold text-zinc-950 mb-2">
                   {item.title}
                 </h3>
-                <p className="text-xs text-zinc-400 leading-relaxed">
+                <p className="text-xs text-zinc-600 leading-relaxed">
                   {item.desc}
                 </p>
               </div>
@@ -172,10 +170,10 @@ export const ProblemSection: React.FC = () => {
         </div>
 
         {/* Section Footer Callout */}
-        <div className="mt-12 p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 text-center max-w-2xl mx-auto">
-          <p className="text-sm font-mono text-zinc-300">
+        <div className="mt-12 p-4 rounded-xl bg-white border border-zinc-200 text-center max-w-2xl mx-auto">
+          <p className="text-sm font-mono text-zinc-700">
             "Your coding agent can see what's happening. <br className="hidden sm:inline" />
-            <span className="text-brand-400 font-semibold">Sutriva helps it remember what happened.</span>"
+            <span className="text-brand-600 font-semibold">Sutriva helps it remember what happened.</span>"
           </p>
         </div>
 

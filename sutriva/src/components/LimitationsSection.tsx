@@ -50,19 +50,19 @@ export const LimitationsSection: React.FC = () => {
   ];
 
   return (
-    <section id="limitations" className="py-24 bg-[#090a0f] border-b border-zinc-800 relative">
+    <section id="limitations" className="py-24 bg-white border-b border-zinc-200 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="max-w-3xl mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-history-400 mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-mono text-history-600 mb-4">
             <AlertTriangle className="w-3.5 h-3.5" />
             <span>Honest Technical Scope</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-mono font-bold tracking-tight text-white mb-6">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-sans font-normal tracking-tight text-zinc-950 mb-6">
             Limitations & Known Boundaries
           </h2>
-          <p className="text-base sm:text-lg text-zinc-400 leading-relaxed">
+          <p className="text-base sm:text-lg text-zinc-600 leading-relaxed">
             We believe transparent tooling makes better software. Here is an honest summary of what Sutriva requires and where its boundaries lie.
           </p>
         </div>
@@ -72,16 +72,16 @@ export const LimitationsSection: React.FC = () => {
           {limitations.map((lim, idx) => (
             <div
               key={idx}
-              className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800/80 hover:border-zinc-700 transition-all font-mono"
+              className="p-5 rounded-2xl bg-white border border-zinc-200 hover:border-zinc-300 transition-all font-mono"
             >
-              <div className="flex items-center justify-between text-xs text-history-400 mb-2 font-bold">
+              <div className="flex items-center justify-between text-xs text-history-600 mb-2 font-bold">
                 <span>0{idx + 1}.</span>
                 <span className="text-[10px] text-zinc-500 font-normal">Constraint</span>
               </div>
-              <h3 className="text-sm font-bold text-zinc-200 mb-2">
+              <h3 className="text-sm font-bold text-zinc-950 mb-2">
                 {lim.title}
               </h3>
-              <p className="text-xs text-zinc-400 font-sans leading-relaxed">
+              <p className="text-xs text-zinc-600 font-sans leading-relaxed">
                 {lim.desc}
               </p>
             </div>

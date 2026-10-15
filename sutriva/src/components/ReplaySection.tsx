@@ -25,19 +25,19 @@ export const ReplaySection: React.FC = () => {
   ];
 
   return (
-    <section id="replay" className="py-24 bg-[#08090d] border-b border-zinc-800 relative">
+    <section id="replay" className="py-24 bg-[#f8f9fb] border-b border-zinc-200 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="max-w-3xl mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-brand-400 mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-mono text-brand-600 mb-4">
             <Video className="w-3.5 h-3.5" />
             <span>Post-Mortem & Video Ingestion</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-mono font-bold tracking-tight text-white mb-6">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-sans font-normal tracking-tight text-zinc-950 mb-6">
             Run it back.
           </h2>
-          <p className="text-base sm:text-lg text-zinc-400 leading-relaxed">
+          <p className="text-base sm:text-lg text-zinc-600 leading-relaxed">
             Turn any pre-recorded screen capture, MP4 bug video, or QA recording into a deterministic, timestamped evidence database.
           </p>
         </div>
@@ -63,30 +63,30 @@ export const ReplaySection: React.FC = () => {
             { step: 'Transcript', desc: 'Spoken developer audio, if present' },
             { step: 'Source Correlation', desc: 'Git branch/commit/status' }
           ].map((item, idx) => (
-            <div key={idx} className="p-4 rounded-xl bg-zinc-900/40 border border-zinc-800/80 text-center font-mono">
+            <div key={idx} className="p-4 rounded-xl bg-white border border-zinc-200 text-center font-mono">
               <span className="text-[10px] text-zinc-500 block mb-1">0{idx + 1}</span>
-              <div className="text-xs font-bold text-white mb-1">{item.step}</div>
-              <div className="text-[11px] text-zinc-400 font-sans">{item.desc}</div>
+              <div className="text-xs font-bold text-zinc-950 mb-1">{item.step}</div>
+              <div className="text-[11px] text-zinc-600 font-sans">{item.desc}</div>
             </div>
           ))}
         </div>
 
         {/* Interactive Video & Telemetry Scrubber Mockup */}
-        <div className="rounded-2xl bg-[#0c0e15] border border-zinc-800 shadow-2xl p-6 lg:p-8">
-          
-          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 pb-6 border-b border-zinc-800 mb-6">
+        <div className="rounded-2xl bg-white border border-zinc-200 shadow-2xl p-6 lg:p-8">
+
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 pb-6 border-b border-zinc-200 mb-6">
             <div>
-              <span className="text-xs font-mono text-zinc-400 uppercase tracking-wider block">Video Replay Explorer</span>
-              <h3 className="text-xl font-mono font-bold text-white flex items-center gap-2">
+              <span className="text-xs font-mono text-zinc-600 uppercase tracking-wider block">Video Replay Explorer</span>
+              <h3 className="text-xl font-mono font-bold text-zinc-950 flex items-center gap-2">
                 <span>checkout-bug.mp4</span>
-                <span className="text-xs font-normal text-brand-400 font-mono bg-brand-950/60 px-2 py-0.5 rounded border border-brand-800/60">
+                <span className="text-xs font-normal text-brand-700 font-mono bg-brand-50 px-2 py-0.5 rounded border border-brand-200">
                   Indexed (24 sampled frames)
                 </span>
               </h3>
             </div>
 
-            <div className="flex items-center gap-3 font-mono text-xs text-zinc-300">
-              <span>Timestamp: <strong className="text-brand-400 font-bold">{scrubberSec.toFixed(2)}s</strong> / 24.50s</span>
+            <div className="flex items-center gap-3 font-mono text-xs text-zinc-700">
+              <span>Timestamp: <strong className="text-brand-700 font-bold">{scrubberSec.toFixed(2)}s</strong> / 24.50s</span>
             </div>
           </div>
 
@@ -99,7 +99,7 @@ export const ReplaySection: React.FC = () => {
               step="0.1"
               value={scrubberSec}
               onChange={(e) => setScrubberSec(parseFloat(e.target.value))}
-              className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-brand-400"
+              className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-brand-400"
             />
 
             {/* Timeline Tick Markers */}
@@ -108,8 +108,8 @@ export const ReplaySection: React.FC = () => {
                 <button
                   key={i}
                   onClick={() => setScrubberSec(pt.sec)}
-                  className={`hover:text-brand-400 transition-colors ${
-                    pt.type === 'error' ? 'text-failure-400 font-bold' : ''
+                  className={`hover:text-brand-600 transition-colors ${
+                    pt.type === 'error' ? 'text-failure-600 font-bold' : ''
                   }`}
                 >
                   {pt.label}

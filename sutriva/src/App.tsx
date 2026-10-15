@@ -68,12 +68,13 @@ export default function App() {
   const isDocsView = currentPath.startsWith('/docs');
 
   return (
-    <div className="min-h-screen bg-[#08090d] text-zinc-100 selection:bg-brand-500/30 selection:text-brand-200">
-      
+    <div className="min-h-screen selection:bg-brand-500/30 selection:text-brand-700">
+
       {/* Top Fixed Navigation Bar */}
       <Navbar
         currentPath={currentPath}
         onNavigate={navigateTo}
+        onOpenSearch={() => setIsSearchModalOpen(true)}
         onOpenDemo={() => setIsDemoModalOpen(true)}
       />
 
@@ -84,7 +85,7 @@ export default function App() {
           onNavigate={navigateTo}
         />
       ) : (
-        <main className="relative overflow-hidden">
+        <main className="relative overflow-hidden bg-white text-zinc-900">
           {/* Landing Page Content Sections */}
           <HeroSection 
             onNavigate={navigateTo} 

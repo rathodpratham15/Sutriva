@@ -48,7 +48,7 @@ export const DocsLayout: React.FC<DocsLayoutProps> = ({ currentPath, onNavigate 
   };
 
   return (
-    <div className="pt-16 min-h-screen bg-[#08090d] text-zinc-100 flex flex-col">
+    <div className="docs-dark-scrollbar pt-16 min-h-screen bg-[#08090d] text-zinc-100 flex flex-col">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex-1 flex">
         
         {/* Mobile Sidebar Toggle Button */}

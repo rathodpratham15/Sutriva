@@ -1,18 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  ArrowRight, 
-  Github, 
-  Play, 
-  Copy, 
-  Check, 
-  Terminal, 
-  Clock, 
-  Sparkles, 
-  AlertCircle, 
-  FileCode, 
-  Database,
-  ArrowUpRight,
-  ShieldCheck,
+import {
+  ArrowRight,
+  Github,
+  Play,
+  Copy,
+  Check,
+  Terminal,
+  Clock,
   Cpu
 } from 'lucide-react';
 import { RoutePath } from '../types';
@@ -49,98 +43,103 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigate, onOpenDemo
   }, []);
 
   return (
-    <section className="relative pt-28 pb-20 md:pt-36 md:pb-28 overflow-hidden border-b border-zinc-800/60">
-      {/* Thin technical grid strip, confined to the band directly under the
-          navbar -- not a decorative grid spanning the whole section. */}
-      <div className="absolute inset-x-0 top-0 h-40 md:h-48 bg-grid-strip pointer-events-none -z-10" />
-
-      {/* Background Radial Glows */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] glow-emerald pointer-events-none -z-10" />
-      <div className="absolute top-1/3 right-10 w-[400px] h-[300px] glow-emerald pointer-events-none -z-10 opacity-40" />
-
+    <section className="relative pt-24 pb-16 md:pt-32 md:pb-24 bg-white text-center overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Top Badges */}
         <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900/90 border border-zinc-700/60 text-xs font-mono text-zinc-300 shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse" />
-            <span className="text-zinc-400">Open-Source Developer Tool</span>
-            <span className="text-zinc-600">•</span>
-            <span className="text-brand-400 font-semibold">sutriva@0.1.1</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-mono text-zinc-600 shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse" />
+            <span className="text-zinc-500">Open-Source Developer Tool</span>
+            <span className="text-zinc-400">•</span>
+            <span className="text-brand-700 font-semibold">sutriva@0.1.1</span>
           </div>
 
-          <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-900/60 border border-zinc-800 text-xs font-mono text-zinc-400">
-            <Cpu className="w-3.5 h-3.5 text-zinc-400" />
+          <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-50 border border-zinc-200 text-xs font-mono text-zinc-500">
+            <Cpu className="w-3.5 h-3.5 text-zinc-500" />
             <span>Works with Claude Code via MCP</span>
           </div>
         </div>
 
         {/* Hero Title & Tagline */}
-        <div className="text-center max-w-4xl mx-auto mb-10">
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-mono font-extrabold tracking-tight text-white mb-4">
-            SUTRIVA
+        <div className="max-w-4xl mx-auto mb-8">
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-normal tracking-tight text-zinc-950 font-sans mb-5 text-balance">
+            Temporal memory for coding agents
           </h1>
-          <p className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-zinc-100 via-zinc-200 to-zinc-400 mb-6">
-            Temporal memory for coding agents.
-          </p>
-          <p className="text-base sm:text-lg lg:text-xl text-zinc-400 font-normal leading-relaxed max-w-3xl mx-auto">
-            Debugging often depends on what happened <span className="text-zinc-200 font-medium underline decoration-brand-500/40 underline-offset-4">before</span> the current state. Sutriva turns live and recorded debugging sessions into persistent, timestamped evidence that coding agents can query later.
+          <p className="text-base sm:text-lg lg:text-xl text-zinc-600 font-normal leading-relaxed max-w-3xl mx-auto text-balance">
+            Debugging often depends on what happened <span className="text-zinc-900 font-medium underline decoration-brand-400 underline-offset-4">before</span> the current state. Sutriva turns live and recorded debugging sessions into persistent, timestamped evidence that coding agents can query later.
           </p>
         </div>
 
         {/* Past Events -> Failure -> Current State: the core visual grammar,
             introduced here so it reads before any paragraph explains it. */}
         <div className="flex items-center justify-center gap-2 sm:gap-3 mb-10 font-mono text-[11px] sm:text-xs">
-          <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-history-950/50 border border-history-800/60 text-history-300">
-            <span className="w-1.5 h-1.5 rounded-full bg-history-400" />
+          <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-history-50 border border-history-200 text-history-700">
+            <span className="w-1.5 h-1.5 rounded-full bg-history-500" />
             Past Events
           </span>
-          <span className="text-zinc-700">→</span>
-          <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-failure-950/50 border border-failure-800/60 text-failure-300">
-            <span className="w-1.5 h-1.5 rounded-full bg-failure-400" />
+          <span className="text-zinc-300">→</span>
+          <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-failure-50 border border-failure-200 text-failure-700">
+            <span className="w-1.5 h-1.5 rounded-full bg-failure-500" />
             Failure
           </span>
-          <span className="text-zinc-700">→</span>
-          <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-brand-950/50 border border-brand-800/60 text-brand-300">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand-400" />
+          <span className="text-zinc-300">→</span>
+          <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-brand-50 border border-brand-200 text-brand-700">
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-500" />
             Current State
           </span>
         </div>
 
-        {/* CTA Button Row */}
+        {/* CTA Row: Warp-style split install button + secondary actions */}
         <div className="flex flex-wrap items-center justify-center gap-3.5 mb-14">
-          <button
-            id="hero-primary-get-started"
-            onClick={() => onNavigate('/docs/quickstart')}
-            className="flex items-center gap-2 px-6 py-3 rounded-lg bg-brand-400 hover:bg-brand-300 text-zinc-950 font-semibold text-sm transition-all shadow-lg shadow-brand-500/10 hover:shadow-brand-500/25 active:scale-95"
-          >
-            <span>Get Started</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
+          <div className="inline-flex rounded overflow-hidden shadow-sm border border-zinc-300">
+            <button
+              id="hero-primary-get-started"
+              onClick={() => onNavigate('/docs/quickstart')}
+              className="flex items-center gap-2 bg-black hover:bg-zinc-800 text-white font-mono font-medium text-xs tracking-wider uppercase px-4 py-3 transition-colors"
+            >
+              <span>Get Started</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+            <div className="flex items-center gap-2 bg-[#f0f2f5] hover:bg-[#e4e7ec] px-4 py-3 font-mono text-xs text-zinc-800 transition-colors border-l border-zinc-300">
+              <span className="text-zinc-500 font-semibold">$</span>
+              <span className="select-all">{installCommand}</span>
+              <button
+                id="hero-copy-install-btn"
+                onClick={copyInstall}
+                className="ml-1 text-zinc-500 hover:text-black transition-colors"
+                title="Copy install command"
+              >
+                {copied ? <Check className="w-3.5 h-3.5 text-brand-600" /> : <Copy className="w-3.5 h-3.5" />}
+              </button>
+            </div>
+          </div>
 
           <a
             id="hero-secondary-github"
             href="https://github.com/rathodpratham15/Sutriva"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-5 py-3 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-200 hover:text-white border border-zinc-700/80 font-medium text-sm transition-colors"
+            className="flex items-center gap-2 px-5 py-3 rounded-lg bg-white hover:bg-zinc-50 text-zinc-700 hover:text-black border border-zinc-300 font-medium text-sm transition-colors"
           >
             <Github className="w-4 h-4" />
             <span>View on GitHub</span>
-            <ArrowUpRight className="w-3.5 h-3.5 text-zinc-500" />
           </a>
 
           <button
             id="hero-tertiary-watch-demo"
             onClick={onOpenDemo}
-            className="flex items-center gap-2 px-5 py-3 rounded-lg bg-zinc-900/40 hover:bg-zinc-800/80 text-zinc-300 hover:text-brand-300 border border-zinc-800 font-medium text-sm transition-colors"
+            className="flex items-center gap-2 px-5 py-3 rounded-lg bg-white hover:bg-zinc-50 text-zinc-700 hover:text-brand-700 border border-zinc-300 font-medium text-sm transition-colors"
           >
-            <Play className="w-3.5 h-3.5 fill-current text-brand-400" />
+            <Play className="w-3.5 h-3.5 fill-current text-brand-600" />
             <span>Watch Demo</span>
           </button>
         </div>
 
-        {/* Interactive Terminal & Evidence Demonstration Frame */}
-        <div className="max-w-4xl mx-auto rounded-xl bg-[#0d0e15] border border-zinc-800 shadow-2xl overflow-hidden">
+        {/* Interactive Terminal & Evidence Demonstration Frame -- a dark
+            terminal window is the intentional contrast element against the
+            light page, matching the rest of the site's "dark code card on a
+            light section" convention. */}
+        <div className="max-w-4xl mx-auto rounded-xl bg-[#0d0e15] border border-zinc-800 shadow-2xl overflow-hidden text-left">
           {/* Terminal Window Chrome */}
           <div className="px-4 py-3 bg-[#0a0b10] border-b border-zinc-800/80 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -159,8 +158,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigate, onOpenDemo
                 id="hero-tab-terminal"
                 onClick={() => setActiveHeroTab('terminal')}
                 className={`px-2.5 py-1 rounded-md transition-colors ${
-                  activeHeroTab === 'terminal' 
-                    ? 'bg-zinc-800 text-brand-300 shadow-sm' 
+                  activeHeroTab === 'terminal'
+                    ? 'bg-zinc-800 text-brand-300 shadow-sm'
                     : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
@@ -170,8 +169,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigate, onOpenDemo
                 id="hero-tab-evidence"
                 onClick={() => setActiveHeroTab('evidence')}
                 className={`px-2.5 py-1 rounded-md transition-colors flex items-center gap-1 ${
-                  activeHeroTab === 'evidence' 
-                    ? 'bg-zinc-800 text-brand-300 shadow-sm' 
+                  activeHeroTab === 'evidence'
+                    ? 'bg-zinc-800 text-brand-300 shadow-sm'
                     : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
@@ -182,8 +181,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigate, onOpenDemo
                 id="hero-tab-mcp"
                 onClick={() => setActiveHeroTab('mcp')}
                 className={`px-2.5 py-1 rounded-md transition-colors ${
-                  activeHeroTab === 'mcp' 
-                    ? 'bg-zinc-800 text-brand-300 shadow-sm' 
+                  activeHeroTab === 'mcp'
+                    ? 'bg-zinc-800 text-brand-300 shadow-sm'
                     : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
@@ -202,14 +201,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigate, onOpenDemo
                     <span className="text-brand-400 select-none">$</span>
                     <span>npm install -g sutriva</span>
                   </div>
-                  <button 
-                    id="hero-copy-install-btn"
-                    onClick={copyInstall}
-                    className="flex items-center gap-1 px-2 py-1 rounded bg-zinc-800/80 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-200 text-xs transition-colors"
-                  >
-                    {copied ? <Check className="w-3 h-3 text-brand-400" /> : <Copy className="w-3 h-3" />}
-                    <span>{copied ? 'Copied' : 'Copy'}</span>
-                  </button>
                 </div>
 
                 {/* Step 1: sutriva debug --live */}
@@ -361,21 +352,21 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigate, onOpenDemo
 
         {/* Quick Value Metrics Ribbon */}
         <div className="mt-14 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-          <div className="p-4 rounded-xl bg-zinc-900/40 border border-zinc-800/80 text-center">
-            <div className="text-2xl font-mono font-bold text-white mb-1">87 / 87</div>
-            <div className="text-xs text-zinc-400">Automated Tests Passing</div>
+          <div className="p-4 rounded-xl bg-white border border-zinc-200 text-center">
+            <div className="text-2xl font-mono font-bold text-zinc-950 mb-1">87 / 87</div>
+            <div className="text-xs text-zinc-500">Automated Tests Passing</div>
           </div>
-          <div className="p-4 rounded-xl bg-zinc-900/40 border border-zinc-800/80 text-center">
-            <div className="text-2xl font-mono font-bold text-brand-400 mb-1">Local-First</div>
-            <div className="text-xs text-zinc-400">SQLite persistence</div>
+          <div className="p-4 rounded-xl bg-white border border-zinc-200 text-center">
+            <div className="text-2xl font-mono font-bold text-brand-600 mb-1">Local-First</div>
+            <div className="text-xs text-zinc-500">SQLite persistence</div>
           </div>
-          <div className="p-4 rounded-xl bg-zinc-900/40 border border-zinc-800/80 text-center">
-            <div className="text-2xl font-mono font-bold text-info-400 mb-1">MCP Ready</div>
-            <div className="text-xs text-zinc-400">Open Model Context Protocol</div>
+          <div className="p-4 rounded-xl bg-white border border-zinc-200 text-center">
+            <div className="text-2xl font-mono font-bold text-info-600 mb-1">MCP Ready</div>
+            <div className="text-xs text-zinc-500">Open Model Context Protocol</div>
           </div>
-          <div className="p-4 rounded-xl bg-zinc-900/40 border border-zinc-800/80 text-center">
-            <div className="text-2xl font-mono font-bold text-info-400 mb-1">10 Tools</div>
-            <div className="text-xs text-zinc-400">Bounded MCP tool surface</div>
+          <div className="p-4 rounded-xl bg-white border border-zinc-200 text-center">
+            <div className="text-2xl font-mono font-bold text-info-600 mb-1">10 Tools</div>
+            <div className="text-xs text-zinc-500">Bounded MCP tool surface</div>
           </div>
         </div>
       </div>

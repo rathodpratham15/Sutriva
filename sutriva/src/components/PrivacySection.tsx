@@ -33,19 +33,19 @@ export const PrivacySection: React.FC = () => {
   ];
 
   return (
-    <section id="privacy" className="py-24 bg-[#08090d] border-b border-zinc-800 relative">
+    <section id="privacy" className="py-24 bg-[#f8f9fb] border-b border-zinc-200 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="max-w-3xl mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-brand-400 mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-mono text-brand-600 mb-4">
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>Data Sovereignty</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-mono font-bold tracking-tight text-white mb-6">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-sans font-normal tracking-tight text-zinc-950 mb-6">
             Local-first by default.
           </h2>
-          <p className="text-base sm:text-lg text-zinc-400 leading-relaxed">
+          <p className="text-base sm:text-lg text-zinc-600 leading-relaxed">
             Your source code, browser payloads, and development recordings remain entirely on your local machine.
           </p>
         </div>
@@ -57,15 +57,15 @@ export const PrivacySection: React.FC = () => {
             return (
               <div
                 key={idx}
-                className="p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/80 hover:border-zinc-700 transition-all font-mono"
+                className="p-6 rounded-2xl bg-white border border-zinc-200 hover:border-zinc-300 transition-all font-mono"
               >
-                <div className="w-10 h-10 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-brand-400 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-zinc-100 border border-zinc-200 flex items-center justify-center text-brand-700 mb-4">
                   <Icon className="w-5 h-5" />
                 </div>
-                <h3 className="text-base font-bold text-white mb-2">
+                <h3 className="text-base font-bold text-zinc-950 mb-2">
                   {p.title}
                 </h3>
-                <p className="text-xs text-zinc-400 font-sans leading-relaxed">
+                <p className="text-xs text-zinc-600 font-sans leading-relaxed">
                   {p.desc}
                 </p>
               </div>
