@@ -12,6 +12,8 @@ export interface FixTranscriptEntry {
 export interface PendingRequest {
   kind: "turn" | "confirm";
   promptLabel: string;
+  /** The full action description, for a "confirm" request's dedicated permission panel -- e.g. the literal shell command or file path. */
+  detail?: string;
   onSubmit: (value: string) => void;
 }
 
