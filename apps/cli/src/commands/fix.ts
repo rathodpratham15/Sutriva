@@ -91,7 +91,7 @@ async function runPlainFixSession(sessionId: string, prompt: string): Promise<Fi
       initialPrompt: prompt,
       cwd: process.cwd(),
       mcpServerCommand: resolveMcpServerCommand(),
-      print: (line) => console.log(line),
+      print: (line, kind) => console.log(kind === "tool-use" ? pc.cyan(line) : line),
       nextUserInput: async () => {
         if (rlClosed) return null;
         let line: string;
@@ -149,7 +149,7 @@ async function runTuiFixSession(sessionId: string, prompt: string): Promise<FixS
       initialPrompt: prompt,
       cwd: process.cwd(),
       mcpServerCommand: resolveMcpServerCommand(),
-      print: (line) => dashboard.appendEntry({ kind: "assistant", text: line }),
+      print: (line, kind) => dashboard.appendEntry({ kind: kind === "tool-use" ? "tool-use" : "assistant", text: line }),
       nextUserInput: () =>
         new Promise<string | null>((resolve) => {
           dashboard.setPending({
