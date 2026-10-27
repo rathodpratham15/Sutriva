@@ -4,7 +4,9 @@ import path from "node:path";
 import * as readline from "node:readline/promises";
 import { getStore } from "@sutriva/storage";
 import { pc } from "../lib/colors.js";
-import { runFixSession, serializeConfirmToolUse } from "../lib/fixAgent.js";
+import { runFixSession, serializeConfirmToolUse, computeLiveStatus, type FixSessionResult } from "../lib/fixAgent.js";
+import { canUseRawMode } from "../lib/tty.js";
+import { runFixDashboard } from "../tui/runFixDashboard.js";
 
 /**
  * An interactive, in-process debugging conversation built on
@@ -26,7 +28,8 @@ export function registerFixCommand(program: Command): void {
         "it with compare_sessions. Defaults to the active live session, or the most recent one.",
     )
     .option("--dry-run", "Print the opening prompt instead of starting the session")
-    .action(async (sessionId: string | undefined, opts: { dryRun?: boolean }) => {
+    .option("--tui", "Show a dashboard (scrolling transcript + live status footer) instead of plain scrolling output")
+    .action(async (sessionId: string | undefined, opts: { dryRun?: boolean; tui?: boolean }) => {
       const store = getStore();
       const resolvedId = sessionId ?? store.findActiveLiveSession()?.id ?? store.listSessions()[0]?.id;
       if (!resolvedId) {
@@ -50,56 +53,123 @@ export function registerFixCommand(program: Command): void {
         return;
       }
 
-      console.log(pc.bold(`Starting an interactive debugging session for ${resolvedId}.`));
-      console.log(pc.gray("Read-only evidence queries happen automatically; anything that edits a file or runs a shell command will ask first.\n"));
-
-      const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-      let rlClosed = false;
-      rl.on("close", () => {
-        rlClosed = true;
-      });
-
-      const confirmToolUse = serializeConfirmToolUse(async (description) => {
-        console.log(pc.yellow(`\n⚠ ${description}`));
-        if (rlClosed) return false;
-        try {
-          const answer = await rl.question(pc.bold("Allow this? [y/N] "));
-          return /^y(es)?$/i.test(answer.trim());
-        } catch {
-          return false;
-        }
-      });
-
-      try {
-        const { banner } = await runFixSession({
-          initialPrompt: prompt,
-          cwd: process.cwd(),
-          mcpServerCommand: resolveMcpServerCommand(),
-          print: (line) => console.log(line),
-          nextUserInput: async () => {
-            if (rlClosed) return null;
-            let line: string;
-            try {
-              line = await rl.question("\nsutriva fix> ");
-            } catch {
-              return null;
-            }
-            const trimmed = line.trim();
-            if (/^(exit|quit)$/i.test(trimmed)) {
-              rl.close();
-              return null;
-            }
-            return line;
-          },
-          confirmToolUse,
-        });
-
-        console.log(pc.bold("\n--- Summary ---"));
-        console.log(banner);
-      } finally {
-        if (!rlClosed) rl.close();
+      const useTui = opts.tui && canUseRawMode();
+      if (opts.tui && !useTui) {
+        console.log("--tui requires an interactive terminal (stdin must support raw mode) -- falling back to the plain log.\n");
       }
+
+      const result = useTui ? await runTuiFixSession(resolvedId, prompt) : await runPlainFixSession(resolvedId, prompt);
+
+      console.log(pc.bold("\n--- Summary ---"));
+      console.log(result.banner);
     });
+}
+
+async function runPlainFixSession(sessionId: string, prompt: string): Promise<FixSessionResult> {
+  console.log(pc.bold(`Starting an interactive debugging session for ${sessionId}.`));
+  console.log(pc.gray("Read-only evidence queries happen automatically; anything that edits a file or runs a shell command will ask first.\n"));
+
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  let rlClosed = false;
+  rl.on("close", () => {
+    rlClosed = true;
+  });
+
+  const confirmToolUse = serializeConfirmToolUse(async (description) => {
+    console.log(pc.yellow(`\n⚠ ${description}`));
+    if (rlClosed) return false;
+    try {
+      const answer = await rl.question(pc.bold("Allow this? [y/N] "));
+      return /^y(es)?$/i.test(answer.trim());
+    } catch {
+      return false;
+    }
+  });
+
+  try {
+    return await runFixSession({
+      initialPrompt: prompt,
+      cwd: process.cwd(),
+      mcpServerCommand: resolveMcpServerCommand(),
+      print: (line) => console.log(line),
+      nextUserInput: async () => {
+        if (rlClosed) return null;
+        let line: string;
+        try {
+          line = await rl.question("\nsutriva fix> ");
+        } catch {
+          return null;
+        }
+        const trimmed = line.trim();
+        if (/^(exit|quit)$/i.test(trimmed)) {
+          rl.close();
+          return null;
+        }
+        return line;
+      },
+      confirmToolUse,
+    });
+  } finally {
+    if (!rlClosed) rl.close();
+  }
+}
+
+async function runTuiFixSession(sessionId: string, prompt: string): Promise<FixSessionResult> {
+  const dashboard = runFixDashboard(sessionId);
+  const startedAt = Date.now();
+  const tick = setInterval(() => dashboard.updateElapsed((Date.now() - startedAt) / 1000), 1000);
+
+  // Same serialization fix as the plain path: a single turn can issue more
+  // than one gated tool call at once, and without this, two concurrent
+  // confirmToolUse calls would race on the dashboard's single pending slot
+  // exactly the way they used to race on a shared readline interface.
+  const confirmToolUse = serializeConfirmToolUse(
+    (description) =>
+      new Promise<boolean>((resolve) => {
+        dashboard.appendEntry({ kind: "system", text: `⚠ ${description}` });
+        dashboard.setPending({
+          kind: "confirm",
+          promptLabel: "Allow this? [y/N]",
+          onSubmit: (value) => {
+            dashboard.setPending(null);
+            const approved = /^y(es)?$/i.test(value.trim());
+            dashboard.appendEntry({ kind: "user", text: approved ? "y" : value.trim() || "n" });
+            resolve(approved);
+          },
+        });
+      }),
+  );
+
+  try {
+    return await runFixSession({
+      initialPrompt: prompt,
+      cwd: process.cwd(),
+      mcpServerCommand: resolveMcpServerCommand(),
+      print: (line) => dashboard.appendEntry({ kind: "assistant", text: line }),
+      nextUserInput: () =>
+        new Promise<string | null>((resolve) => {
+          dashboard.setPending({
+            kind: "turn",
+            promptLabel: "sutriva fix>",
+            onSubmit: (value) => {
+              dashboard.setPending(null);
+              const trimmed = value.trim();
+              dashboard.appendEntry({ kind: "user", text: `> ${value}` });
+              if (/^(exit|quit)$/i.test(trimmed)) {
+                resolve(null);
+                return;
+              }
+              resolve(value);
+            },
+          });
+        }),
+      confirmToolUse,
+      onTranscriptChange: (transcript) => dashboard.updateStatus(computeLiveStatus(transcript)),
+    });
+  } finally {
+    clearInterval(tick);
+    dashboard.unmount();
+  }
 }
 
 function buildFixPrompt(sessionId: string, mode: string): string {

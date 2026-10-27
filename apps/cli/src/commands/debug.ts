@@ -3,6 +3,7 @@ import { startLiveSession } from "@sutriva/live";
 import { getStore } from "@sutriva/storage";
 import type { TemporalEvent } from "@sutriva/core";
 import { runLiveTui } from "../tui/runLiveTui.js";
+import { canUseRawMode } from "../lib/tty.js";
 
 export function registerDebugCommand(program: Command): void {
   program
@@ -28,24 +29,6 @@ export function registerDebugCommand(program: Command): void {
           `the video, or explore it yourself with:\n  sutriva inspect "${video}"\n  sutriva timeline "${video}"`,
       );
     });
-}
-
-/**
- * Ink's own isRawModeSupported check is just `stdin.isTTY`, which isn't
- * reliable everywhere -- some non-interactive/sandboxed shells report
- * isTTY: true but still throw from setRawMode itself, crashing Ink after
- * it's already mid-render. Testing actual capability directly, before ever
- * handing control to Ink, avoids that crash entirely.
- */
-function canUseRawMode(): boolean {
-  if (!process.stdin.isTTY) return false;
-  try {
-    process.stdin.setRawMode(true);
-    process.stdin.setRawMode(false);
-    return true;
-  } catch {
-    return false;
-  }
 }
 
 async function runLiveSession(opts: { url?: string; headless?: boolean; tui?: boolean }): Promise<void> {
