@@ -295,12 +295,12 @@ sutriva debug --live [--url <url>] [--headless] [--tui]    # live browser sessio
 sutriva exec -- <command>                                  # run + record a command into the active live session
 sutriva session list
 sutriva session report [sessionId] [--json]                # human-readable summary: issues, timeline, Git state
-sutriva fix [sessionId] [--agent <cmd>] [--dry-run]        # hand a session's evidence to an agent CLI to diagnose + patch
+sutriva fix [sessionId] [--dry-run]                         # interactive debugging session over a session's evidence
 sutriva eval                                                # run the evaluation harness against demo/buggy-app
 sutriva clean [--yes]                                      # delete .sutriva/ (derived data only)
 ```
 
-`sutriva debug <video>` explains how to drive replay debugging via Claude Code/MCP rather than duplicating that logic in the CLI. `sutriva debug --live --tui` renders a full-screen, color-coded live dashboard instead of a plain scrolling log -- it falls back to the plain log automatically if stdin doesn't support raw mode (e.g. a non-interactive shell). `sutriva session report` and `sutriva fix` both default to the active live session, or the most recently created one if none is running. `sutriva fix` is a thin orchestrator, not a second diagnosis engine: it only gathers evidence and hands the session id to an external agent CLI (`claude -p` by default) -- all the actual reasoning and the patch itself come from that agent, the same way the MCP tools work when Claude drives the loop directly.
+`sutriva debug <video>` explains how to drive replay debugging via Claude Code/MCP rather than duplicating that logic in the CLI. `sutriva debug --live --tui` renders a full-screen, color-coded live dashboard instead of a plain scrolling log -- it falls back to the plain log automatically if stdin doesn't support raw mode (e.g. a non-interactive shell). `sutriva session report` and `sutriva fix` both default to the active live session, or the most recently created one if none is running. `sutriva fix` is an interactive, in-process debugging conversation built on `@anthropic-ai/claude-agent-sdk`: it loads the session's evidence over the same MCP tools Claude Code itself would use, lets you discuss the root cause, and gates every mutating or shell tool call (`Edit`/`Write`/`Bash`) behind an explicit per-call `y`/`n` confirmation -- never silently applied, never a blanket "always allow". Read-only evidence queries and source reads are auto-approved so the discussion itself stays frictionless. A closing summary reports patch/test/verification status computed from the actual tool-call transcript, not from the model's own self-report.
 
 ### Installing outside this repo
 
