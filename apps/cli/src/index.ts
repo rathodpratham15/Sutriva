@@ -11,6 +11,7 @@ import { registerSessionCommand } from "./commands/session.js";
 import { registerDebugCommand } from "./commands/debug.js";
 import { registerExecCommand } from "./commands/exec.js";
 import { registerEvalCommand } from "./commands/eval.js";
+import { registerFixCommand } from "./commands/fix.js";
 
 const program = new Command();
 program.name("sutriva").description("Sutriva gives coding agents temporal memory").version("0.1.0");
@@ -25,6 +26,7 @@ registerDebugCommand(program);
 registerExecCommand(program);
 registerEvalCommand(program);
 registerCleanCommand(program);
+registerFixCommand(program);
 
 // `doctor` and `--help`/`--version` must keep working on an unsupported Node
 // so a user hitting the version problem can actually diagnose it -- every
