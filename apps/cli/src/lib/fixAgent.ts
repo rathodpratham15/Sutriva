@@ -180,15 +180,57 @@ function toUserMessage(text: string): SDKUserMessage {
   return { type: "user", message: { role: "user", content: text }, parent_tool_use_id: null };
 }
 
-async function* buildPromptStream(
+/**
+ * The SDK pulls the prompt generator eagerly -- it does NOT wait for a turn
+ * to fully finish (all its tool calls resolved) before asking the generator
+ * for the *next* one. Left ungated, that means nextUserInput() (which reads
+ * a line from the terminal) gets called while a mid-turn canUseTool
+ * confirmation is also trying to read a line from the same terminal, and
+ * whichever typed line arrives goes to whichever of the two is currently
+ * registered with readline -- not necessarily the one actually pending.
+ * This gate makes the generator suspend (without touching readline at all)
+ * until the orchestrator has observed the current turn's `result` message,
+ * so a mid-turn confirmation always has the terminal to itself.
+ */
+export interface TurnGate {
+  startTurn: () => void;
+  endTurn: () => void;
+  waitUntilReady: () => Promise<void>;
+}
+
+export function createTurnGate(): TurnGate {
+  let resolveCurrent: (() => void) | null = null;
+  let ready: Promise<void> = Promise.resolve();
+
+  return {
+    startTurn() {
+      ready = new Promise((resolve) => {
+        resolveCurrent = resolve;
+      });
+    },
+    endTurn() {
+      resolveCurrent?.();
+      resolveCurrent = null;
+    },
+    waitUntilReady() {
+      return ready;
+    },
+  };
+}
+
+export async function* buildPromptStream(
   initialPrompt: string,
   nextUserInput: () => Promise<string | null>,
+  gate: TurnGate,
 ): AsyncGenerator<SDKUserMessage> {
+  gate.startTurn();
   yield toUserMessage(initialPrompt);
   while (true) {
+    await gate.waitUntilReady();
     const line = await nextUserInput();
     if (line === null) return;
     if (line.trim().length === 0) continue;
+    gate.startTurn();
     yield toUserMessage(line);
   }
 }
@@ -207,7 +249,8 @@ export async function runFixSession(options: FixSessionOptions): Promise<FixSess
     transcript.push(record);
   });
 
-  const promptStream = buildPromptStream(options.initialPrompt, options.nextUserInput);
+  const gate = createTurnGate();
+  const promptStream = buildPromptStream(options.initialPrompt, options.nextUserInput, gate);
 
   const conversation = query({
     prompt: promptStream,
@@ -250,6 +293,10 @@ export async function runFixSession(options: FixSessionOptions): Promise<FixSess
           }
         }
       }
+    } else if (message.type === "result") {
+      // Marks the current turn as fully settled -- only now is it safe to
+      // let the prompt generator ask for the next line (see createTurnGate).
+      gate.endTurn();
     }
   }
 

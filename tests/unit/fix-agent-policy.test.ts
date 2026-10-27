@@ -1,5 +1,12 @@
 import { describe, it, expect, vi } from "vitest";
-import { makeCanUseTool, computeStatusBanner, describeToolCall, type ToolCallRecord } from "../../apps/cli/src/lib/fixAgent.js";
+import {
+  makeCanUseTool,
+  computeStatusBanner,
+  describeToolCall,
+  createTurnGate,
+  buildPromptStream,
+  type ToolCallRecord,
+} from "../../apps/cli/src/lib/fixAgent.js";
 
 function fakeOptions(toolUseId: string) {
   return { signal: new AbortController().signal, toolUseID: toolUseId, requestId: `req-${toolUseId}` };
@@ -139,5 +146,68 @@ describe("computeStatusBanner", () => {
       },
     ];
     expect(computeStatusBanner(transcript)).toContain("NOT VERIFIED -- compare_sessions ran but did not show");
+  });
+});
+
+// Regression test for a real bug found manually: the Agent SDK pulls the
+// prompt generator eagerly, ahead of a turn fully finishing. Ungated, that
+// meant nextUserInput() (reading a REPL line) and a mid-turn canUseTool
+// confirmation (also reading a line) raced on the same readline interface,
+// and a user's "n" answering a pending confirmation got silently consumed
+// as a new chat message instead -- the confirmation just hung forever.
+describe("createTurnGate / buildPromptStream", () => {
+  it("blocks waitUntilReady until endTurn is called", async () => {
+    const gate = createTurnGate();
+    gate.startTurn();
+
+    let resolved = false;
+    void gate.waitUntilReady().then(() => {
+      resolved = true;
+    });
+
+    await new Promise((r) => setTimeout(r, 10));
+    expect(resolved).toBe(false);
+
+    gate.endTurn();
+    await gate.waitUntilReady();
+    expect(resolved).toBe(true);
+  });
+
+  it("does not call nextUserInput until the gate releases, even if the generator is pulled eagerly", async () => {
+    const gate = createTurnGate();
+    const nextUserInput = vi.fn().mockResolvedValue("hello");
+    const stream = buildPromptStream("initial prompt", nextUserInput, gate);
+
+    const first = await stream.next();
+    expect(first.value).toMatchObject({ type: "user", message: { content: "initial prompt" } });
+
+    // Simulate the SDK eagerly pulling ahead before the turn ends -- this
+    // must suspend inside the generator rather than touching nextUserInput.
+    let secondSettled = false;
+    const secondPromise = stream.next().then((r) => {
+      secondSettled = true;
+      return r;
+    });
+
+    await new Promise((r) => setTimeout(r, 10));
+    expect(secondSettled).toBe(false);
+    expect(nextUserInput).not.toHaveBeenCalled();
+
+    gate.endTurn();
+    const second = await secondPromise;
+    expect(secondSettled).toBe(true);
+    expect(nextUserInput).toHaveBeenCalledTimes(1);
+    expect(second.value).toMatchObject({ type: "user", message: { content: "hello" } });
+  });
+
+  it("ends the stream when nextUserInput resolves to null", async () => {
+    const gate = createTurnGate();
+    const nextUserInput = vi.fn().mockResolvedValue(null);
+    const stream = buildPromptStream("initial", nextUserInput, gate);
+
+    await stream.next();
+    gate.endTurn();
+    const result = await stream.next();
+    expect(result.done).toBe(true);
   });
 });
