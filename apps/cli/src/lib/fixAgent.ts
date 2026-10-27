@@ -43,6 +43,8 @@ export interface FixSessionOptions extends FixSessionIO {
   initialPrompt: string;
   cwd: string;
   mcpServerCommand: { command: string; args: string[] };
+  /** Called with the full transcript every time it changes -- for a live status display (e.g. the TUI footer) that can't wait for the session to end. */
+  onTranscriptChange?: (transcript: ToolCallRecord[]) => void;
 }
 
 export interface FixSessionResult {
@@ -133,45 +135,68 @@ function extractMcpJsonPayload(result: unknown): unknown {
   }
 }
 
-/**
- * Computed from the actual tool-call transcript, never from the model's own
- * closing statement -- "never claim a fix succeeded without verification".
- */
-export function computeStatusBanner(transcript: ToolCallRecord[]): string {
-  const lines: string[] = [];
+export type TestOutcome = "none" | "passed" | "failed" | "unclear";
+export type VerificationOutcome = "unverified" | "verified" | "ran-not-resolved";
 
+export interface LiveFixStatus {
+  patchApplied: boolean;
+  patchDescription?: string;
+  testOutcome: TestOutcome;
+  verification: VerificationOutcome;
+}
+
+/**
+ * Structured read of "what's actually happened so far", computed from the
+ * real tool-call transcript -- never from the model's own closing statement
+ * ("never claim a fix succeeded without verification"). Shared by the plain
+ * closing banner (computeStatusBanner) and the TUI's live-updating footer,
+ * so both read the same ground truth.
+ */
+export function computeLiveStatus(transcript: ToolCallRecord[]): LiveFixStatus {
   const patchCall = transcript.find((t) => ["Edit", "Write", "MultiEdit"].includes(t.toolName) && t.approved);
-  lines.push(patchCall ? `✓ Patch applied (${describeToolCall(patchCall.toolName, patchCall.input)})` : "– No patch was applied");
 
   const testCall = transcript.find((t) => t.toolName === "Bash" && t.approved && isTestCommand(String(t.input.command ?? "")));
-  if (testCall) {
-    const outcome = classifyBashOutcome(testCall.result);
-    lines.push(
-      outcome === "passed"
-        ? "✓ Tests passed"
-        : outcome === "failed"
-          ? "✗ Tests failed"
-          : "? Tests ran, but the outcome wasn't clear from their output",
-    );
-  } else {
-    lines.push("– No test run was observed");
-  }
+  const testOutcome: TestOutcome = testCall ? classifyBashOutcome(testCall.result) : "none";
 
   const compareCall = transcript.find((t) => t.toolName === "mcp__sutriva__compare_sessions" && t.approved);
-  const comparison = compareCall ? (extractMcpJsonPayload(compareCall.result) as
-    | { resolvedConsoleErrors?: unknown[]; resolvedEndpoints?: unknown[] }
-    | undefined) : undefined;
+  const comparison = compareCall
+    ? (extractMcpJsonPayload(compareCall.result) as { resolvedConsoleErrors?: unknown[]; resolvedEndpoints?: unknown[] } | undefined)
+    : undefined;
   const resolvedSomething = Boolean(
     comparison && ((comparison.resolvedConsoleErrors?.length ?? 0) > 0 || (comparison.resolvedEndpoints?.length ?? 0) > 0),
   );
 
-  if (resolvedSomething) {
-    lines.push("VERIFIED -- compare_sessions shows the original issue is gone.");
-  } else if (compareCall) {
-    lines.push("NOT VERIFIED -- compare_sessions ran but did not show the original issue resolved.");
-  } else {
-    lines.push("NOT VERIFIED -- reproduce the bug again in a fresh session, then call compare_sessions, to confirm.");
-  }
+  return {
+    patchApplied: Boolean(patchCall),
+    patchDescription: patchCall ? describeToolCall(patchCall.toolName, patchCall.input) : undefined,
+    testOutcome,
+    verification: resolvedSomething ? "verified" : compareCall ? "ran-not-resolved" : "unverified",
+  };
+}
+
+export function computeStatusBanner(transcript: ToolCallRecord[]): string {
+  const status = computeLiveStatus(transcript);
+  const lines: string[] = [];
+
+  lines.push(status.patchApplied ? `✓ Patch applied (${status.patchDescription})` : "– No patch was applied");
+
+  lines.push(
+    status.testOutcome === "passed"
+      ? "✓ Tests passed"
+      : status.testOutcome === "failed"
+        ? "✗ Tests failed"
+        : status.testOutcome === "unclear"
+          ? "? Tests ran, but the outcome wasn't clear from their output"
+          : "– No test run was observed",
+  );
+
+  lines.push(
+    status.verification === "verified"
+      ? "VERIFIED -- compare_sessions shows the original issue is gone."
+      : status.verification === "ran-not-resolved"
+        ? "NOT VERIFIED -- compare_sessions ran but did not show the original issue resolved."
+        : "NOT VERIFIED -- reproduce the bug again in a fresh session, then call compare_sessions, to confirm.",
+  );
 
   return lines.join("\n");
 }
@@ -271,6 +296,7 @@ export async function runFixSession(options: FixSessionOptions): Promise<FixSess
   const canUseTool = makeCanUseTool(options.confirmToolUse, (record) => {
     transcriptIndexByToolUseId.set(record.toolUseId, transcript.length);
     transcript.push(record);
+    options.onTranscriptChange?.(transcript);
   });
 
   const gate = createTurnGate();
@@ -313,6 +339,7 @@ export async function runFixSession(options: FixSessionOptions): Promise<FixSess
             const existing = idx !== undefined ? transcript[idx] : undefined;
             if (idx !== undefined && existing) {
               transcript[idx] = { ...existing, result: message.tool_use_result };
+              options.onTranscriptChange?.(transcript);
             }
           }
         }

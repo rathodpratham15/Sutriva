@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import {
   makeCanUseTool,
   computeStatusBanner,
+  computeLiveStatus,
   describeToolCall,
   createTurnGate,
   buildPromptStream,
@@ -251,5 +252,50 @@ describe("serializeConfirmToolUse", () => {
     await first;
     expect(second).toBe(true);
     expect(raw).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("computeLiveStatus", () => {
+  const textResult = (payload: unknown) => ({ content: [{ type: "text", text: JSON.stringify(payload) }] });
+
+  it("reflects an empty transcript as nothing applied/run/verified", () => {
+    expect(computeLiveStatus([])).toEqual({
+      patchApplied: false,
+      patchDescription: undefined,
+      testOutcome: "none",
+      verification: "unverified",
+    });
+  });
+
+  it("reflects a fully verified fix", () => {
+    const transcript: ToolCallRecord[] = [
+      { toolUseId: "t1", toolName: "Edit", input: { file_path: "app/checkout/page.tsx" }, approved: true },
+      {
+        toolUseId: "t2",
+        toolName: "Bash",
+        input: { command: "pnpm vitest run" },
+        approved: true,
+        result: { stdout: "Tests  3 passed (3)", stderr: "", interrupted: false },
+      },
+      {
+        toolUseId: "t3",
+        toolName: "mcp__sutriva__compare_sessions",
+        input: {},
+        approved: true,
+        result: textResult({ resolvedConsoleErrors: ["TypeError: ..."], resolvedEndpoints: [] }),
+      },
+    ];
+
+    expect(computeLiveStatus(transcript)).toEqual({
+      patchApplied: true,
+      patchDescription: "Edit app/checkout/page.tsx",
+      testOutcome: "passed",
+      verification: "verified",
+    });
+  });
+
+  it("does not count a declined Edit as applied", () => {
+    const transcript: ToolCallRecord[] = [{ toolUseId: "t1", toolName: "Edit", input: { file_path: "x.ts" }, approved: false }];
+    expect(computeLiveStatus(transcript).patchApplied).toBe(false);
   });
 });
