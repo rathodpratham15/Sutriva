@@ -91,7 +91,7 @@ async function runPlainFixSession(sessionId: string, prompt: string): Promise<Fi
       initialPrompt: prompt,
       cwd: process.cwd(),
       mcpServerCommand: resolveMcpServerCommand(),
-      print: (line) => console.log(line),
+      print: (line, kind) => console.log(kind === "tool-use" ? pc.cyan(line) : line),
       nextUserInput: async () => {
         if (rlClosed) return null;
         let line: string;
@@ -126,14 +126,18 @@ async function runTuiFixSession(sessionId: string, prompt: string): Promise<FixS
   const confirmToolUse = serializeConfirmToolUse(
     (description) =>
       new Promise<boolean>((resolve) => {
-        dashboard.appendEntry({ kind: "system", text: `⚠ ${description}` });
+        // The live decision gets its own dedicated panel (FixDashboard renders
+        // it specially for pending.kind === "confirm") instead of cluttering
+        // the scrolling transcript while it's still pending -- only the
+        // *outcome* becomes a permanent scrollback entry, once decided.
         dashboard.setPending({
           kind: "confirm",
           promptLabel: "Allow this? [y/N]",
+          detail: description,
           onSubmit: (value) => {
             dashboard.setPending(null);
             const approved = /^y(es)?$/i.test(value.trim());
-            dashboard.appendEntry({ kind: "user", text: approved ? "y" : value.trim() || "n" });
+            dashboard.appendEntry({ kind: "system", text: `⚠ ${description} -- ${approved ? "allowed" : "denied"}` });
             resolve(approved);
           },
         });
@@ -145,7 +149,7 @@ async function runTuiFixSession(sessionId: string, prompt: string): Promise<FixS
       initialPrompt: prompt,
       cwd: process.cwd(),
       mcpServerCommand: resolveMcpServerCommand(),
-      print: (line) => dashboard.appendEntry({ kind: "assistant", text: line }),
+      print: (line, kind) => dashboard.appendEntry({ kind: kind === "tool-use" ? "tool-use" : "assistant", text: line }),
       nextUserInput: () =>
         new Promise<string | null>((resolve) => {
           dashboard.setPending({
