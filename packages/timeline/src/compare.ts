@@ -1,5 +1,6 @@
 import { getStore } from "@sutriva/storage";
 import type { TemporalEvent } from "@sutriva/core";
+import { isConsoleError, isNetworkFailureDescription, parseNetworkResponse } from "./classify.js";
 
 /**
  * Before/after verification (TraceLens_Master_Plan.md Sec16/Sec26/Sec27): compares
@@ -38,22 +39,6 @@ export interface SessionComparisonResult {
   newConsoleErrors: string[];
   /** One-line human summary, e.g. "1 endpoint fixed, 0 new failures, 1 console error resolved". */
   summary: string;
-}
-
-function parseNetworkResponse(description: string): { endpoint: string; status: number } | undefined {
-  const match = description.match(/^(\S+)\s+(.+?)\s+->\s+(\d+)\b/);
-  if (!match) return undefined;
-  return { endpoint: `${match[1]} ${match[2]}`, status: Number(match[3]) };
-}
-
-function isConsoleError(event: TemporalEvent): boolean {
-  return event.type === "console" && /error|exception/i.test(event.description);
-}
-
-function isNetworkFailureDescription(description: string): boolean {
-  const parsed = parseNetworkResponse(description);
-  if (parsed) return parsed.status >= 400;
-  return /failed:/i.test(description);
 }
 
 /** Last-seen status per endpoint (method + URL), in chronological order -- later responses win. */
