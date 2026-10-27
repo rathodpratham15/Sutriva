@@ -1,6 +1,7 @@
 import type { Command } from "commander";
 import { getTimeline } from "@sutriva/timeline";
 import { resolveVideoSession } from "../lib/resolve.js";
+import { colorizeEvent, pc } from "../lib/colors.js";
 
 export function registerTimelineCommand(program: Command): void {
   program
@@ -15,9 +16,10 @@ export function registerTimelineCommand(program: Command): void {
         console.log(JSON.stringify(events, null, 2));
         return;
       }
-      console.log(`Session ${session.id} -- ${events.length} event(s)\n`);
+      console.log(pc.bold(`Session ${session.id} -- ${events.length} event(s)`) + "\n");
       for (const event of events) {
-        console.log(`${event.timestamp.start.toFixed(2).padStart(8)}s  [${event.type}]  ${event.description}`);
+        const line = `${event.timestamp.start.toFixed(2).padStart(8)}s  [${event.type}]  ${event.description}`;
+        console.log(colorizeEvent(event, line));
       }
     });
 }

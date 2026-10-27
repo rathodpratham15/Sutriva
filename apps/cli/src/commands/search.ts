@@ -1,6 +1,7 @@
 import type { Command } from "commander";
 import { searchSession } from "@sutriva/timeline";
 import { resolveVideoSession } from "../lib/resolve.js";
+import { colorizeEvent, pc } from "../lib/colors.js";
 
 export function registerSearchCommand(program: Command): void {
   program
@@ -13,9 +14,10 @@ export function registerSearchCommand(program: Command): void {
         console.log(`No events matching "${query}" in session ${session.id}.`);
         return;
       }
-      console.log(`${events.length} match(es) for "${query}":\n`);
+      console.log(pc.bold(`${events.length} match(es) for "${query}":`) + "\n");
       for (const event of events) {
-        console.log(`${event.timestamp.start.toFixed(2).padStart(8)}s  [${event.type}]  ${event.description}`);
+        const line = `${event.timestamp.start.toFixed(2).padStart(8)}s  [${event.type}]  ${event.description}`;
+        console.log(colorizeEvent(event, line));
       }
     });
 }

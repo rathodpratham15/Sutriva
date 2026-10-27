@@ -3,6 +3,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { getDataDir, getTranscriptionProviderName, getVisionProviderName, MIN_SUPPORTED_NODE_MAJOR } from "@sutriva/core";
 import { chromium } from "@sutriva/browser";
+import { pc } from "../lib/colors.js";
 
 function checkBinary(bin: string, args: string[] = ["-version"]): { ok: boolean; detail: string } {
   try {
@@ -82,14 +83,15 @@ export function registerDoctorCommand(program: Command): void {
       let allOk = true;
       for (const check of checks) {
         allOk = allOk && check.ok;
-        console.log(`${check.ok ? "✓" : "✗"} ${check.name}: ${check.detail}`);
+        const mark = check.ok ? pc.green("✓") : pc.red("✗");
+        console.log(`${mark} ${pc.bold(check.name)}: ${check.detail}`);
       }
 
       if (!allOk) {
-        console.log("\nSome checks failed. See docs/architecture.md and README.md for setup instructions.");
+        console.log(pc.red("\nSome checks failed.") + " See docs/architecture.md and README.md for setup instructions.");
         process.exitCode = 1;
       } else {
-        console.log("\nAll checks passed.");
+        console.log(pc.green("\nAll checks passed."));
       }
     });
 }
