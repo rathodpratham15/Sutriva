@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { SutrivaError } from "@sutriva/core";
 import { getStore } from "@sutriva/storage";
 import { getGitContext, type GitContext } from "@sutriva/git";
+import { isConsoleError, isNetworkFailure } from "./classify.js";
 
 const RECENT_TIMELINE_LIMIT = 15;
 const ERROR_LOOKBACK_LIMIT = 100;
@@ -53,12 +54,12 @@ export async function getCurrentContext(sessionId?: string): Promise<CurrentCont
   const lookback = store.listRecentEvents(session.id, ERROR_LOOKBACK_LIMIT);
 
   const recentConsoleErrors = lookback
-    .filter((e) => e.type === "console" && /error|exception/i.test(e.description))
+    .filter(isConsoleError)
     .slice(-MAX_FILTERED_ITEMS)
     .map((e) => e.description);
 
   const recentNetworkFailures = lookback
-    .filter((e) => e.type === "network" && (/failed:/i.test(e.description) || /-> [45]\d\d\b/.test(e.description)))
+    .filter(isNetworkFailure)
     .slice(-MAX_FILTERED_ITEMS)
     .map((e) => e.description);
 

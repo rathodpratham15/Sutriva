@@ -1,6 +1,7 @@
 import type { Command } from "commander";
 import { createTranscriptionProvider, createVisionProvider } from "@sutriva/providers";
 import { inspectVideo } from "@sutriva/timeline";
+import { pc } from "../lib/colors.js";
 
 export function registerInspectCommand(program: Command): void {
   program
@@ -19,14 +20,14 @@ export function registerInspectCommand(program: Command): void {
         maxFrames: opts.maxFrames,
         intervalSeconds: opts.interval,
       });
-      console.log(`Session:   ${result.session.id}${result.reused ? " (reused)" : ""}`);
-      console.log(`Provider:  ${visionProvider.name}`);
-      console.log(`Duration:  ${result.metadata.durationSeconds.toFixed(2)}s`);
-      console.log(`FPS:       ${result.metadata.fps.toFixed(2)}`);
-      console.log(`Size:      ${result.metadata.width}x${result.metadata.height}`);
-      console.log(`Audio:     ${result.metadata.hasAudio ? "yes" : "no"}`);
-      console.log(`Hash:      ${result.metadata.contentHash.slice(0, 16)}...`);
-      console.log(`Events:    ${result.eventCount}`);
-      console.log(`\nNext: sutriva timeline "${video}"`);
+      console.log(`${pc.bold("Session:")}   ${result.session.id}${result.reused ? pc.gray(" (reused)") : ""}`);
+      console.log(`${pc.bold("Provider:")}  ${visionProvider.name}`);
+      console.log(`${pc.bold("Duration:")}  ${result.metadata.durationSeconds.toFixed(2)}s`);
+      console.log(`${pc.bold("FPS:")}       ${result.metadata.fps.toFixed(2)}`);
+      console.log(`${pc.bold("Size:")}      ${result.metadata.width}x${result.metadata.height}`);
+      console.log(`${pc.bold("Audio:")}     ${result.metadata.hasAudio ? "yes" : "no"}`);
+      console.log(`${pc.bold("Hash:")}      ${result.metadata.contentHash.slice(0, 16)}...`);
+      console.log(`${pc.bold("Events:")}    ${result.eventCount}`);
+      console.log(pc.gray(`\nNext: sutriva timeline "${video}"`));
     });
 }

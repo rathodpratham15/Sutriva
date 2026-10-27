@@ -23,7 +23,21 @@ What Claude Code doesn't have is **memory of a session across time**: a persiste
 
 Sutriva is not a video summarizer, and it's not a substitute for Claude's own browser capability. It's a **temporal evidence layer**: every observation (a frame, a click, a console error, a network response) gets a timestamp, a confidence, and a link back to its source artifact, persisted the moment it happens. Claude queries this incrementally -- metadata, then a timeline, then a specific frame -- instead of receiving raw video, and can ask "what happened right before this" about a moment that's long since scrolled off screen, in a session that started before this conversation did.
 
-See `docs/product.md` for the full product thesis and workflows, and `docs/competitive-analysis.md` for how this compares to video understanding APIs, video-analysis MCP servers, Claude Code's own native browser integration, and computer-use agents.
+See `docs/product.md` for the full product thesis and workflows.
+
+## Comparison to other tools
+
+Sutriva doesn't claim novelty in raw video/vision understanding -- it uses an existing multimodal model (`AnthropicVisionProvider`, `packages/providers`) for frame analysis rather than competing with one. The differentiation is in what's built *around* that perception: temporal evidence, live developer telemetry, source correlation, and a full debugging loop.
+
+| Category | What it does | What it doesn't do | Sutriva's relationship to it |
+|---|---|---|---|
+| **Claude Code's `--chrome` integration** | Observe/act in a live browser tab directly, in the current turn. | Persist anything across time -- no rewind once a moment scrolls past, no Git correlation, no way for a later (or different) session to ask "what happened before the failure." | Not a replacement -- Claude already has this. Sutriva is the durability layer underneath: every observation is persisted the instant it happens into queryable `TemporalEvent`/`Evidence` tables. |
+| **Video understanding APIs** | Describe, transcribe, or answer questions about a video's content. | Have any concept of a debugging session -- no browser, network request, console error, or Git repo. Can say "a form is submitted and an error appears," not that it was a `POST /api/checkout` returning `500`. | Sits on top of one via `VisionProvider` rather than competing with it; swapping providers is one new file, not a rewrite. |
+| **Video search** | Retrieve "the moment X happens" across a large corpus of videos. | Structure events *within one* session so an agent can reason causally and correlate them with code. | `search_session`'s full-text search is a byproduct of already having a structured timeline, not the product's purpose. |
+| **Video-analysis MCP servers / Claude Code video plugins** | Expose video content to an MCP client, typically as one ingested blob, a transcript, or a fixed set of frame descriptions in a single call. | Offer progressive disclosure, a confidence-scored evidence model, or correlation with anything other than the video itself -- no Git context, no live capture, no before/after verification. | One of these, plus everything layered on top -- the same event model also covers a *live* browser session that never touches a video file, via a deliberately small (10-tool) surface. |
+| **Computer-use / browser agents** | Let a model *act* in a browser autonomously to complete a task. | Durability -- a computer-use agent's browser state is usually ephemeral, relevant only to the current action. | Inverts the relationship: instruments a browser a *human* is driving, building a persistent record stored in SQLite, queryable mid-session or after, comparable against a later "after" session via `compare_sessions`. |
+
+Where Sutriva actually differentiates isn't any single layer above -- it's combining them for one job: raw video understanding + timestamped/confidence-scored evidence + live developer telemetry + Git/source correlation + bounded progressive retrieval + a full observe → diagnose → patch → verify loop, sharing one event model whether the session was live or a recorded MP4. See `docs/competitive-analysis.md` for the full comparison.
 
 ## Why Sutriva?
 
@@ -272,19 +286,21 @@ claude
 ## CLI
 
 ```bash
-sutriva doctor                                    # environment check
-sutriva inspect <video>                           # ingest + build timeline
+sutriva doctor                                             # environment check
+sutriva inspect <video>                                    # ingest + build timeline
 sutriva timeline <video> [--limit N] [--json]
 sutriva search <video> "<query>"
 sutriva analyze <video> --start S --end E [--question "..."]
-sutriva debug --live [--url <url>] [--headless]   # live browser session (Ctrl+C to stop)
-sutriva exec -- <command>                         # run + record a command into the active live session
+sutriva debug --live [--url <url>] [--headless] [--tui]    # live browser session (Ctrl+C to stop)
+sutriva exec -- <command>                                  # run + record a command into the active live session
 sutriva session list
-sutriva eval                                       # run the evaluation harness against demo/buggy-app
-sutriva clean [--yes]                             # delete .sutriva/ (derived data only)
+sutriva session report [sessionId] [--json]                # human-readable summary: issues, timeline, Git state
+sutriva fix [sessionId] [--dry-run]                         # interactive debugging session over a session's evidence
+sutriva eval                                                # run the evaluation harness against demo/buggy-app
+sutriva clean [--yes]                                      # delete .sutriva/ (derived data only)
 ```
 
-`sutriva debug <video>` explains how to drive replay debugging via Claude Code/MCP rather than duplicating that logic in the CLI. `sutriva session report` is stubbed with an explanatory message -- it lands in a later phase (session recording/reporting wasn't part of the master plan's core phases).
+`sutriva debug <video>` explains how to drive replay debugging via Claude Code/MCP rather than duplicating that logic in the CLI. `sutriva debug --live --tui` renders a full-screen, color-coded live dashboard instead of a plain scrolling log -- it falls back to the plain log automatically if stdin doesn't support raw mode (e.g. a non-interactive shell). `sutriva session report` and `sutriva fix` both default to the active live session, or the most recently created one if none is running. `sutriva fix` is an interactive, in-process debugging conversation built on `@anthropic-ai/claude-agent-sdk`: it loads the session's evidence over the same MCP tools Claude Code itself would use, lets you discuss the root cause, and gates every mutating or shell tool call (`Edit`/`Write`/`Bash`) behind an explicit per-call `y`/`n` confirmation -- never silently applied, never a blanket "always allow". Read-only evidence queries and source reads are auto-approved so the discussion itself stays frictionless. A closing summary reports patch/test/verification status computed from the actual tool-call transcript, not from the model's own self-report.
 
 ### Installing outside this repo
 

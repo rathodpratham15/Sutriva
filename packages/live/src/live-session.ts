@@ -25,6 +25,8 @@ export interface StartLiveSessionOptions {
   screenshotIntervalSeconds?: number;
   /** Called with a compact, human-readable line for every captured event -- for a live CLI feed. */
   onLog?: (line: string) => void;
+  /** Called with the raw event for every captured observation -- for a structured consumer (e.g. the live TUI) that needs more than onLog's pre-formatted string. */
+  onEvent?: (event: TemporalEvent) => void;
 }
 
 export interface LiveSessionHandle {
@@ -149,6 +151,7 @@ export async function startLiveSession(options: StartLiveSessionOptions = {}): P
 
   const unsubscribeLog = bus.subscribe((event: TemporalEvent) => {
     options.onLog?.(`${formatWallClock(sessionStartMs, event.timestamp.start)}  [${event.type}]  ${event.description}`);
+    options.onEvent?.(event);
   });
 
   const unsubscribeScreenshotTrigger = bus.subscribe((event: TemporalEvent) => {

@@ -34,7 +34,11 @@
     "@anthropic-ai/sdk": "^0.117.1",
     "@elevenlabs/elevenlabs-js": "^2.64.0",
     "better-sqlite3": "^13.0.3",
-    "playwright": "^1.62.1"
+    "playwright": "^1.62.1",
+    "picocolors": "^1.1.1",
+    "ink": "^5.2.0",
+    "react": "^18.3.1",
+    "@anthropic-ai/claude-agent-sdk": "^0.3.311"
   },
   "devDependencies": {
     "@sutriva/core": "workspace:*",
@@ -46,6 +50,7 @@
     "@sutriva/browser": "workspace:*",
     "typescript": "^5.6.0",
     "tsx": "^4.23.12",
-    "tsup": "^8.5.0"
+    "tsup": "^8.5.0",
+    "@types/react": "^18.3.12"
   }
 }
