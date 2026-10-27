@@ -1,5 +1,8 @@
 import type { Command } from "commander";
 import { startLiveSession } from "@sutriva/live";
+import { getStore } from "@sutriva/storage";
+import type { TemporalEvent } from "@sutriva/core";
+import { runLiveTui } from "../tui/runLiveTui.js";
 
 export function registerDebugCommand(program: Command): void {
   program
@@ -8,7 +11,8 @@ export function registerDebugCommand(program: Command): void {
     .option("--live", "Start a live browser debugging session instead of replaying a video")
     .option("--url <url>", "Initial URL to open (live mode only)")
     .option("--headless", "Run without a visible browser window (live mode only -- for automation/testing)")
-    .action(async (video: string | undefined, opts: { live?: boolean; url?: string; headless?: boolean }) => {
+    .option("--tui", "Show a full-screen live dashboard instead of a plain scrolling log (live mode only)")
+    .action(async (video: string | undefined, opts: { live?: boolean; url?: string; headless?: boolean; tui?: boolean }) => {
       if (opts.live) {
         await runLiveSession(opts);
         return;
@@ -26,19 +30,50 @@ export function registerDebugCommand(program: Command): void {
     });
 }
 
-async function runLiveSession(opts: { url?: string; headless?: boolean }): Promise<void> {
+/**
+ * Ink's own isRawModeSupported check is just `stdin.isTTY`, which isn't
+ * reliable everywhere -- some non-interactive/sandboxed shells report
+ * isTTY: true but still throw from setRawMode itself, crashing Ink after
+ * it's already mid-render. Testing actual capability directly, before ever
+ * handing control to Ink, avoids that crash entirely.
+ */
+function canUseRawMode(): boolean {
+  if (!process.stdin.isTTY) return false;
+  try {
+    process.stdin.setRawMode(true);
+    process.stdin.setRawMode(false);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function runLiveSession(opts: { url?: string; headless?: boolean; tui?: boolean }): Promise<void> {
+  const useTui = opts.tui && canUseRawMode();
+  if (opts.tui && !useTui) {
+    console.log("--tui requires an interactive terminal (stdin must support raw mode) -- falling back to the plain log.\n");
+  }
+
+  // The TUI owns the terminal and renders its own event feed -- plain
+  // console.log lines would interleave with (and corrupt) Ink's output, so
+  // onLog is only wired up in the non-TUI path. onEvent instead hands the
+  // raw event to whichever listener the dashboard below registers.
+  let tuiListener: ((event: TemporalEvent) => void) | undefined;
   const handle = await startLiveSession({
     url: opts.url,
     headless: opts.headless ?? false,
-    onLog: (line) => console.log(line),
+    onLog: useTui ? undefined : (line) => console.log(line),
+    onEvent: useTui ? (event) => tuiListener?.(event) : undefined,
   });
 
-  console.log(`Live session started: ${handle.sessionId}`);
-  console.log(
-    "Follow along in Claude Code -- ask it to call get_current_context or get_timeline with this sessionId, " +
-      'or just say "look at this" / "what just happened?" once the Sutriva MCP server is connected.',
-  );
-  console.log("Press Ctrl+C to stop.\n");
+  if (!useTui) {
+    console.log(`Live session started: ${handle.sessionId}`);
+    console.log(
+      "Follow along in Claude Code -- ask it to call get_current_context or get_timeline with this sessionId, " +
+        'or just say "look at this" / "what just happened?" once the Sutriva MCP server is connected.',
+    );
+    console.log("Press Ctrl+C to stop.\n");
+  }
 
   // A real terminal Ctrl+C delivers SIGINT to the whole foreground process
   // group, which includes the browser subprocess Playwright launched -- so
@@ -56,12 +91,15 @@ async function runLiveSession(opts: { url?: string; headless?: boolean }): Promi
   // the final summary line.
   await new Promise<void>((resolve) => {
     let stopping = false;
+    let tui: { unmount: () => void } | undefined;
+
     const shutdown = () => {
       if (stopping) return;
       stopping = true;
       process.off("SIGINT", shutdown);
       process.off("SIGTERM", shutdown);
-      console.log("\nStopping live session...");
+      tui?.unmount();
+      if (!useTui) console.log("\nStopping live session...");
 
       const stopped = handle.stop().then(
         (summary) =>
@@ -86,5 +124,21 @@ async function runLiveSession(opts: { url?: string; headless?: boolean }): Promi
     };
     process.on("SIGINT", shutdown);
     process.on("SIGTERM", shutdown);
+
+    if (useTui) {
+      const branch = getStore().getSession(handle.sessionId).repository?.branch;
+      tui = runLiveTui({
+        sessionId: handle.sessionId,
+        url: opts.url,
+        branch,
+        subscribe: (listener) => {
+          tuiListener = listener;
+          return () => {
+            tuiListener = undefined;
+          };
+        },
+        onExitRequested: shutdown,
+      });
+    }
   });
 }
