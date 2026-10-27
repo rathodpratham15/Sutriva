@@ -176,6 +176,30 @@ export function computeStatusBanner(transcript: ToolCallRecord[]): string {
   return lines.join("\n");
 }
 
+/**
+ * A single assistant turn can issue more than one tool call at once (e.g.
+ * two Bash commands side by side), and the SDK invokes canUseTool for each
+ * concurrently. Without this, two concurrent confirmToolUse calls sharing
+ * one terminal would race the same way nextUserInput used to against a
+ * confirmation (see createTurnGate's doc comment) -- whichever call reads
+ * the terminal second silently wins the next typed line, leaving the first
+ * confirmation hanging forever. Wrapping confirmToolUse in this forces every
+ * call through in FIFO order, one at a time.
+ */
+export function serializeConfirmToolUse(
+  confirmToolUse: (description: string) => Promise<boolean>,
+): (description: string) => Promise<boolean> {
+  let queue: Promise<void> = Promise.resolve();
+  return (description: string): Promise<boolean> => {
+    const result = queue.then(() => confirmToolUse(description));
+    queue = result.then(
+      () => undefined,
+      () => undefined,
+    );
+    return result;
+  };
+}
+
 function toUserMessage(text: string): SDKUserMessage {
   return { type: "user", message: { role: "user", content: text }, parent_tool_use_id: null };
 }

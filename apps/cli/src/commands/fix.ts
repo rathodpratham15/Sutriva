@@ -4,7 +4,7 @@ import path from "node:path";
 import * as readline from "node:readline/promises";
 import { getStore } from "@sutriva/storage";
 import { pc } from "../lib/colors.js";
-import { runFixSession } from "../lib/fixAgent.js";
+import { runFixSession, serializeConfirmToolUse } from "../lib/fixAgent.js";
 
 /**
  * An interactive, in-process debugging conversation built on
@@ -59,6 +59,17 @@ export function registerFixCommand(program: Command): void {
         rlClosed = true;
       });
 
+      const confirmToolUse = serializeConfirmToolUse(async (description) => {
+        console.log(pc.yellow(`\n⚠ ${description}`));
+        if (rlClosed) return false;
+        try {
+          const answer = await rl.question(pc.bold("Allow this? [y/N] "));
+          return /^y(es)?$/i.test(answer.trim());
+        } catch {
+          return false;
+        }
+      });
+
       try {
         const { banner } = await runFixSession({
           initialPrompt: prompt,
@@ -80,17 +91,7 @@ export function registerFixCommand(program: Command): void {
             }
             return line;
           },
-          confirmToolUse: async (description) => {
-            console.log(pc.yellow(`\n⚠ ${description}`));
-            if (rlClosed) return false;
-            let answer: string;
-            try {
-              answer = await rl.question(pc.bold("Allow this? [y/N] "));
-            } catch {
-              return false;
-            }
-            return /^y(es)?$/i.test(answer.trim());
-          },
+          confirmToolUse,
         });
 
         console.log(pc.bold("\n--- Summary ---"));

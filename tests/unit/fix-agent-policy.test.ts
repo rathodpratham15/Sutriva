@@ -5,6 +5,7 @@ import {
   describeToolCall,
   createTurnGate,
   buildPromptStream,
+  serializeConfirmToolUse,
   type ToolCallRecord,
 } from "../../apps/cli/src/lib/fixAgent.js";
 
@@ -209,5 +210,46 @@ describe("createTurnGate / buildPromptStream", () => {
     gate.endTurn();
     const result = await stream.next();
     expect(result.done).toBe(true);
+  });
+});
+
+// Regression test for a second instance of the same bug class: a single
+// turn can issue multiple tool calls at once (e.g. two parallel Bash
+// commands), and canUseTool is invoked for each concurrently. Without
+// serialization, two concurrent confirmToolUse calls sharing one terminal
+// race the same way nextUserInput used to -- whichever reads the terminal
+// second silently wins, leaving the first confirmation hanging forever.
+describe("serializeConfirmToolUse", () => {
+  it("runs concurrent calls one at a time, in the order they were issued", async () => {
+    const events: string[] = [];
+    const raw = async (description: string): Promise<boolean> => {
+      events.push(`start:${description}`);
+      await new Promise((r) => setTimeout(r, 10));
+      events.push(`end:${description}`);
+      return true;
+    };
+    const serialized = serializeConfirmToolUse(raw);
+
+    // Fire two "concurrent" calls, as the SDK would for two tool_use blocks
+    // in the same assistant message -- if they actually ran concurrently,
+    // both "start" events would appear before either "end" event.
+    await Promise.all([serialized("first"), serialized("second")]);
+
+    expect(events).toEqual(["start:first", "end:first", "start:second", "end:second"]);
+  });
+
+  it("keeps serializing later calls even if an earlier one rejects", async () => {
+    const raw = vi
+      .fn()
+      .mockRejectedValueOnce(new Error("boom"))
+      .mockResolvedValueOnce(true);
+    const serialized = serializeConfirmToolUse(raw);
+
+    const first = serialized("first").catch(() => "rejected");
+    const second = await serialized("second");
+
+    await first;
+    expect(second).toBe(true);
+    expect(raw).toHaveBeenCalledTimes(2);
   });
 });
