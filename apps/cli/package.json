@@ -16,7 +16,23 @@
   "bugs": {
     "url": "https://github.com/rathodpratham15/Sutriva/issues"
   },
-  "keywords": ["mcp", "model-context-protocol", "claude", "claude-code", "coding-agent", "coding-agents", "debugging", "browser-debugging", "session-replay", "temporal-memory", "developer-tools", "video-debugging", "playwright", "agent-tools", "cli"],
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "claude",
+    "claude-code",
+    "coding-agent",
+    "coding-agents",
+    "debugging",
+    "browser-debugging",
+    "session-replay",
+    "temporal-memory",
+    "developer-tools",
+    "video-debugging",
+    "playwright",
+    "agent-tools",
+    "cli"
+  ],
   "author": "Pratham Rathod",
   "bin": {
     "sutriva": "./dist/index.js"
@@ -29,28 +45,29 @@
     "build": "tsup"
   },
   "dependencies": {
-    "commander": "^15.0.0",
-    "zod": "^4.4.3",
+    "@anthropic-ai/claude-agent-sdk": "^0.3.311",
     "@anthropic-ai/sdk": "^0.117.1",
     "@elevenlabs/elevenlabs-js": "^2.64.0",
     "better-sqlite3": "^13.0.3",
-    "playwright": "^1.62.1",
-    "picocolors": "^1.1.1",
+    "commander": "^15.0.0",
     "ink": "^5.2.0",
+    "ink-text-input": "^6.0.0",
+    "picocolors": "^1.1.1",
+    "playwright": "^1.62.1",
     "react": "^18.3.1",
-    "@anthropic-ai/claude-agent-sdk": "^0.3.311"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@sutriva/browser": "workspace:*",
     "@sutriva/core": "workspace:*",
-    "@sutriva/video": "workspace:*",
+    "@sutriva/live": "workspace:*",
     "@sutriva/providers": "workspace:*",
     "@sutriva/storage": "workspace:*",
     "@sutriva/timeline": "workspace:*",
-    "@sutriva/live": "workspace:*",
-    "@sutriva/browser": "workspace:*",
-    "typescript": "^5.6.0",
-    "tsx": "^4.23.12",
+    "@sutriva/video": "workspace:*",
+    "@types/react": "^18.3.12",
     "tsup": "^8.5.0",
-    "@types/react": "^18.3.12"
+    "tsx": "^4.23.12",
+    "typescript": "^5.6.0"
   }
 }
