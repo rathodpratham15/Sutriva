@@ -82,18 +82,38 @@ export const FixDashboard: React.FC<FixDashboardProps> = ({ sessionId, elapsedSe
           </Text>
         </Text>
 
-        <Box marginTop={1}>
-          <Text bold>{pending ? pending.promptLabel : "sutriva fix>"} </Text>
-          <TextInput
-            value={value}
-            onChange={setValue}
-            onSubmit={(submitted) => {
-              if (!pending) return;
-              pending.onSubmit(submitted);
-            }}
-          />
-        </Box>
+        {/* A plain chat turn stays in this same box -- only a tool-use
+            confirmation gets pulled out into its own panel below, since
+            that's the moment that actually needs to stand out. */}
+        {pending?.kind !== "confirm" && (
+          <Box marginTop={1}>
+            <Text bold>sutriva fix&gt; </Text>
+            <TextInput
+              value={value}
+              onChange={setValue}
+              onSubmit={(submitted) => {
+                if (!pending) return;
+                pending.onSubmit(submitted);
+              }}
+            />
+          </Box>
+        )}
       </Box>
+
+      {pending?.kind === "confirm" && (
+        <Box borderStyle="round" borderColor="yellow" flexDirection="column" paddingX={1} marginTop={1}>
+          <Text bold color="yellow">
+            ⚠ Permission required
+          </Text>
+          <Text>{pending.detail}</Text>
+          <Box marginTop={1}>
+            <Text bold color="yellow">
+              {pending.promptLabel}{" "}
+            </Text>
+            <TextInput value={value} onChange={setValue} onSubmit={(submitted) => pending.onSubmit(submitted)} />
+          </Box>
+        </Box>
+      )}
     </Box>
   );
 };

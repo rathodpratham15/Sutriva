@@ -30,11 +30,13 @@ export interface ToolCallRecord {
   result?: unknown;
 }
 
+export type PrintKind = "text" | "tool-use";
+
 export interface FixSessionIO {
   /** Returns the next line of user input, or null when the user wants to end the session (Ctrl+C/"exit"). */
   nextUserInput: () => Promise<string | null>;
-  /** Prints a line of agent output (assistant text, tool-call notices). */
-  print: (line: string) => void;
+  /** Prints a line of agent output, tagged so a caller can style assistant prose differently from a tool-call notice (e.g. color it, or route it to a different UI region). */
+  print: (line: string, kind: PrintKind) => void;
   /** Asks for explicit, per-call confirmation before a mutating/shell tool call. Must not be skipped or cached across calls. */
   confirmToolUse: (description: string) => Promise<boolean>;
 }
@@ -318,9 +320,9 @@ export async function runFixSession(options: FixSessionOptions): Promise<FixSess
       if (Array.isArray(content)) {
         for (const block of content) {
           if (block.type === "text" && block.text.trim()) {
-            options.print(block.text);
+            options.print(block.text, "text");
           } else if (block.type === "tool_use") {
-            options.print(`→ ${block.name}(${summarizeInput(block.input)})`);
+            options.print(`→ ${block.name}(${summarizeInput(block.input)})`, "tool-use");
           }
         }
       }
